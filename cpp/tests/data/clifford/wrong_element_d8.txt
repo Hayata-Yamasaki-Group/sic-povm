@@ -1,0 +1,3 @@
+# sic-stabilizers/1.0
+# Negative control: the d8 Zauner element with a wrong displacement (chi 1 0 instead of 0 4).
+elem d8 1 det +1 F 7 7 1 8 chi 1 0 order 3 trace 15 zauner z_dev 0 residual 0

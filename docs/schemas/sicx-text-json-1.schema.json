@@ -1,0 +1,812 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sicx-text-json/1.0",
+  "title": "SICX 1.0 canonical text form: one JSON Lines line",
+  "description": "Final SICX 1.0 JSON Lines view. Header, EXMT and physical data chunks in order, then the final digest line; LDIR, PDIR and footer are reconstructed. See docs/sicx.md#8-canonical-text-form-json-lines-sicx-text-json10.",
+  "$defs": {
+    "uint": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$"
+    },
+    "int": {
+      "type": "string",
+      "pattern": "^(0|-?[1-9][0-9]*)$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "flags": {
+      "enum": [
+        "0",
+        "1"
+      ]
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "array",
+            "prefixItems": [
+              {
+                "const": "zeros"
+              },
+              {
+                "$ref": "#/$defs/uint"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          {
+            "type": "array",
+            "prefixItems": [
+              {
+                "const": "pairs"
+              },
+              {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/int"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        ]
+      },
+      "minItems": 1
+    },
+    "ballpart": {
+      "description": "[M, E, m, e] of the Arb dump form (spec section 7a) in decimal; M signed (BALL sign flag folded in), m >= 0",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/int"
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "leaf": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "element",
+        "first",
+        "runs"
+      ],
+      "properties": {
+        "count": {
+          "$ref": "#/$defs/uint"
+        },
+        "element": {
+          "$ref": "#/$defs/uint"
+        },
+        "first": {
+          "$ref": "#/$defs/uint"
+        },
+        "runs": {
+          "$ref": "#/$defs/runs"
+        }
+      }
+    },
+    "element": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "levels",
+            "max_bits",
+            "scale",
+            "level"
+          ],
+          "properties": {
+            "kind": {
+              "const": "wsq"
+            },
+            "levels": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "$ref": "#/$defs/uint"
+              }
+            },
+            "max_bits": {
+              "$ref": "#/$defs/uint"
+            },
+            "scale": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "maxLength": 4095
+            },
+            "level": {
+              "$ref": "#/$defs/uint"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "levels",
+            "max_bits",
+            "scale",
+            "level",
+            "k"
+          ],
+          "properties": {
+            "kind": {
+              "const": "fcoef"
+            },
+            "levels": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "$ref": "#/$defs/uint"
+              }
+            },
+            "max_bits": {
+              "$ref": "#/$defs/uint"
+            },
+            "scale": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "maxLength": 4095
+            },
+            "level": {
+              "$ref": "#/$defs/uint"
+            },
+            "k": {
+              "$ref": "#/$defs/uint"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "levels",
+            "max_bits",
+            "scale",
+            "level"
+          ],
+          "properties": {
+            "kind": {
+              "const": "actdelta"
+            },
+            "levels": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "$ref": "#/$defs/uint"
+              }
+            },
+            "max_bits": {
+              "$ref": "#/$defs/uint"
+            },
+            "scale": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "maxLength": 4095
+            },
+            "level": {
+              "$ref": "#/$defs/uint"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "levels",
+            "max_bits",
+            "scale",
+            "level",
+            "axis"
+          ],
+          "properties": {
+            "kind": {
+              "const": "act"
+            },
+            "levels": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "$ref": "#/$defs/uint"
+              }
+            },
+            "max_bits": {
+              "$ref": "#/$defs/uint"
+            },
+            "scale": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "maxLength": 4095
+            },
+            "level": {
+              "$ref": "#/$defs/uint"
+            },
+            "axis": {
+              "$ref": "#/$defs/uint"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "levels",
+            "max_bits",
+            "scale",
+            "level",
+            "k",
+            "axis"
+          ],
+          "properties": {
+            "kind": {
+              "const": "actodd"
+            },
+            "levels": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "$ref": "#/$defs/uint"
+              }
+            },
+            "max_bits": {
+              "$ref": "#/$defs/uint"
+            },
+            "scale": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "maxLength": 4095
+            },
+            "level": {
+              "$ref": "#/$defs/uint"
+            },
+            "k": {
+              "$ref": "#/$defs/uint"
+            },
+            "axis": {
+              "$ref": "#/$defs/uint"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "levels",
+            "max_bits",
+            "scale",
+            "position"
+          ],
+          "properties": {
+            "kind": {
+              "const": "rep"
+            },
+            "levels": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "$ref": "#/$defs/uint"
+              }
+            },
+            "max_bits": {
+              "$ref": "#/$defs/uint"
+            },
+            "scale": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "maxLength": 4095
+            },
+            "position": {
+              "$ref": "#/$defs/uint"
+            }
+          }
+        }
+      ]
+    },
+    "arb": {
+      "type": "string",
+      "pattern": "^(0|-?[1-9a-f][0-9a-f]*) (0|-?[1-9a-f][0-9a-f]*) (0|[1-9a-f][0-9a-f]*) (0|-?[1-9a-f][0-9a-f]*)$"
+    }
+  },
+  "oneOf": [
+    {
+      "title": "header",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_hash",
+        "required_features",
+        "schema",
+        "sicx_version"
+      ],
+      "properties": {
+        "content_hash": {
+          "const": "sha256"
+        },
+        "required_features": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "schema": {
+          "const": "sicx-text-json/1.0"
+        },
+        "sicx_version": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "const": "1"
+            },
+            {
+              "const": "0"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    {
+      "title": "EXMT",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chunk",
+        "flags",
+        "meta"
+      ],
+      "properties": {
+        "chunk": {
+          "const": "EXMT"
+        },
+        "flags": {
+          "const": "1"
+        },
+        "meta": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "format",
+            "version",
+            "required_features",
+            "d",
+            "tower",
+            "galois",
+            "entry_rule",
+            "generator_rescaling",
+            "elements"
+          ],
+          "properties": {
+            "format": {
+              "const": "SICX"
+            },
+            "version": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "1"
+                },
+                {
+                  "const": "0"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "required_features": {
+              "type": "array",
+              "maxItems": 0
+            },
+            "d": {
+              "$ref": "#/$defs/uint",
+              "description": "Any integer from 2 through 1048576; bounded by the SICX reader."
+            },
+            "tower": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "degrees",
+                "branch_bits",
+                "branches"
+              ],
+              "properties": {
+                "degrees": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 62,
+                  "items": {
+                    "enum": [
+                      "2",
+                      "3",
+                      "5",
+                      "7",
+                      "11",
+                      "13",
+                      "17",
+                      "19",
+                      "23",
+                      "29",
+                      "31"
+                    ]
+                  }
+                },
+                "branch_bits": {
+                  "enum": [
+                    "128",
+                    "256",
+                    "512",
+                    "1024",
+                    "2048",
+                    "4096",
+                    "8192",
+                    "16384",
+                    "32768",
+                    "65536",
+                    "131072",
+                    "262144",
+                    "524288",
+                    "1048576"
+                  ]
+                },
+                "branches": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 62,
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/arb"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                }
+              }
+            },
+            "galois": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "smith",
+                "unit_generator_words"
+              ],
+              "properties": {
+                "smith": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/uint"
+                  }
+                },
+                "unit_generator_words": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "$ref": "#/$defs/uint"
+                    }
+                  }
+                }
+              }
+            },
+            "entry_rule": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "representatives"
+              ],
+              "properties": {
+                "name": {
+                  "const": "sicx-divisors/1.0"
+                },
+                "representatives": {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": {
+                    "$ref": "#/$defs/uint"
+                  }
+                }
+              }
+            },
+            "generator_rescaling": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "rule",
+                "shifts"
+              ],
+              "properties": {
+                "rule": {
+                  "const": "sicx-2adic-greedy/1.0"
+                },
+                "shifts": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 62,
+                  "items": {
+                    "$ref": "#/$defs/uint"
+                  }
+                }
+              }
+            },
+            "elements": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/element"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "TOWR block (tower and action elements)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chunk",
+        "codec",
+        "flags",
+        "leaves"
+      ],
+      "properties": {
+        "chunk": {
+          "const": "TOWR"
+        },
+        "codec": {
+          "const": "0"
+        },
+        "flags": {
+          "const": "1"
+        },
+        "leaves": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/leaf"
+          }
+        }
+      }
+    },
+    {
+      "title": "BODY block (representative)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chunk",
+        "codec",
+        "flags",
+        "leaves"
+      ],
+      "properties": {
+        "chunk": {
+          "const": "BODY"
+        },
+        "codec": {
+          "const": "0"
+        },
+        "flags": {
+          "const": "1"
+        },
+        "leaves": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/leaf"
+          }
+        }
+      }
+    },
+    {
+      "title": "BALL (one ray)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chunk",
+        "flags",
+        "label",
+        "ray",
+        "values"
+      ],
+      "properties": {
+        "chunk": {
+          "const": "BALL"
+        },
+        "flags": {
+          "const": "1"
+        },
+        "label": {
+          "type": "string"
+        },
+        "ray": {
+          "$ref": "#/$defs/uint"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/ballpart"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      }
+    },
+    {
+      "title": "PREC or PROV",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chunk",
+        "flags",
+        "json"
+      ],
+      "properties": {
+        "chunk": {
+          "enum": [
+            "PREC",
+            "PROV"
+          ]
+        },
+        "flags": {
+          "const": "0"
+        },
+        "json": {
+          "type": "object"
+        }
+      }
+    },
+    {
+      "title": "RAYS (finalization part: ball record parameters and ray records)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chunk",
+        "flags",
+        "json"
+      ],
+      "properties": {
+        "chunk": {
+          "const": "RAYS"
+        },
+        "flags": {
+          "const": "1"
+        },
+        "json": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "balls",
+            "rays"
+          ],
+          "properties": {
+            "balls": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "limbs",
+                "working_bits"
+              ],
+              "properties": {
+                "limbs": {
+                  "$ref": "#/$defs/uint"
+                },
+                "working_bits": {
+                  "$ref": "#/$defs/uint"
+                }
+              }
+            },
+            "rays": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "accuracy_bits",
+                  "anchor",
+                  "label",
+                  "word"
+                ],
+                "properties": {
+                  "accuracy_bits": {
+                    "$ref": "#/$defs/int"
+                  },
+                  "anchor": {
+                    "$ref": "#/$defs/uint"
+                  },
+                  "label": {
+                    "type": "string",
+                    "pattern": "^c(0|[1-9][0-9]{0,17})$"
+                  },
+                  "word": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/uint"
+                    }
+                  }
+                }
+              }
+            },
+            "decoder": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "source_commit"
+              ],
+              "properties": {
+                "name": {
+                  "const": "sic-decode/1.0"
+                },
+                "source_commit": {
+                  "type": "string",
+                  "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "final line",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_sha256",
+        "lines",
+        "merkle_root",
+        "sicx_bytes",
+        "sicx_sha256",
+        "exact_root"
+      ],
+      "properties": {
+        "content_sha256": {
+          "$ref": "#/$defs/sha256",
+          "description": "SHA-256 of all preceding lines, each including its newline"
+        },
+        "lines": {
+          "$ref": "#/$defs/uint",
+          "description": "number of preceding lines (header and chunk lines); the final line is not counted"
+        },
+        "merkle_root": {
+          "$ref": "#/$defs/sha256"
+        },
+        "sicx_bytes": {
+          "$ref": "#/$defs/uint"
+        },
+        "sicx_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "exact_root": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    }
+  ],
+  "$comment": "Arithmetic bounds, divisor positions, canonical CRT generators and word order relations are checked by the SICX parser (spec sections 3.5 and 5.1)."
+}

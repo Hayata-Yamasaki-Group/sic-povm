@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sic-hoggar-manifest/1.0",
+  "title": "Manifest data/d8/hoggar/manifest.json of the Hoggar lines (d = 8, 3-qubit Pauli covariant)",
+  "description": "The Hoggar lines are an exceptional d = 8 entry: covariant under the 3-qubit Pauli group, NOT under the Z/8 Weyl-Heisenberg group, and not part of the 174-ray Weyl-Heisenberg catalogue. The files are added directly as data (no SICX, no generator in the repository); see docs/data.md#8-the-hoggar-lines-datad8hoggar. Canonical JSON (sorted keys, no whitespace, one trailing newline).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "required_features", "d", "group", "convention", "status", "provenance", "notes", "rays", "files", "npz"],
+  "properties": {
+    "schema": {"const": "sic-hoggar-manifest/1.0"},
+    "required_features": {"type": "array", "maxItems": 0},
+    "d": {"const": "8"},
+    "group": {"const": "3-qubit Pauli group"},
+    "convention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["basis", "pauli", "label_packing", "normalization", "sic_condition"],
+      "properties": {
+        "basis": {"type": "string", "description": "tensor decomposition and qubit ordering (MSB first, as docs/data.md#hoggar-covariance-and-exact-proof)"},
+        "pauli": {"type": "string", "description": "P_{a,b} = (X^{a_1} Z^{b_1}) (x) (X^{a_2} Z^{b_2}) (x) (X^{a_3} Z^{b_3}) with its action on the basis"},
+        "label_packing": {"type": "string"},
+        "normalization": {"type": "string"},
+        "sic_condition": {"type": "string"}
+      }
+    },
+    "status": {"enum": ["proved", "certified", "conditional", "empirical", "conjectural"], "description": "status words of docs/verification.md; the exact SIC property of the fiducial is proved by integer arithmetic over Z[i]"},
+    "provenance": {"type": "string"},
+    "notes": {"type": "string"},
+    "rays": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "index", "label", "counted_in_catalogue"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^d8-hoggar-c[0-9]+$"},
+          "index": {"type": "string", "pattern": "^(0|[1-9][0-9]*)$"},
+          "label": {"type": "string", "pattern": "^c[0-9]+$"},
+          "counted_in_catalogue": {"const": false}
+        }
+      }
+    },
+    "files": {"type": "array", "items": {"type": "string"}, "description": "file names in this folder; hashes are in data/catalogue.json"},
+    "npz": {
+      "type": "object", "additionalProperties": false, "required": ["included"],
+      "properties": {
+        "included": {"type": "boolean", "description": "whether all.npz contains the Hoggar ray"},
+        "planned_member": {"type": "string"},
+        "planned_metadata": {"type": "string"}
+      }
+    }
+  }
+}

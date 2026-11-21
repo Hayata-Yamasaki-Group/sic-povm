@@ -1,0 +1,20 @@
+# Root entries omitted from the public tree.
+results
+notes
+paper
+ROADMAP.md
+PROGRESS-library.md
+CITATION.cff
+archive
+tmp
+output
+build
+.aws
+.git
+# Machine-local inventory, retained only in the development checkout.
+private/data/large_files.txt
+
+private
+
+# Basenames excluded at every depth (ECMAScript/CMake-compatible regex).
+@component ^(build(-.*)?|[.]git|[.]aws)$

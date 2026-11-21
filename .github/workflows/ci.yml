@@ -1,0 +1,182 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  plain:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Configure
+        run: cmake -S cpp -B build -DCMAKE_BUILD_TYPE=Release -DSIC_ENABLE_FLINT=OFF -DSIC_BUILD_TESTS=ON -DSIC_ENABLE_TEST_HOOKS=OFF
+      - name: Build
+        run: cmake --build build -j "$(nproc)"
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  flint:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    env:
+      FLINT_VERSION: 3.6.0
+      FLINT_SHA256: b95e2c7792f5eea4a1c8d2d42c4098434756832e57a094b295eb5dfdc9b4c36b
+      FLINT_PREFIX: ${{ github.workspace }}/cpp/build-deps/flint-install
+      PKG_CONFIG_PATH: ${{ github.workspace }}/cpp/build-deps/flint-install/lib/pkgconfig
+      SIC_THREADS: 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install dependency build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y build-essential m4 pkg-config libgmp-dev libmpfr-dev libhdf5-dev libssl-dev jq
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache FLINT installation
+        id: flint-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.FLINT_PREFIX }}
+          # Bump v1 when the build options change; never restore another version.
+          key: flint-${{ runner.os }}-${{ runner.arch }}-ubuntu22.04-${{ env.FLINT_VERSION }}-shared-generic-v1
+      - name: Build pinned FLINT release
+        if: steps.flint-cache.outputs.cache-hit != 'true'
+        run: |
+          archive="$RUNNER_TEMP/flint-${FLINT_VERSION}.tar.gz"
+          curl --fail --location --retry 3 "https://flintlib.org/download/flint-${FLINT_VERSION}.tar.gz" --output "$archive"
+          echo "${FLINT_SHA256}  ${archive}" | sha256sum --check
+          tar -xzf "$archive" -C "$RUNNER_TEMP"
+          cd "$RUNNER_TEMP/flint-${FLINT_VERSION}"
+          # Keep cached binaries portable across runner CPUs.
+          ./configure --prefix="$FLINT_PREFIX" --enable-shared --disable-static \
+            --enable-pthread --enable-thread-safe --disable-debug \
+            --disable-assembly --disable-avx2 CFLAGS=-O2
+          make -j "$(nproc)"
+          make install
+      - name: Configure
+        run: >-
+          cmake -S cpp -B build -DCMAKE_BUILD_TYPE=Release -DSIC_ENABLE_FLINT=ON
+          -DSIC_BUILD_TESTS=ON -DSIC_ENABLE_TEST_HOOKS=OFF
+          -DCMAKE_PREFIX_PATH="$FLINT_PREFIX" -DSIC_ENABLE_HDF5=ON
+      - name: Build
+        run: cmake --build build -j "$(nproc)"
+      - name: Test fast labels
+        # Heavy large native goldens are excluded here; exercise the
+        # small exact certificate and JSON tests separately below.
+        run: >-
+          ctest --test-dir build --output-on-failure --no-tests=error
+          -L '^(unit|integration|e2e)$'
+          -LE '^heavy$'
+      - name: Test small exact and installed consumer
+        run: >-
+          ctest --test-dir build --output-on-failure --no-tests=error
+          -R '^sic_test_(norm_|support_norm_certificate_|sicx_exact_json_|exact_exception_unwind$|support_core_installed_consumer$|support_install_policy$|support_test_hooks_installed_isolation$)'
+
+  flint-hooks:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    env:
+      FLINT_VERSION: 3.6.0
+      FLINT_SHA256: b95e2c7792f5eea4a1c8d2d42c4098434756832e57a094b295eb5dfdc9b4c36b
+      FLINT_PREFIX: ${{ github.workspace }}/cpp/build-deps/flint-install
+      PKG_CONFIG_PATH: ${{ github.workspace }}/cpp/build-deps/flint-install/lib/pkgconfig
+      SIC_THREADS: 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install dependency build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y build-essential m4 pkg-config libgmp-dev libmpfr-dev libhdf5-dev libssl-dev jq
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache FLINT installation
+        id: flint-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.FLINT_PREFIX }}
+          # Bump v1 when the build options change; never restore another version.
+          key: flint-${{ runner.os }}-${{ runner.arch }}-ubuntu22.04-${{ env.FLINT_VERSION }}-shared-generic-v1
+      - name: Build pinned FLINT release
+        if: steps.flint-cache.outputs.cache-hit != 'true'
+        run: |
+          archive="$RUNNER_TEMP/flint-${FLINT_VERSION}.tar.gz"
+          curl --fail --location --retry 3 "https://flintlib.org/download/flint-${FLINT_VERSION}.tar.gz" --output "$archive"
+          echo "${FLINT_SHA256}  ${archive}" | sha256sum --check
+          tar -xzf "$archive" -C "$RUNNER_TEMP"
+          cd "$RUNNER_TEMP/flint-${FLINT_VERSION}"
+          # Keep cached binaries portable across runner CPUs.
+          ./configure --prefix="$FLINT_PREFIX" --enable-shared --disable-static \
+            --enable-pthread --enable-thread-safe --disable-debug \
+            --disable-assembly --disable-avx2 CFLAGS=-O2
+          make -j "$(nproc)"
+          make install
+      - name: Configure
+        run: >-
+          cmake -S cpp -B build-hooks -DCMAKE_BUILD_TYPE=Release -DSIC_ENABLE_FLINT=ON
+          -DSIC_BUILD_TESTS=ON -DSIC_ENABLE_TEST_HOOKS=ON
+          -DCMAKE_PREFIX_PATH="$FLINT_PREFIX" -DSIC_ENABLE_HDF5=ON
+      - name: Build
+        run: cmake --build build-hooks -j "$(nproc)"
+      - name: Test fast labels
+        # Heavy large native goldens are excluded here; exercise the
+        # small exact certificate and JSON tests separately below.
+        run: >-
+          ctest --test-dir build-hooks --output-on-failure --no-tests=error
+          -L '^(unit|integration|e2e)$'
+          -LE '^heavy$'
+      - name: Run every hook control and verify execution
+        run: |
+          ctest --test-dir build-hooks --output-on-failure --no-tests=error -L '^test_hooks$' --output-junit hook-controls.xml
+          cmake -DMODE=manifest -DBUILD="$PWD/build-hooks" -DENABLED=1 -DREPORT="$PWD/build-hooks/hook-controls.xml" -P cpp/tests/cli/test_hooks.cmake
+
+  format:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install clang-format 14
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y clang-format-14
+          clang-format-14 --version
+      - name: Check changed C++ files
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git diff --name-only --diff-filter=ACMR -z "$BASE_SHA...$HEAD_SHA" -- \
+            '*.cc' '*.cpp' '*.cxx' '*.c++' '*.h' '*.hh' '*.hpp' '*.hxx' \
+            '*.ipp' '*.inl' '*.tpp' > "$RUNNER_TEMP/changed-cpp-files"
+          mapfile -d '' -t files < "$RUNNER_TEMP/changed-cpp-files"
+          if ((${#files[@]} == 0)); then
+            echo 'No changed C++ files.'
+            exit 0
+          fi
+          clang-format-14 --style=file:.clang-format --sort-includes=false --dry-run --Werror -- "${files[@]}"

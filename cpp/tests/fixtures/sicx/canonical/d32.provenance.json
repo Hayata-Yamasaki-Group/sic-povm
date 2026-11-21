@@ -1,0 +1,21 @@
+{
+  "key": "d32",
+  "status": "PASS",
+  "rays": 2,
+  "coordinates": 64,
+  "delta": [
+    1,
+    3,
+    3,
+    8
+  ],
+  "label_map_from_reference": {
+    "c1": "c0",
+    "c0": "c1"
+  },
+  "chosen_conjugates": "identical to opt-experiments V1",
+  "native_sha256": "860c1833bd8368fb0259bce2292b18f2d7a9dc37f79831a916209fb1bce73cec",
+  "native_exact_root": "9592d2782badfaad160450456868322bf0454c8d7523d21208f0600c33e5d053",
+  "final_sha256": "40336885cbe9bbca246b6ae32db9add3e86fc4c4c8105a63f28724b6d28f6a08",
+  "normalized_fp64_sha256": "d34455188dffa90d7a87323a9ef876ab10c3c3ef2551c668abbaad0df1cea582"
+}

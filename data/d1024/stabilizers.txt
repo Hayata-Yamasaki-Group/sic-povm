@@ -1,0 +1,46 @@
+# sic-stabilizers/1.0
+# Extended Clifford stabilizers of WH SIC fiducials, D_p = tau^(p1 p2) X^p1 Z^p2, tau = -exp(pi i/d).
+# Element U = D_chi U_F, F = [[a, b], [c, e]] in ESL(2, Z_dbar) (canonical lift, Appleby2005symmetric);
+# det -1: U_F = U_(FJ) K antiunitary. Binary64 computation, see docs/data.md#stab; not an exact proof.
+# catalogue release-ray-inputs.tsv
+ray d1024-maximal-c0 d 1024 order maximal status conditional group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.806e-18 z_tol 1.0e-06 z_error_bound 6.406e-09 max_element_z_deviation 5.002e-12 max_element_residual 1.443e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d1024-maximal-c0 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.443e-15
+elem d1024-maximal-c0 1 det +1 F 1023 819 5 0 chi 512 0 order 3 trace 1023 zauner z_dev 5.002e-12 residual 1.332e-15
+elem d1024-maximal-c0 2 det +1 F 0 205 1019 1023 chi 0 0 order 3 trace 1023 zauner z_dev 5.002e-12 residual 1.221e-15
+ray d1024-maximal-c1 d 1024 order maximal status conditional group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.036e-18 z_tol 1.0e-06 z_error_bound 6.406e-09 max_element_z_deviation 4.548e-12 max_element_residual 3.331e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d1024-maximal-c1 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 3.331e-16
+elem d1024-maximal-c1 1 det +1 F 1023 99 693 1024 chi 0 512 order 3 trace 2047 zauner z_dev 4.548e-12 residual 3.331e-16
+elem d1024-maximal-c1 2 det +1 F 0 925 1355 1023 chi 0 512 order 3 trace 1023 zauner z_dev 4.548e-12 residual 2.220e-16
+ray d1024-maximal-c2 d 1024 order maximal status conditional group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.373e-18 z_tol 1.0e-06 z_error_bound 6.406e-09 max_element_z_deviation 4.548e-12 max_element_residual 0.000e+00 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d1024-maximal-c2 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d1024-maximal-c2 1 det +1 F 1023 795 237 0 chi 512 0 order 3 trace 1023 zauner z_dev 4.548e-12 residual 0.000e+00
+elem d1024-maximal-c2 2 det +1 F 0 229 787 1023 chi 0 0 order 3 trace 1023 zauner z_dev 4.548e-12 residual 0.000e+00
+ray d1024-maximal-c3 d 1024 order maximal status conditional group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.578e-18 z_tol 1.0e-06 z_error_bound 6.406e-09 max_element_z_deviation 4.775e-12 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d1024-maximal-c3 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 6.661e-16
+elem d1024-maximal-c3 1 det +1 F 1023 959 961 0 chi 512 0 order 3 trace 1023 zauner z_dev 4.775e-12 residual 6.661e-16
+elem d1024-maximal-c3 2 det +1 F 0 65 63 1023 chi 0 0 order 3 trace 1023 zauner z_dev 4.775e-12 residual 6.661e-16
+ray d1024-maximal-c4 d 1024 order maximal status conditional group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.361e-18 z_tol 1.0e-06 z_error_bound 6.406e-09 max_element_z_deviation 4.547e-12 max_element_residual 0.000e+00 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d1024-maximal-c4 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d1024-maximal-c4 1 det +1 F 1023 207 465 0 chi 512 0 order 3 trace 1023 zauner z_dev 4.547e-12 residual 0.000e+00
+elem d1024-maximal-c4 2 det +1 F 0 817 559 1023 chi 0 0 order 3 trace 1023 zauner z_dev 4.547e-12 residual 0.000e+00
+ray d1024-maximal-c5 d 1024 order maximal status conditional group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.987e-18 z_tol 1.0e-06 z_error_bound 6.406e-09 max_element_z_deviation 5.002e-12 max_element_residual 1.332e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d1024-maximal-c5 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.332e-15
+elem d1024-maximal-c5 1 det +1 F 1023 1015 569 0 chi 0 0 order 3 trace 1023 zauner z_dev 5.002e-12 residual 1.332e-15
+elem d1024-maximal-c5 2 det +1 F 0 9 455 1023 chi 0 512 order 3 trace 1023 zauner z_dev 5.002e-12 residual 1.221e-15
+ray d1024-maximal-c6 d 1024 order maximal status conditional group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.903e-18 z_tol 1.0e-06 z_error_bound 6.406e-09 max_element_z_deviation 5.002e-12 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d1024-maximal-c6 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d1024-maximal-c6 1 det +1 F 1023 471 537 1024 chi 512 512 order 3 trace 2047 zauner z_dev 5.002e-12 residual 4.441e-16
+elem d1024-maximal-c6 2 det +1 F 0 553 1511 1023 chi 0 0 order 3 trace 1023 zauner z_dev 5.002e-12 residual 4.441e-16
+ray d1024-maximal-c7 d 1024 order maximal status conditional group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.494e-18 z_tol 1.0e-06 z_error_bound 6.406e-09 max_element_z_deviation 5.002e-12 max_element_residual 0.000e+00 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d1024-maximal-c7 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d1024-maximal-c7 1 det +1 F 1023 147 613 0 chi 512 0 order 3 trace 1023 zauner z_dev 5.002e-12 residual 0.000e+00
+elem d1024-maximal-c7 2 det +1 F 0 877 411 1023 chi 0 0 order 3 trace 1023 zauner z_dev 5.002e-12 residual 0.000e+00
+ray d1024-maximal-c8 d 1024 order maximal status conditional group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.903e-18 z_tol 1.0e-06 z_error_bound 6.406e-09 max_element_z_deviation 4.718e-12 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d1024-maximal-c8 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d1024-maximal-c8 1 det +1 F 1023 619 445 1024 chi 0 512 order 3 trace 2047 zauner z_dev 4.718e-12 residual 4.441e-16
+elem d1024-maximal-c8 2 det +1 F 0 405 1603 1023 chi 0 512 order 3 trace 1023 zauner z_dev 4.718e-12 residual 4.441e-16
+ray d1024-maximal-c13 d 1024 order maximal status conditional group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.120e-18 z_tol 1.0e-06 z_error_bound 6.406e-09 max_element_z_deviation 4.548e-12 max_element_residual 8.882e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d1024-maximal-c13 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 8.882e-16
+elem d1024-maximal-c13 1 det +1 F 1023 359 425 1024 chi 0 512 order 3 trace 2047 zauner z_dev 4.548e-12 residual 6.661e-16
+elem d1024-maximal-c13 2 det +1 F 0 665 1623 1023 chi 0 512 order 3 trace 1023 zauner z_dev 4.548e-12 residual 6.661e-16
+end 10

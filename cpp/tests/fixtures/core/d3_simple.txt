@@ -1,0 +1,7 @@
+# d = 3 WH SIC fiducial (0, 1, -1)/sqrt(2), unnormalized.
+# Convention: D_p = tau^(p1 p2) X^(p1) Z^(p2), tau = -exp(pi i/3). Used by the CTest cli_verify_d3.
+# (Any vector with entries (0, 1, -e^{i t}) is a fiducial for d = 3.)
+3
+0 0
+1 0
+-1 0

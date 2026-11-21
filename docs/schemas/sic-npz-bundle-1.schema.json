@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sic-npz-bundle/1.0",
+  "title": "sic-npz-bundle/1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "dimension",
+    "dtype",
+    "member_suffix",
+    "ray_count",
+    "source",
+    "rays"
+  ],
+  "properties": {
+    "schema": {
+      "const": "sic-npz-bundle/1.0"
+    },
+    "dimension": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "dtype": {
+      "const": "<c16"
+    },
+    "member_suffix": {
+      "const": ".npy"
+    },
+    "ray_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "source": {
+      "type": "string"
+    },
+    "rays": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    },
+    "exceptional": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "group",
+          "wh_covariant"
+        ],
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "wh_covariant": {
+            "const": false
+          }
+        }
+      }
+    }
+  }
+}

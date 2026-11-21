@@ -1,0 +1,520 @@
+[
+  {
+    "file": "docs/data.md",
+    "starts": "Needs a FLINT build. Off by default; a normal build and CTest never touch the network.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/cmake/components/Data.cmake",
+        "pattern": "set\\(SIC_DATA_MULTIPLETS\\ \"\"\\ CACHE\\ STRING"
+      },
+      {
+        "file": "cpp/cmake/components/Data.cmake",
+        "pattern": "add_custom_target\\(exact\\-data\\ DEPENDS\\ \\$\\{_outputs\\}\\)\\ \\ \\#\\ not\\ in\\ ALL"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "starts": "For each multiplet this fetches a verified SICX into `build/data/d<d>/m<N>/`",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/cmake/components/Data.cmake",
+        "pattern": "set\\(SIC_DATA_SOURCE\\ \"\"\\ CACHE\\ STRING\\ \"Part\\ source:\\ base\\ URL\\ or\\ local\\ directory\\ \\(default:\\ the\\ GitHub\\ release\\ named\\ in\\ each\\ parts\\ file\\)\"\\)\\\nset\\(SIC_DATA_ROOT\\ \"\\$\\{PROJECT_SOURCE_DIR\\}/\\.\\./data\"\\ CACHE\\ PATH\\ \"Repository\\ data\\ tree\\ holding\\ d<d>/m<N>/multiplet\\.sicx\\.parts\\.json\"\\)\\\nset\\(SIC_DATA_JOBS\\ \"[0-9]+(?:\\.[0-9]+)?\"\\ CACHE\\ STRING\\ \"Parallel\\ part\\ downloads\"\\)\\\nset\\(SIC_DATA_EXACT_JSON_FACTOR\\ \"[0-9]+(?:\\.[0-9]+)?\"\\ CACHE\\ STRING\\ \"Disk\\ estimate\\ for\\ exact\\.json\\ as\\ a\\ multiple\\ of\\ the\\ SICX\\ size\"\\)"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "starts": "All tools support `--help` (stdout, exit 0). See the [complete CLI reference](library.md#command-arg",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/apps/container/command_line.cpp",
+        "pattern": "constexpr\\ std::string_view\\ kDefaultDataRoot\\ =\\ \"data\";"
+      },
+      {
+        "file": "cpp/apps/container/command_line.cpp",
+        "pattern": "constexpr\\ unsigned\\ kDefaultTransferThreads\\ =\\ [0-9]+(?:\\.[0-9]+)?;"
+      },
+      {
+        "file": "cpp/apps/container/command_line.cpp",
+        "pattern": "constexpr\\ const\\ char\\*\\ kDefaultOutputRoot\\ =\\ \"build/data\";"
+      },
+      {
+        "file": "cpp/include/sic/transport/parts.hpp",
+        "pattern": "inline\\ constexpr\\ const\\ char\\*\\ kLogicalName\\ =\\ \"multiplet\\.sicx\";"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "starts": "The SICX reader and decoder also accept a **local parts manifest** with remote byte access.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/cmake/components/SicxRemote.cmake",
+        "pattern": "option\\(SIC_ENABLE_REMOTE\\ \"Enable\\ HTTP\\ Range\\ access\\ to\\ SICX\\ transport\\ parts\"\\ \\$\\{CURL_FOUND\\}\\)"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "starts": "The default source is `https://github.com/<repository>/releases/download/<tag>` from the manifest;",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/access/remote.hpp",
+        "pattern": "\\ \\ unsigned\\ jobs\\ =\\ [0-9]+(?:\\.[0-9]+)?,\\ retries\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ \\ //\\ retries\\ after\\ the\\ initial\\ attempt\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ range_bytes\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ //\\ maximum\\ extent\\ and\\ HTTP\\ request\\ size\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ coalesce_gap\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ \\ \\ \\ //\\ maximum\\ admitted\\ gap\\ between\\ scheduled\\ ranges\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ prefetch_bytes\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ //\\ disk\\ lookahead;\\ zero\\ disables\\ scheduling\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ memory_budget\\ =\\ UINT6[0-9]+(?:\\.[0-9]+)?_MAX;\\ \\ //\\ aggregate\\ caller\\ budget;\\ decoder\\ reserves\\ source\\ headroom\\\n\\ \\ long\\ timeout_ms\\ =\\ [0-9]+(?:\\.[0-9]+)?,\\ connect_timeout_ms\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ max_ranges\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ //\\ hard\\ cap\\ on\\ persistent\\ extent\\ and\\ plan\\ metadata\\\n\\ \\ double\\ max_fraction\\ =\\ [0-9]+(?:\\.[0-9]+)?\\.[0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ //\\ union\\ of\\ missing\\ planned\\ ranges\\ /\\ logical\\ size"
+      },
+      {
+        "file": "cpp/src/transport/parts.cpp",
+        "pattern": "return\\ \"https://github\\.com/\"\\ \\+\\ p\\.repository\\ \\+\\ \"/releases/download/\"\\ \\+\\ p\\.tag;"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "starts": "At most `--range-jobs` requests run concurrently",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/access/remote.hpp",
+        "pattern": "\\ \\ unsigned\\ jobs\\ =\\ [0-9]+(?:\\.[0-9]+)?,\\ retries\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ \\ //\\ retries\\ after\\ the\\ initial\\ attempt\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ range_bytes\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ //\\ maximum\\ extent\\ and\\ HTTP\\ request\\ size\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ coalesce_gap\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ \\ \\ \\ //\\ maximum\\ admitted\\ gap\\ between\\ scheduled\\ ranges\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ prefetch_bytes\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ //\\ disk\\ lookahead;\\ zero\\ disables\\ scheduling\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ memory_budget\\ =\\ UINT6[0-9]+(?:\\.[0-9]+)?_MAX;\\ \\ //\\ aggregate\\ caller\\ budget;\\ decoder\\ reserves\\ source\\ headroom\\\n\\ \\ long\\ timeout_ms\\ =\\ [0-9]+(?:\\.[0-9]+)?,\\ connect_timeout_ms\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ max_ranges\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ //\\ hard\\ cap\\ on\\ persistent\\ extent\\ and\\ plan\\ metadata\\\n\\ \\ double\\ max_fraction\\ =\\ [0-9]+(?:\\.[0-9]+)?\\.[0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ //\\ union\\ of\\ missing\\ planned\\ ranges\\ /\\ logical\\ size"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "starts": "`--prefetch-mib` (default 8, 0 disables, maximum 256) controls physical-order lookahead to the disk",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/access/remote.hpp",
+        "pattern": "\\ \\ unsigned\\ jobs\\ =\\ [0-9]+(?:\\.[0-9]+)?,\\ retries\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ \\ //\\ retries\\ after\\ the\\ initial\\ attempt\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ range_bytes\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ //\\ maximum\\ extent\\ and\\ HTTP\\ request\\ size\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ coalesce_gap\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ \\ \\ \\ //\\ maximum\\ admitted\\ gap\\ between\\ scheduled\\ ranges\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ prefetch_bytes\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ //\\ disk\\ lookahead;\\ zero\\ disables\\ scheduling\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ memory_budget\\ =\\ UINT6[0-9]+(?:\\.[0-9]+)?_MAX;\\ \\ //\\ aggregate\\ caller\\ budget;\\ decoder\\ reserves\\ source\\ headroom\\\n\\ \\ long\\ timeout_ms\\ =\\ [0-9]+(?:\\.[0-9]+)?,\\ connect_timeout_ms\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ max_ranges\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ //\\ hard\\ cap\\ on\\ persistent\\ extent\\ and\\ plan\\ metadata\\\n\\ \\ double\\ max_fraction\\ =\\ [0-9]+(?:\\.[0-9]+)?\\.[0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ //\\ union\\ of\\ missing\\ planned\\ ranges\\ /\\ logical\\ size"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "starts": "The default transfer limit is **50% of the logical file**. The decoder preflights all tower/action",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/access/remote.hpp",
+        "pattern": "\\ \\ unsigned\\ jobs\\ =\\ [0-9]+(?:\\.[0-9]+)?,\\ retries\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ \\ //\\ retries\\ after\\ the\\ initial\\ attempt\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ range_bytes\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ //\\ maximum\\ extent\\ and\\ HTTP\\ request\\ size\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ coalesce_gap\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ \\ \\ \\ \\ //\\ maximum\\ admitted\\ gap\\ between\\ scheduled\\ ranges\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ prefetch_bytes\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ //\\ disk\\ lookahead;\\ zero\\ disables\\ scheduling\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ memory_budget\\ =\\ UINT6[0-9]+(?:\\.[0-9]+)?_MAX;\\ \\ //\\ aggregate\\ caller\\ budget;\\ decoder\\ reserves\\ source\\ headroom\\\n\\ \\ long\\ timeout_ms\\ =\\ [0-9]+(?:\\.[0-9]+)?,\\ connect_timeout_ms\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ max_ranges\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ //\\ hard\\ cap\\ on\\ persistent\\ extent\\ and\\ plan\\ metadata\\\n\\ \\ double\\ max_fraction\\ =\\ [0-9]+(?:\\.[0-9]+)?\\.[0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ \\ //\\ union\\ of\\ missing\\ planned\\ ranges\\ /\\ logical\\ size"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "starts": "The default cache is `$XDG_CACHE_HOME/sicx`, or `$HOME/.cache/sicx`; `--cache DIR` overrides it.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/access/range_cache.cpp",
+        "pattern": "filesystem::path default_cache\\(\\) \\{\n  const char\\* xdg = std::getenv\\(\"XDG_CACHE_HOME\"\\);\n  if \\(xdg && \\*xdg\\) return filesystem::path\\(xdg\\) / \"sicx\";\n  const char\\* home = std::getenv\\(\"HOME\"\\);\n  if \\(home && \\*home\\) return filesystem::path\\(home\\) / \"\\.cache/sicx\";\n  fail\\(sic::ErrorKind::invalid_argument, \"remote: no user cache directory; pass --cache DIR\"\\);\n\\}"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "starts": "`sic-construct 1 --out d2.sicx --radicals data/d2/d2.sicrad` reads this record (the default uses the",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/options.cpp",
+        "pattern": "d2_radicals\\(raw\\(\"SIC_D2_RADICALS\"\\)\\)"
+      },
+      {
+        "file": "cpp/src/construct/stages/dimension_two.cpp",
+        "pattern": "path\\.empty\\(\\)\\ \\?\\ static_cast<std::istream\\&>\\(embedded\\)\\ :\\ static_cast<std::istream\\&>\\(file\\);"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "starts": "Certification `sic-certify-stabilizer STABFILE [--d2-exact data/d2/d2.sicrad]`",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/checkers/stabilizer/command_line.cpp",
+        "pattern": "\"\\ \\ \\-\\-catalogue\\ JSON\\|TSV\\ \\ \\ \\ ray\\ catalogue\\ \\(default\\ REPO/data/catalogue\\.json\\)\\\\n\""
+      },
+      {
+        "file": "cpp/checkers/stabilizer/command_line.cpp",
+        "pattern": "if\\ \\(catalogue\\.empty\\(\\)\\)\\ catalogue\\ =\\ root\\ \\+\\ \"/data/catalogue\\.json\";"
+      }
+    ]
+  },
+  {
+    "file": "docs/install.md",
+    "starts": "CMake 3.20 or newer, a C++20 compiler and Node.js are required for the default test-enabled build. A",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/CMakeLists.txt",
+        "pattern": "option\\(SIC_BUILD_TESTS\\ \\ \\ \\ \\ \\ \\ \"Build\\ unit\\ tests\"\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ ON\\)"
+      }
+    ]
+  },
+  {
+    "file": "docs/install.md",
+    "starts": "Set the consumer's `CMAKE_PREFIX_PATH` to the installation prefix and any separate dependency prefix",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/CMakeLists.txt",
+        "pattern": "option\\(SIC_BUILD_TESTS\\ \\ \\ \\ \\ \\ \\ \"Build\\ unit\\ tests\"\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ ON\\)"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "Build with C++20. `find_package(sic REQUIRED COMPONENTS core)` provides `sic::core` without FLINT. T",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/cmake/components/SicxRemote.cmake",
+        "pattern": "set\\(SIC_CURL_SONAME\\ \"libcurl\\.so\\.[0-9]+(?:\\.[0-9]+)?\"\\ CACHE\\ STRING"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "`ResourceLimits` separates reader/writer resource policy from SICX 1.0 wire limits. Pass the same po",
+    "kind": "reference",
+    "authority": [
+      {
+        "file": "cpp/include/sic/sicx/format.hpp",
+        "pattern": "inline\\ constexpr\\ unsigned\\ kMaximumBallLimbs\\ =\\ [0-9]+(?:\\.[0-9]+)?;"
+      }
+    ],
+    "reason": "Refers to library policies without stating their omitted numeric values."
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "`sic/support/parse_number.hpp` provides `sic::support::parse_number<T>(text, name,",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/support/parse_number.hpp",
+        "pattern": "T\\ parse_number\\(std::string_view\\ text,\\ std::string_view\\ name,\\ ErrorKind\\ kind,\\\n\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ T\\ low\\ =\\ std::numeric_limits<T>::lowest\\(\\),\\ T\\ high\\ =\\ std::numeric_limits<T>::max\\(\\),\\\n\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ int\\ base\\ =\\ [0-9]+(?:\\.[0-9]+)?\\)\\ \\{"
+      },
+      {
+        "file": "cpp/include/sic/support/cli.hpp",
+        "pattern": "T\\ number\\(std::string_view\\ text,\\ std::string_view\\ name,\\ T\\ low\\ =\\ [0-9]+(?:\\.[0-9]+)?,\\\n\\ \\ \\ \\ \\ \\ \\ \\ \\ T\\ high\\ =\\ std::numeric_limits<T>::max\\(\\)\\)\\ \\{"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "`SIC_ENABLE_LTO` defaults to ON. CMake checks IPO support and enables LTO only",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/cmake/components/LinkTimeOptimization.cmake",
+        "pattern": "option\\(SIC_ENABLE_LTO\\ \"Optimize\\ Release\\ production\\ and\\ independent\\ checker\\ targets\\ at\\ link\\ time\"\\ ON\\)"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "`BallVerificationLimits` has defaults of 256 working bits, 64 absolute radius bits,",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/bounds/overlap_bounds.hpp",
+        "pattern": "\\ \\ long\\ working_bits\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ //\\ Required\\ maximum\\-deviation\\ interval\\ radius\\ <=[0-9]+(?:\\.[0-9]+)?\\^\\(\\-this\\ value\\)\\.\\\n\\ \\ long\\ minimum_absolute_accuracy_bits\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ long\\ maximum_working_bits\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ std::size_t\\ maximum_dimension\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ std::uint6[0-9]+(?:\\.[0-9]+)?_t\\ maximum_input_mantissa_bits\\ =\\ [0-9]+(?:\\.[0-9]+)?ULL\\ \\*\\ [0-9]+(?:\\.[0-9]+)?\\ \\*\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ std::uint6[0-9]+(?:\\.[0-9]+)?_t\\ maximum_workspace_bytes\\ =\\ [0-9]+(?:\\.[0-9]+)?ULL\\ \\*\\ [0-9]+(?:\\.[0-9]+)?\\ \\*\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ //\\ Declared\\ admission\\ score,\\ not\\ a\\ bound\\ on\\ native\\ instructions/bit\\ work\\.\\\n\\ \\ //\\ Default\\ admits\\ dimension2[0-9]+(?:\\.[0-9]+)?\\ at\\ the\\ default\\ precision/workspace\\ limits\\.\\\n\\ \\ std::uint6[0-9]+(?:\\.[0-9]+)?_t\\ maximum_work_score\\ =\\ [0-9]+(?:\\.[0-9]+)?ULL;"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "This is engineering work admission, not a native-instruction bound or a",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/bounds/overlap_bounds.hpp",
+        "pattern": "\\ \\ long\\ working_bits\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ //\\ Required\\ maximum\\-deviation\\ interval\\ radius\\ <=[0-9]+(?:\\.[0-9]+)?\\^\\(\\-this\\ value\\)\\.\\\n\\ \\ long\\ minimum_absolute_accuracy_bits\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ long\\ maximum_working_bits\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ std::size_t\\ maximum_dimension\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ std::uint6[0-9]+(?:\\.[0-9]+)?_t\\ maximum_input_mantissa_bits\\ =\\ [0-9]+(?:\\.[0-9]+)?ULL\\ \\*\\ [0-9]+(?:\\.[0-9]+)?\\ \\*\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ std::uint6[0-9]+(?:\\.[0-9]+)?_t\\ maximum_workspace_bytes\\ =\\ [0-9]+(?:\\.[0-9]+)?ULL\\ \\*\\ [0-9]+(?:\\.[0-9]+)?\\ \\*\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ //\\ Declared\\ admission\\ score,\\ not\\ a\\ bound\\ on\\ native\\ instructions/bit\\ work\\.\\\n\\ \\ //\\ Default\\ admits\\ dimension2[0-9]+(?:\\.[0-9]+)?\\ at\\ the\\ default\\ precision/workspace\\ limits\\.\\\n\\ \\ std::uint6[0-9]+(?:\\.[0-9]+)?_t\\ maximum_work_score\\ =\\ [0-9]+(?:\\.[0-9]+)?ULL;"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "`components.hpp` separates generator selection,",
+    "kind": "reference",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/alignment_options.hpp",
+        "pattern": "inline\\ constexpr\\ const\\ char\\*\\ kAlignmentSelector\\ =\\ \"conjugate\\-alignment\";"
+      },
+      {
+        "file": "cpp/src/construct/components/components.cpp",
+        "pattern": "Components::Components\\(\\)\\\n\\ \\ \\ \\ :\\ selector\\(std::make_unique<StepSelectionSelector>\\(\\)\\),\\\n\\ \\ \\ \\ \\ \\ rescaling\\(std::make_unique<Greedy2adicRule>\\(\\)\\),\\\n\\ \\ \\ \\ \\ \\ writer\\(std::make_unique<ProducerWriter>\\(\\)\\)\\ \\{\\}"
+      },
+      {
+        "file": "cpp/src/construct/selection/alignment.cpp",
+        "pattern": "components\\.selector\\ =\\\n\\ \\ \\ \\ \\ \\ std::make_unique<ConjugateAlignmentSelector>\\(generator_choices,\\ producer_options\\.alignment\\);"
+      }
+    ],
+    "reason": "Reviewed native component selection and representation behavior; source constructor and CLI selection are bound explicitly."
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "`sic-container reencode IN OUT [--threads N]` is the identity file route: `stored_element_source` pl",
+    "kind": "reference",
+    "authority": [
+      {
+        "file": "cpp/src/construct/components/components.cpp",
+        "pattern": "Components::Components\\(\\)\\\n\\ \\ \\ \\ :\\ selector\\(std::make_unique<StepSelectionSelector>\\(\\)\\),\\\n\\ \\ \\ \\ \\ \\ rescaling\\(std::make_unique<Greedy2adicRule>\\(\\)\\),\\\n\\ \\ \\ \\ \\ \\ writer\\(std::make_unique<ProducerWriter>\\(\\)\\)\\ \\{\\}"
+      }
+    ],
+    "reason": "Representation identity contract, not a literal omitted-option value."
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "Default library producer threads use distinct physical cores in the process CPU",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/worker_policy.cpp",
+        "pattern": "int default_producer_workers\\(unsigned exponent\\) \\{\n  // Small analytic grids do not amortize a large worker team's dispatch and\n  // allocator costs\\. Saturate at the physical cores, without counting SMT\\.\n  const int work_limit = exponent < 9 \\? std::min\\(32, 1 << \\(exponent > 2 \\? exponent - 2 : 0\\)\\) : 64;\n  return std::min\\(static_cast<int>\\(sic::support::resources::requested_threads\\(nullptr\\)\\),\n                  work_limit\\);\n\\}"
+      },
+      {
+        "file": "cpp/apps/decode/command_line.cpp",
+        "pattern": "constexpr\\ WorkerDefault\\ kDefaultWorkers\\{[0-9]+(?:\\.[0-9]+)?\\};"
+      },
+      {
+        "file": "cpp/src/support/resources/platform_snapshot.cpp",
+        "pattern": "CpuCounts\\ non_affinity_cpu_counts\\(Count\\ logical,\\ Count\\ physical,\\ Count\\ hardware_logical\\)\\ \\{\\\n\\ \\ return\\ \\{std::max<Count>\\([0-9]+(?:\\.[0-9]+)?,\\ logical\\ \\?\\ logical\\ :\\ hardware_logical\\),\\ std::max<Count>\\([0-9]+(?:\\.[0-9]+)?,\\ physical\\)\\};\\\n\\}"
+      },
+      {
+        "file": "cpp/src/support/resources/platform_snapshot.cpp",
+        "pattern": "Count\\ process_cpu_allowance\\(const\\ std::filesystem::path\\&\\ proc_root\\)\\ \\{\\\n\\ \\ Snapshot\\ result;\\\n\\ \\ result\\.cpus\\ =\\ affinity_physical_cores\\(\\);\\\n\\ \\ std::vector<std::filesystem::path>\\ paths;\\\n\\ \\ try\\ \\{\\\n\\ \\ \\ \\ paths\\ =\\ process_cgroups\\(proc_root\\);\\\n\\ \\ \\}\\ catch\\ \\(const\\ sic::Error\\&\\ error\\)\\ \\{\\\n\\ \\ \\ \\ if\\ \\(error\\.kind\\(\\)\\ !=\\ ErrorKind::io\\ \\&\\&\\ error\\.kind\\(\\)\\ !=\\ ErrorKind::resource\\)\\ throw;\\\n\\ \\ \\ \\ //\\ CPU\\ defaults\\ remain\\ usable\\ without\\ visible\\ cgroup\\-v2\\ ancestry\\.\\ Memory\\\n\\ \\ \\ \\ //\\ inspection\\ stays\\ strict;\\ an\\ unknown\\ CPU\\ ceiling\\ permits\\ only\\ one\\ worker\\.\\\n\\ \\ \\ \\ result\\.cpus\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ \\}\\\n\\ \\ for\\ \\(const\\ auto\\&\\ path\\ :\\ paths\\)\\ apply_cpu_cgroup\\(result,\\ path\\);\\\n\\ \\ apply_job_cpus\\(result\\);\\\n\\ \\ return\\ result\\.cpus;\\\n\\}"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "Explicit SIC_THREADS in the library and --threads in the producer CLI",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/support/resources/platform_snapshot.cpp",
+        "pattern": "int\\ requested_threads\\(const\\ char\\*\\ configured\\)\\ \\{\\\n\\ \\ return\\ configured\\ \\?\\ thread_count\\(configured,\\ \"SIC_THREADS\"\\)\\\n\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ :\\ static_cast<int>\\(process_cpu_allowance\\(\\)\\);\\\n\\}"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "Complete syntax and option defaults are generated in [Command-line tools](tools.md).",
+    "kind": "reference",
+    "authority": [
+      {
+        "file": "scripts/docs/help.mjs",
+        "pattern": "'sic\\-construct',\\ 'sic\\-check'"
+      }
+    ],
+    "reason": "Links the generated help reference; no additional default value is stated."
+  },
+  {
+    "file": "docs/reproduce.md",
+    "starts": "The default worker ceiling follows the analytic grid size (1 worker through d4, then d/4 through d12",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/worker_policy.cpp",
+        "pattern": "int default_producer_workers\\(unsigned exponent\\) \\{\n  // Small analytic grids do not amortize a large worker team's dispatch and\n  // allocator costs\\. Saturate at the physical cores, without counting SMT\\.\n  const int work_limit = exponent < 9 \\? std::min\\(32, 1 << \\(exponent > 2 \\? exponent - 2 : 0\\)\\) : 64;\n  return std::min\\(static_cast<int>\\(sic::support::resources::requested_threads\\(nullptr\\)\\),\n                  work_limit\\);\n\\}"
+      }
+    ]
+  },
+  {
+    "file": "docs/reproduce.md",
+    "starts": "The selector’s complete incremental budget defaults to 16384 MiB; optional",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/alignment_options.hpp",
+        "pattern": "uint6[0-9]+(?:\\.[0-9]+)?_t\\ memory_bytes\\ =\\ uint6[0-9]+(?:\\.[0-9]+)?_t\\{[0-9]+(?:\\.[0-9]+)?\\}\\ <<\\ [0-9]+(?:\\.[0-9]+)?;"
+      }
+    ]
+  },
+  {
+    "file": "docs/reproduce.md",
+    "starts": "The default S=1 source is the embedded pinned radical record. To use the",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/options.cpp",
+        "pattern": "d2_radicals\\(raw\\(\"SIC_D2_RADICALS\"\\)\\)"
+      }
+    ]
+  },
+  {
+    "file": "docs/sicx.md",
+    "starts": "Implementation resource limits MUST be checked before allocation or expansion.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/sicx/format.hpp",
+        "pattern": "inline\\ constexpr\\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ kMaxIntegerBytes\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ //\\ [0-9]+(?:\\.[0-9]+)?\\ Mbit\\ per\\ integer\\\ninline\\ constexpr\\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ kMaxTextChunk\\ =\\ [0-9]+(?:\\.[0-9]+)?ull\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ \\ \\ //\\ EXMT/PREC/PROV\\\ninline\\ constexpr\\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ kMaxBlockBytes\\ =\\ [0-9]+(?:\\.[0-9]+)?ull\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\ \\ //\\ one\\ TOWR/BODY\\ block\\\ninline\\ constexpr\\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ kMaxChunks\\ =\\ [0-9]+(?:\\.[0-9]+)?ull\\ <<\\ [0-9]+(?:\\.[0-9]+)?;"
+      },
+      {
+        "file": "cpp/include/sic/support/json.hpp",
+        "pattern": "inline\\ constexpr\\ size_t\\ kCanonicalDecimalDigits\\ =\\ [0-9]+(?:\\.[0-9]+)?;"
+      },
+      {
+        "file": "cpp/include/sic/support/json.hpp",
+        "pattern": "inline\\ constexpr\\ unsigned\\ kDefaultJsonDepth\\ =\\ [0-9]+(?:\\.[0-9]+)?;"
+      }
+    ]
+  },
+  {
+    "file": "docs/verification.md",
+    "starts": "Build with `cmake -S cpp -B cpp/build -DSIC_ENABLE_FLINT=ON`, then",
+    "kind": "reference",
+    "authority": [],
+    "reason": "The complete generated norm-checker help owns option defaults; this paragraph links to it and describes estimate/exit scope. Semantic default comparisons use that generated help, and compiled omitted-option controls remain enrolled."
+  },
+  {
+    "file": "docs/verification.md",
+    "starts": "`ctest -L crt` exercises eleven input groups (valid, rejection mutations, boundaries/regrouping, par",
+    "kind": "reference",
+    "authority": [
+      {
+        "file": "cpp/checkers/crt/CMakeLists.txt",
+        "pattern": "add_test\\(NAME\\ sic_test_crt_cli_defaults"
+      }
+    ],
+    "reason": "Lists default-check test coverage; no numeric default is stated."
+  },
+  {
+    "file": "docs/verification.md",
+    "starts": "**SICX 1.0 measurements.** Measurements on a shared AMD EPYC",
+    "kind": "recorded",
+    "authority": [],
+    "reason": "Recorded input-specific measurement context rather than a current configurable default."
+  },
+  {
+    "file": "docs/verification.md",
+    "starts": "Default input limits are `d <= 4096`, `D <= 65536`, 4,194,304 total dense",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/checkers/norm/src/model/input_model.hpp",
+        "pattern": "struct\\ AlgebraicLimits\\ \\{\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ degree\\ =\\ [0-9]+(?:\\.[0-9]+)?,\\ height_bits\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\};\\\n\\\ninline\\ constexpr\\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ kDefaultMaxDimension\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\ninline\\ constexpr\\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ kDefaultMaxFieldDimension\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\\nstruct\\ ReadOptions\\ \\{\\\n\\ \\ bool\\ partial\\ =\\ false;\\\n\\ \\ std::optional<Hash>\\ exact_root,\\ file_root,\\ whole_sha2[0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ std::vector<size_t>\\ elements,\\ physical_chunks;\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ max_dimension\\ =\\ kDefaultMaxDimension,\\ max_field_dimension\\ =\\ kDefaultMaxFieldDimension;\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ max_dense_coordinates\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ uint6[0-9]+(?:\\.[0-9]+)?_t\\ max_directory_bytes\\ =\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ AlgebraicLimits\\ algebraic_limits;\\\n\\};"
+      },
+      {
+        "file": "cpp/checkers/norm/src/format/container.cpp",
+        "pattern": "resource\\(c\\.length\\ <=\\ \\(json_type\\(c\\.type\\)\\ \\?\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?\\ :\\ [0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?\\),\\ \"physical\\ payload\\ bytes\"\\);"
+      },
+      {
+        "file": "cpp/checkers/norm/src/format/container.cpp",
+        "pattern": "resource\\(length\\ <=\\ \\([0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?\\),\\ \"logical\\ leaf\\ bytes\"\\);"
+      },
+      {
+        "file": "cpp/checkers/norm/src/format/integer_codec.cpp",
+        "pattern": "resource\\(n\\ <=\\ \\([0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?\\),\\ \"integer\\ magnitude\"\\);"
+      },
+      {
+        "file": "cpp/checkers/norm/src/format/canonical_json.cpp",
+        "pattern": "resource\\(depth\\ <=\\ [0-9]+(?:\\.[0-9]+)?\\ \\&\\&\\ \\+\\+nodes\\ <=\\ \\([0-9]+(?:\\.[0-9]+)?u\\ <<\\ [0-9]+(?:\\.[0-9]+)?\\),\\ \"JSON\\ depth/node\\ count\"\\);"
+      }
+    ]
+  },
+  {
+    "file": "docs/verification.md",
+    "starts": "The default algebraic-fallback resource limit is tower degree 256; the",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/checkers/verifier/src/model/input_model.hpp",
+        "pattern": "branch_degree_limit\\ =\\ [0-9]+(?:\\.[0-9]+)?"
+      }
+    ]
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "starts": "6. **Resources come from the process allowance.** Derive default threads and",
+    "kind": "reference",
+    "authority": [
+      {
+        "file": "cpp/src/support/resources/platform_snapshot.cpp",
+        "pattern": "Count\\ process_cpu_allowance\\(const\\ std::filesystem::path\\&\\ proc_root\\)\\ \\{\\\n\\ \\ Snapshot\\ result;\\\n\\ \\ result\\.cpus\\ =\\ affinity_physical_cores\\(\\);\\\n\\ \\ std::vector<std::filesystem::path>\\ paths;\\\n\\ \\ try\\ \\{\\\n\\ \\ \\ \\ paths\\ =\\ process_cgroups\\(proc_root\\);\\\n\\ \\ \\}\\ catch\\ \\(const\\ sic::Error\\&\\ error\\)\\ \\{\\\n\\ \\ \\ \\ if\\ \\(error\\.kind\\(\\)\\ !=\\ ErrorKind::io\\ \\&\\&\\ error\\.kind\\(\\)\\ !=\\ ErrorKind::resource\\)\\ throw;\\\n\\ \\ \\ \\ //\\ CPU\\ defaults\\ remain\\ usable\\ without\\ visible\\ cgroup\\-v2\\ ancestry\\.\\ Memory\\\n\\ \\ \\ \\ //\\ inspection\\ stays\\ strict;\\ an\\ unknown\\ CPU\\ ceiling\\ permits\\ only\\ one\\ worker\\.\\\n\\ \\ \\ \\ result\\.cpus\\ =\\ [0-9]+(?:\\.[0-9]+)?;\\\n\\ \\ \\}\\\n\\ \\ for\\ \\(const\\ auto\\&\\ path\\ :\\ paths\\)\\ apply_cpu_cgroup\\(result,\\ path\\);\\\n\\ \\ apply_job_cpus\\(result\\);\\\n\\ \\ return\\ result\\.cpus;\\\n\\}"
+      }
+    ],
+    "reason": "Contribution requirement or policy description; no new numeric default value is asserted."
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "starts": "8. **Documentation and tests follow the code.** Check every documented path,",
+    "kind": "reference",
+    "authority": [
+      {
+        "file": "cpp/cmake/checks/Docs.cmake",
+        "pattern": "foreach\\(check\\ help_contract\\ source_claims\\ documented_defaults\\ claim_registry\\ symbols_controls\\)"
+      }
+    ],
+    "reason": "Contribution requirement or policy description; no new numeric default value is asserted."
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "starts": "Configure with `SIC_BUILD_TESTS=ON` (the default), build, then run",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/CMakeLists.txt",
+        "pattern": "option\\(SIC_BUILD_TESTS\\ \\ \\ \\ \\ \\ \\ \"Build\\ unit\\ tests\"\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ ON\\)"
+      }
+    ]
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "starts": "The policy checks also enforce the [CLI contract inventory](docs/cli_contract.json),",
+    "kind": "reference",
+    "authority": [
+      {
+        "file": "cpp/cmake/checks/Docs.cmake",
+        "pattern": "foreach\\(check\\ help_contract\\ source_claims\\ documented_defaults\\ claim_registry\\ symbols_controls\\)"
+      }
+    ],
+    "reason": "Contribution requirement or policy description; no new numeric default value is asserted."
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "starts": "Ordinary tests, including policy tests and default heavy controls, have a",
+    "kind": "reference",
+    "reason": "Timeout and optional heavy membership are checked by the registry.",
+    "authority": [
+      {
+        "file": "cpp/cmake/checks/TestLayers.cmake",
+        "pattern": "set\\(SIC_TEST_WORKERS \"\" CACHE STRING"
+      }
+    ]
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "starts": "`SIC_TEST_WORKERS` is an optional positive CMake cache integer.",
+    "kind": "reference",
+    "reason": "Runtime worker discovery and explicit override are checked by the registry.",
+    "authority": [
+      {
+        "file": "cpp/cmake/checks/TestLayers.cmake",
+        "pattern": "set\\(SIC_TEST_WORKERS \"\" CACHE STRING"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "starts": "On glibc, `sic-construct` sets the process heap trim threshold",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/apps/construct/main.cpp",
+        "pattern": "void configure_process_heap\\(\\) \\{\n\\#if defined\\(__GLIBC__\\)\n  // Explicit allocator settings own the process policy, including empty values\\.\n  for \\(char\\*\\* entry = environ; \\*entry; \\+\\+entry\\)\n    if \\(std::string_view\\(\\*entry\\)\\.starts_with\\(\"MALLOC_\"\\)\\) return;\n  if \\(const char\\* configured = std::getenv\\(\"GLIBC_TUNABLES\"\\)\\) \\{\n    std::string_view remaining\\(configured\\);\n    while \\(!remaining\\.empty\\(\\)\\) \\{\n      const auto end = remaining\\.find\\(':'\\);\n      if \\(remaining\\.substr\\(0, end\\)\\.starts_with\\(\"glibc\\.malloc\\.\"\\)\\) return;\n      if \\(end == std::string_view::npos\\) break;\n      remaining\\.remove_prefix\\(end \\+ 1\\);\n    \\}\n  \\}\n  // glibc's explicit trim scans arena bins but leaves non\\-main top chunks\\.\n  // Bound their retention without routing medium\\-sized temporaries through mmap\\.\n  // Setting either threshold freezes adaptation; install the pair explicitly\\.\n  // Only this standalone CLI opts in, before any construction threads start\\.\n  constexpr int kHeapTrimThresholdBytes = 16 \\* 1024 \\* 1024;\n  constexpr int kHeapMmapThresholdBytes = 32 \\* 1024 \\* 1024;\n  if \\(mallopt\\(M_MMAP_THRESHOLD, kHeapMmapThresholdBytes\\) == 1\\)\n    \\(void\\)mallopt\\(M_TRIM_THRESHOLD, kHeapTrimThresholdBytes\\);\n\\#endif\n\\}"
+      }
+    ]
+  }
+]

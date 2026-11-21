@@ -1,0 +1,399 @@
+[
+  {
+    "tool": "sic-check",
+    "command": "",
+    "sources": [
+      "cpp/apps/check/main.cpp"
+    ],
+    "arity": [
+      1,
+      2
+    ]
+  },
+  {
+    "tool": "sic-overlaps",
+    "command": "",
+    "sources": [
+      "cpp/apps/overlaps/command_line.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-identify",
+    "command": "",
+    "sources": [
+      "cpp/apps/identify/command_line.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-stabilizer",
+    "command": "",
+    "sources": [
+      "cpp/apps/stabilizer/command_line.cpp"
+    ],
+    "arity": [
+      0,
+      1
+    ]
+  },
+  {
+    "tool": "sic-construct",
+    "command": "",
+    "sources": [
+      "cpp/src/construct/runtime/command_line.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-decode",
+    "command": "",
+    "sources": [
+      "cpp/apps/decode/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      2,
+      2
+    ]
+  },
+  {
+    "tool": "sic-verify",
+    "command": "",
+    "sources": [
+      "cpp/apps/verify/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-inspect",
+    "command": "",
+    "sources": [
+      "cpp/apps/inspect/command_line.cpp"
+    ],
+    "arity": null,
+    "mode_arities": {
+      "--text-json": [
+        1,
+        1
+      ],
+      "--json-rays": [
+        1,
+        1
+      ],
+      "--json-all": [
+        1,
+        1
+      ],
+      "--exact-json": [
+        2,
+        2
+      ],
+      "--block": [
+        1,
+        1
+      ],
+      "--entry": [
+        1,
+        1
+      ],
+      "--release-layout": [
+        1,
+        1
+      ],
+      "--catalogue": [
+        0,
+        0
+      ],
+      "--info": [
+        1,
+        1
+      ]
+    }
+  },
+  {
+    "tool": "sic-container",
+    "command": "",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": null
+  },
+  {
+    "tool": "sic-container",
+    "command": "split",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-container",
+    "command": "fetch",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-container",
+    "command": "repair",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-container",
+    "command": "read-range",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      3,
+      3
+    ]
+  },
+  {
+    "tool": "sic-container",
+    "command": "from-text",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      2,
+      2
+    ]
+  },
+  {
+    "tool": "sic-container",
+    "command": "merge-parts",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      2,
+      null
+    ]
+  },
+  {
+    "tool": "sic-container",
+    "command": "merge-element-parts",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      2,
+      null
+    ]
+  },
+  {
+    "tool": "sic-container",
+    "command": "reencode",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      2,
+      2
+    ]
+  },
+  {
+    "tool": "sic-data",
+    "command": "",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": null
+  },
+  {
+    "tool": "sic-data",
+    "command": "formats",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      0,
+      0
+    ]
+  },
+  {
+    "tool": "sic-data",
+    "command": "write",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      2,
+      2
+    ]
+  },
+  {
+    "tool": "sic-data",
+    "command": "check",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      2,
+      null
+    ]
+  },
+  {
+    "tool": "sic-data",
+    "command": "bundle",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      2,
+      null
+    ]
+  },
+  {
+    "tool": "sic-data",
+    "command": "check-bundle",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      1,
+      null
+    ]
+  },
+  {
+    "tool": "sic-data",
+    "command": "list",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-data",
+    "command": "layout",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      2,
+      2
+    ]
+  },
+  {
+    "tool": "sic-data",
+    "command": "catalogue",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-check-balls",
+    "command": "",
+    "sources": [
+      "cpp/apps/check_balls/main.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-certify-stabilizer",
+    "command": "",
+    "sources": [
+      "cpp/checkers/stabilizer/command_line.cpp"
+    ],
+    "independent": true,
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-verify-independent",
+    "command": "",
+    "sources": [
+      "cpp/checkers/verifier/src/cli/command_line.cpp"
+    ],
+    "independent": true,
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-certify-crt",
+    "command": "",
+    "sources": [
+      "cpp/checkers/crt/src/cli/command_line.cpp"
+    ],
+    "independent": true,
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-certify-norm",
+    "command": "",
+    "sources": [
+      "cpp/checkers/norm/src/cli/command_line.cpp"
+    ],
+    "independent": true,
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
+    "tool": "sic-check-crt-input",
+    "command": "",
+    "sources": [
+      "cpp/checkers/crt/input_check.cpp"
+    ],
+    "independent": true,
+    "arity": [
+      1,
+      1
+    ]
+  }
+]

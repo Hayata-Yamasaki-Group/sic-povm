@@ -1,0 +1,42 @@
+{
+  "schema": "sic-fiducial-fp64/1.0",
+  "dimension": 8,
+  "basis": "The retained exact artifact passes an independent exact quartic certificate with a certified general physical conjugation map and positive norm.",
+  "selector": "catalogue original physical embedding; authoritative path_ball in exact export; no extra selector",
+  "association_contract": "reviewed-enclosure-association-v1; hashes bind declared trusted provenance, not a new proof authority",
+  "wh_convention": "D_(a,b)=tau^(a*b) X^a Z^b; tau=-exp(pi*i/d); X|j>=|j+1>; Z|j>=exp(2*pi*i*j/d)|j>",
+  "gauge": "w=v/sqrt(sum(abs(v)^2))*conj(v[k])/abs(v[k]); anchor imaginary zero follows exactly from this identity",
+  "anchor": 0,
+  "working_bits": 256,
+  "native_workers": 1,
+  "coordinate_complex_error_ceiling": "2^-50",
+  "rounding": "nearest midpoint binary64; rigorously bounded difference from unknown exact normalized/gauged value; no correct-rounding claim",
+  "zero_policy": "canonical positive zero; nonzero subnormals retained",
+  "data_files": {"csv":"fiducial-fp64.csv","normalized_gauged_enclosures":"normalized-gauged.balls","checksums":"SHA256SUMS"},
+  "converter_binary_object_id": "sha256:d9f31bcc57d0a514e0423a87bbc5a573d1e74ec12e4c5b0540aff1d0fcedae48",
+  "native_flint_version": "3.6.0",
+  "reproduction_command_template": "convert_fiducial_data SOURCE_DESCRIPTOR NEW_DIRECTORY 256 50",
+  "portable_provenance": "Public provenance view: artifact identifiers and SHA-256 pins preserve source association; local paths are omitted. Original descriptors remain identified by descriptor_sha256 and require explicit local rebinding for replay",
+  "fp64_point_squared_norm_arb_dump": "1000000000000030b4c7badd5b0ed -70 0 0",
+  "fp64_point_maximum_squared_overlap_deviation_arb_dump": "112f2729984d23d084d5cc0cb06f1fd1ddcf49967f9202e3d92d -103 2e38e38f -11f",
+  "point_verification_scope": "rigorous diagnostic of the exact binary64 point; not exact SIC equality",
+  "descriptor_sha256": "a9395e29ec68703703288304e3d62382b80d6f8a9e740f5f56abd829db1d5fa5",
+  "pins": [
+    {"role":"vector","artifact_id":"sha256:c9831de2a62773b15a5d447224a1755150bc1ca629d98992058a0fe1b161ae09","sha256":"c9831de2a62773b15a5d447224a1755150bc1ca629d98992058a0fe1b161ae09","object_id":"sha256:c9831de2a62773b15a5d447224a1755150bc1ca629d98992058a0fe1b161ae09"},
+    {"role":"exact","artifact_id":"sha256:70e08e4aeb484e53e7d5d46b082a9330fb801bdf56be090d31788a4d163bd521","sha256":"70e08e4aeb484e53e7d5d46b082a9330fb801bdf56be090d31788a4d163bd521","object_id":"sha256:70e08e4aeb484e53e7d5d46b082a9330fb801bdf56be090d31788a4d163bd521"},
+    {"role":"producer","artifact_id":"sha256:190fa3deb519d65b4dc92f77a0d71d5a2f402442140ecd7cd9f720de0a607048","sha256":"190fa3deb519d65b4dc92f77a0d71d5a2f402442140ecd7cd9f720de0a607048","object_id":"sha256:190fa3deb519d65b4dc92f77a0d71d5a2f402442140ecd7cd9f720de0a607048"},
+    {"role":"source","artifact_id":"sha256:3a083a06d070e837970857ac4344339984ddb0569b0d42486094226cfaafea4a","sha256":"3a083a06d070e837970857ac4344339984ddb0569b0d42486094226cfaafea4a","object_id":"sha256:3a083a06d070e837970857ac4344339984ddb0569b0d42486094226cfaafea4a"},
+    {"role":"selector","artifact_id":"sha256:94d3f07f90d4da9c2bc6850ab0291c13e96c7f5e825853ef1bcd1d4693909ecd","sha256":"94d3f07f90d4da9c2bc6850ab0291c13e96c7f5e825853ef1bcd1d4693909ecd","object_id":"sha256:94d3f07f90d4da9c2bc6850ab0291c13e96c7f5e825853ef1bcd1d4693909ecd"},
+    {"role":"association","artifact_id":"sha256:1ee450f90ea6fd157e5bbd50ce2b6ad7e3078ee2e5c646c454ca07782ef9d269","sha256":"1ee450f90ea6fd157e5bbd50ce2b6ad7e3078ee2e5c646c454ca07782ef9d269","object_id":"sha256:1ee450f90ea6fd157e5bbd50ce2b6ad7e3078ee2e5c646c454ca07782ef9d269"}
+  ],
+  "components": [
+    {"index":0,"real_binary64_hex":"3fe336df48aff9aa","imag_binary64_hex":"0000000000000000","complex_error_arb_dump":"148e6c7962aa9228a8650a0a5ab71f57d7c49b69932d4993de5 -100 17658fd -116"},
+    {"index":1,"real_binary64_hex":"3fbe0c9d8166ea82","imag_binary64_hex":"bfcd4dcc1ed08f85","complex_error_arb_dump":"369821cd601fb66e152414d7d4efa90fe6a2ba7f3ecae4341eae60c53 -11b 149baca1 -11b"},
+    {"index":2,"real_binary64_hex":"bfb7ac7f124d2286","imag_binary64_hex":"bfc519b71e9c7017","complex_error_arb_dump":"5e04fd1192e97b18cb6a5c58779381ce4d4f47013f97a36091742af6b -11b 275f71cb -11c"},
+    {"index":3,"real_binary64_hex":"3fadf9c02cab318e","imag_binary64_hex":"bfa5d142ad6ed758","complex_error_arb_dump":"1198a055f61039ff0ee86108139ac515bb6e169e7b9373f709ecab7f9 -11a e4f14c9 -11c"},
+    {"index":4,"real_binary64_hex":"3fd19f7780796494","imag_binary64_hex":"bfc2d42b3cbffbc8","complex_error_arb_dump":"5dfb2f0bda11a4c5cdce6d6742fdd9ac41bf39d7ce69e1a8a12d81293 -11a 2032e213 -11b"},
+    {"index":5,"real_binary64_hex":"3fdba43d623437ae","imag_binary64_hex":"3fc40f06a9726901","complex_error_arb_dump":"1b3f05150ffa31dce015979cdac4399d53a58ac784839680391ebc5a3 -11a 16cb9d67 -11a"},
+    {"index":6,"real_binary64_hex":"3fd6fd25d560d59c","imag_binary64_hex":"bfcad2f0cbcbba15","complex_error_arb_dump":"3f6ce3367aab9b894a8dff03343b86a24cb765e67d5bc3484bd07ec87 -119 9a3545f -119"},
+    {"index":7,"real_binary64_hex":"bfbc2284e629223a","imag_binary64_hex":"3fc930742ae1e5f6","complex_error_arb_dump":"1b9e6991edc90b436e4093f88fa3d79a38a2ce20838096f90e66a3dc7 -119 b7125f3 -11a"}
+  ]
+}

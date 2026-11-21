@@ -1,0 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Configured from the source checkout, or explicitly for an exported source tree.
+#pragma once
+namespace sic::decode {
+inline constexpr const char* kDecoderSourceCommit = "@_sic_decoder_commit@";
+}

@@ -1,0 +1,13 @@
+# sic-stabilizers/1.0
+# Extended Clifford stabilizers of WH SIC fiducials, D_p = tau^(p1 p2) X^p1 Z^p2, tau = -exp(pi i/d).
+# Element U = D_chi U_F, F = [[a, b], [c, e]] in ESL(2, Z_dbar) (canonical lift, Appleby2005symmetric);
+# det -1: U_F = U_(FJ) K antiunitary. Binary64 computation, see docs/data.md#stab; not an exact proof.
+# catalogue release-ray-inputs.tsv
+ray d4 d 4 order standard status independently-exact group_order 6 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.388e-16 z_tol 1.0e-06 z_error_bound 1.618e-13 max_element_z_deviation 3.525e-15 max_element_residual 2.220e-16 min_rejected_z_deviation 9.176e-01 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 24
+elem d4 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d4 1 det -1 F 3 2 2 1 chi 0 2 order 2 trace 4 z_dev 1.839e-15 residual 0.000e+00
+elem d4 2 det +1 F 3 3 1 4 chi 0 2 order 3 trace 7 zauner z_dev 1.839e-15 residual 2.220e-16
+elem d4 3 det +1 F 0 1 7 3 chi 0 2 order 3 trace 3 zauner z_dev 1.839e-15 residual 2.220e-16
+elem d4 4 det -1 F 3 1 3 6 chi 0 2 order 6 trace 1 z_dev 3.525e-15 residual 2.220e-16
+elem d4 5 det -1 F 2 1 3 1 chi 2 0 order 6 trace 3 z_dev 3.525e-15 residual 0.000e+00
+end 1

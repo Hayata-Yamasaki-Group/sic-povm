@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+#pragma once
+// Two-translation-unit coverage of the private constructor and decoder declarations.
+#include "construct/components/component_registry.hpp"
+#include "construct/components/components.hpp"
+#include "construct/components/exact_services.hpp"
+#include "construct/model/session_state.hpp"
+#include "construct/output/action_elements.hpp"
+#include "construct/output/guarded_writer.hpp"
+#include "construct/output/output_plan.hpp"
+#include "construct/output/quarantine.hpp"
+#include "construct/output/reencode.hpp"
+#include "construct/output/representative_leaves.hpp"
+#include "construct/runtime/command_line.hpp"
+#include "construct/runtime/runtime.hpp"
+#include "construct/selection/alignment_search.hpp"
+#include "construct/stages/dimension_two.hpp"
+#include "construct/stages/table/class_refinement.hpp"
+#include "decode/contraction.hpp"
+#include "decode/decoder.hpp"
+#include "decode/input/element_source.hpp"

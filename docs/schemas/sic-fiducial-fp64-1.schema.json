@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sic-fiducial-fp64/1.0",
+  "title": "sic-fiducial-fp64/1.0",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema",
+    "dimension",
+    "anchor",
+    "working_bits",
+    "data_files",
+    "pins",
+    "components"
+  ],
+  "properties": {
+    "schema": {
+      "const": "sic-fiducial-fp64/1.0"
+    },
+    "dimension": {
+      "type": "integer"
+    },
+    "basis": {
+      "type": "string"
+    },
+    "selector": {
+      "type": "string"
+    },
+    "association_contract": {
+      "type": "string"
+    },
+    "wh_convention": {
+      "type": "string"
+    },
+    "gauge": {
+      "type": "string"
+    },
+    "anchor": {
+      "type": "integer"
+    },
+    "working_bits": {
+      "type": "integer"
+    },
+    "native_workers": {
+      "type": "integer"
+    },
+    "coordinate_complex_error_ceiling": {
+      "type": "string"
+    },
+    "rounding": {
+      "type": "string"
+    },
+    "zero_policy": {
+      "type": "string"
+    },
+    "data_files": {
+      "type": "object"
+    },
+    "converter_binary_object_id": {
+      "type": "string"
+    },
+    "native_flint_version": {
+      "type": "string"
+    },
+    "reproduction_command_template": {
+      "type": "string"
+    },
+    "portable_provenance": {
+      "type": "string"
+    },
+    "fp64_point_squared_norm_arb_dump": {
+      "type": "string"
+    },
+    "fp64_point_maximum_squared_overlap_deviation_arb_dump": {
+      "type": "string"
+    },
+    "point_verification_scope": {
+      "type": "string"
+    },
+    "descriptor_sha256": {
+      "type": "string"
+    },
+    "pins": {
+      "type": "array"
+    },
+    "components": {
+      "type": "array"
+    }
+  }
+}

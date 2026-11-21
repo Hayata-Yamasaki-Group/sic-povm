@@ -1,0 +1,23 @@
+name: Feature request
+description: Suggest an improvement to the code, data or documentation.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: Explain what you want to accomplish and the current limitation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed improvement
+      description: Describe the behavior or documentation you would like, and how to check that it works.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and context
+      description: Include workarounds, relevant docs, examples or references. Distinguish research goals from established guarantees.

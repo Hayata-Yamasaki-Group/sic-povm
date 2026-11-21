@@ -1,0 +1,2871 @@
+[
+  {
+    "tool": "sic-check",
+    "command": "",
+    "sources": [
+      "cpp/apps/check/main.cpp"
+    ],
+    "arity": [
+      1,
+      2
+    ],
+    "options": {
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-overlaps",
+    "command": "",
+    "sources": [
+      "cpp/apps/overlaps/command_line.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--tol": {
+        "values": "T",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--vectors": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--table": {
+        "values": "OUT.bin",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-identify",
+    "command": "",
+    "sources": [
+      "cpp/apps/identify/command_line.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--catalogue": {
+        "values": "JSON|TSV",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--repo": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--tol": {
+        "values": "T",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--entry-error": {
+        "values": "E",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--moments": {
+        "values": "K",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--unitary-only": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-stabilizer",
+    "command": "",
+    "sources": [
+      "cpp/apps/stabilizer/command_line.cpp"
+    ],
+    "arity": [
+      0,
+      1
+    ],
+    "options": {
+      "--catalogue": {
+        "values": "JSON|TSV",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--repo": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--out": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--dim": {
+        "values": "D",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--tol": {
+        "values": "T",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--entry-error": {
+        "values": "E",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-construct",
+    "command": "",
+    "sources": [
+      "cpp/src/construct/runtime/command_line.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--out": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--order": {
+        "values": "standard|maximal",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--threads": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--memory-mib": {
+        "values": "M",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--maximum-exponent": {
+        "values": "S",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--maximum-precision": {
+        "values": "BITS",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--valuation-table-mib": {
+        "values": "M",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--valuation-total-mib": {
+        "values": "M",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--generator-selector": {
+        "values": "step-selection|conjugate-alignment",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--alignment-memory-mib": {
+        "values": "M",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--alignment-cache-mib": {
+        "values": "M",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--alignment-batch-mib": {
+        "values": "M",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--alignment-worker-mib": {
+        "values": "M",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--alignment-train": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--alignment-candidates": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--alignment-sweeps": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--alignment-seed": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--alignment-trace": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--resume": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--group-cache": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--stop-file": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--progress": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--radicals": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--log-admissions": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--analytic-cache": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--completed-class-cache": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--require-completed-cache": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-decode",
+    "command": "",
+    "sources": [
+      "cpp/apps/decode/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      2,
+      2
+    ],
+    "options": {
+      "--rays": {
+        "values": "all|L1,L2,...",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--coordinates": {
+        "values": "all|A-B|A,...",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--maximum-precision": {
+        "values": "BITS",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--target-bits": {
+        "values": "BITS",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--guard-bits": {
+        "values": "BITS",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--initial-bits": {
+        "values": "BITS",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--threads": {
+        "values": "T",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--memory-mib": {
+        "values": "M",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--no-pin": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--stop-file": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--log-admissions": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--profile": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--tower": {
+        "values": "auto|resident|stream",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--mem-policy": {
+        "values": "bind:N|preferred:N|interleave",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--check-budget": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--finalize": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--resume": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--working-bits": {
+        "values": "B",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--ray": {
+        "values": "LABEL WORD ANCHOR",
+        "operands": [
+          3,
+          3
+        ],
+        "repeat": true
+      },
+      "--remote": {
+        "values": "PARTS.json",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--source": {
+        "values": "URL|DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--cache": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--range-jobs": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--range-bytes": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--coalesce-gap": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--prefetch-mib": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--cache-max-ranges": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-max-fraction": {
+        "values": "F",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-timeout-ms": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-retries": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--expect-exact-root": {
+        "values": "HEX",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--expect-root": {
+        "values": "HEX",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--fetch-full": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-verify",
+    "command": "",
+    "sources": [
+      "cpp/apps/verify/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--maximum-precision": {
+        "values": "BITS",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--threads": {
+        "values": "T",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--quick": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--sic-check": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--rescaling": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--remote": {
+        "values": "PARTS.json",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--source": {
+        "values": "URL|DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--cache": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--range-jobs": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--range-bytes": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--coalesce-gap": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--prefetch-mib": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--cache-max-ranges": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-max-fraction": {
+        "values": "F",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-timeout-ms": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-retries": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--expect-exact-root": {
+        "values": "HEX",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--expect-root": {
+        "values": "HEX",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--fetch-full": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-inspect",
+    "command": "",
+    "sources": [
+      "cpp/apps/inspect/command_line.cpp"
+    ],
+    "arity": null,
+    "mode_arities": {
+      "--text-json": [
+        1,
+        1
+      ],
+      "--json-rays": [
+        1,
+        1
+      ],
+      "--json-all": [
+        1,
+        1
+      ],
+      "--exact-json": [
+        2,
+        2
+      ],
+      "--block": [
+        1,
+        1
+      ],
+      "--entry": [
+        1,
+        1
+      ],
+      "--release-layout": [
+        1,
+        1
+      ],
+      "--catalogue": [
+        0,
+        0
+      ],
+      "--info": [
+        1,
+        1
+      ]
+    },
+    "options": {
+      "--text-json": {
+        "values": "OUT|-",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--part-bytes": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--threads": {
+        "values": "T",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--json-rays": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--json-all": {
+        "values": "OUT",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--exact-json": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--multiplet": {
+        "values": "N|mN",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--no-check": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--block": {
+        "values": "I",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--entry": {
+        "values": "I",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--release-layout": {
+        "values": "ROOT",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--provenance-conductors": {
+        "values": "LIST",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--provenance-conductor": {
+        "values": "C",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--assets-dir": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--release-repo": {
+        "values": "OWNER/REPO",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--release-tag": {
+        "values": "TAG",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--part-size": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--catalogue": {
+        "values": "ROOT",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--info": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-container",
+    "command": "",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": null,
+    "options": {
+      "--out": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--asset-prefix": {
+        "values": "PREFIX",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--repository": {
+        "values": "OWNER/REPO",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--tag": {
+        "values": "TAG",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--emit-and-upload": {
+        "values": "CMD",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--confirm-size-cmd": {
+        "values": "CMD",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--part-size": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--source": {
+        "values": "URL|DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--maximum-precision": {
+        "values": "BITS",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--threads": {
+        "values": "J",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--data-root": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--parts": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--name": {
+        "values": "NAME",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--extra-bytes": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--force": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--remote": {
+        "values": "PARTS.json",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--cache": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--range-jobs": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--range-bytes": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--coalesce-gap": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--prefetch-mib": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--cache-max-ranges": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-max-fraction": {
+        "values": "F",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-timeout-ms": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-retries": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--expect-exact-root": {
+        "values": "HEX",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--expect-root": {
+        "values": "HEX",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--fetch-full": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-container",
+    "command": "split",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--out": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--asset-prefix": {
+        "values": "PREFIX",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--repository": {
+        "values": "OWNER/REPO",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--tag": {
+        "values": "TAG",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--emit-and-upload": {
+        "values": "CMD",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--confirm-size-cmd": {
+        "values": "CMD",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--part-size": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-container",
+    "command": "fetch",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--source": {
+        "values": "URL|DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--threads": {
+        "values": "J",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--data-root": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--parts": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--out": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--name": {
+        "values": "NAME",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--extra-bytes": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--force": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-container",
+    "command": "repair",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--source": {
+        "values": "URL|DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--threads": {
+        "values": "J",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--data-root": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--parts": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--out": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--name": {
+        "values": "NAME",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-container",
+    "command": "read-range",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      3,
+      3
+    ],
+    "options": {
+      "--remote": {
+        "values": "PARTS.json",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--source": {
+        "values": "URL|DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--cache": {
+        "values": "DIR",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--range-jobs": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--range-bytes": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--coalesce-gap": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--prefetch-mib": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--cache-max-ranges": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-max-fraction": {
+        "values": "F",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-timeout-ms": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--remote-retries": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--expect-exact-root": {
+        "values": "HEX",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--expect-root": {
+        "values": "HEX",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--fetch-full": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-container",
+    "command": "from-text",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      2,
+      2
+    ],
+    "options": {
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-container",
+    "command": "merge-parts",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      2,
+      null
+    ],
+    "options": {
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-container",
+    "command": "merge-element-parts",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      2,
+      null
+    ],
+    "options": {
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-container",
+    "command": "reencode",
+    "sources": [
+      "cpp/apps/container/command_line.cpp",
+      "cpp/src/access/source_arguments.cpp"
+    ],
+    "arity": [
+      2,
+      2
+    ],
+    "options": {
+      "--threads": {
+        "values": "J",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--maximum-precision": {
+        "values": "BITS",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-data",
+    "command": "",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": null,
+    "options": {
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-data",
+    "command": "formats",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      0,
+      0
+    ],
+    "options": {
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-data",
+    "command": "write",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      2,
+      2
+    ],
+    "options": {
+      "--formats": {
+        "values": "LIST",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-data",
+    "command": "check",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      2,
+      null
+    ],
+    "options": {
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-data",
+    "command": "bundle",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      2,
+      null
+    ],
+    "options": {
+      "--exceptional": {
+        "values": "RAY.json GROUP",
+        "operands": [
+          2,
+          2
+        ],
+        "repeat": true
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-data",
+    "command": "check-bundle",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      1,
+      null
+    ],
+    "options": {
+      "--exceptional": {
+        "values": "RAY.json",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-data",
+    "command": "list",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-data",
+    "command": "layout",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      2,
+      2
+    ],
+    "options": {
+      "--multiplet": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--threads": {
+        "values": "T",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-data",
+    "command": "catalogue",
+    "sources": [
+      "cpp/apps/data/main.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-check-balls",
+    "command": "",
+    "sources": [
+      "cpp/apps/check_balls/main.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--maximum-dimension": {
+        "values": "D",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--maximum-work": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--maximum-precision": {
+        "values": "W",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--memory-mib": {
+        "values": "M",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--bits": {
+        "values": "B",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--working-bits": {
+        "values": "W",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
+    "tool": "sic-certify-stabilizer",
+    "command": "",
+    "sources": [
+      "cpp/checkers/stabilizer/command_line.cpp"
+    ],
+    "independent": true,
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--version": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false,
+        "values": ""
+      },
+      "--help": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false,
+        "values": ""
+      },
+      "--catalogue": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "JSON|TSV"
+      },
+      "--repo": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "DIR"
+      },
+      "--prec": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "BITS"
+      },
+      "--threshold": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "T"
+      },
+      "--d2-exact": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "SICRAD"
+      }
+    }
+  },
+  {
+    "tool": "sic-verify-independent",
+    "command": "",
+    "sources": [
+      "cpp/checkers/verifier/src/cli/command_line.cpp"
+    ],
+    "independent": true,
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--version": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false,
+        "values": ""
+      },
+      "--help": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false,
+        "values": ""
+      },
+      "--text": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "FILE"
+      },
+      "--decode": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "auto|full|ratio|off"
+      },
+      "--max-steps": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "N"
+      },
+      "--extra-bits": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "N"
+      },
+      "--ray": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "LABEL"
+      },
+      "--selftest": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": true,
+        "values": ""
+      },
+      "--partial-element": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "ID"
+      },
+      "--expect-exact-root": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--expect-file-root": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--expect-sha256": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--branch-degree-limit": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "N"
+      },
+      "--release": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": true,
+        "values": ""
+      }
+    }
+  },
+  {
+    "tool": "sic-certify-crt",
+    "command": "",
+    "sources": [
+      "cpp/checkers/crt/src/cli/command_line.cpp"
+    ],
+    "independent": true,
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--version": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false,
+        "values": ""
+      },
+      "--help": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false,
+        "values": ""
+      },
+      "--exact-root": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--file-root": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--sha256": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--threads": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "T"
+      },
+      "--seed": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "S"
+      },
+      "--bound-only": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": true,
+        "values": ""
+      },
+      "--integral-max-dim": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "N"
+      },
+      "--primes": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "K"
+      },
+      "--prec": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "P"
+      },
+      "--inject": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "rep|act|conj"
+      },
+      "--no-shift-hints": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": true,
+        "values": ""
+      }
+    }
+  },
+  {
+    "tool": "sic-certify-norm",
+    "command": "",
+    "sources": [
+      "cpp/checkers/norm/src/cli/command_line.cpp"
+    ],
+    "independent": true,
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--version": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false,
+        "values": ""
+      },
+      "--help": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false,
+        "values": ""
+      },
+      "--threads": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "T"
+      },
+      "--verify-input": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": true,
+        "values": ""
+      },
+      "--partial": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": true,
+        "values": ""
+      },
+      "--exact-root": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--file-root": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--sha256": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--partial-element": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "ID"
+      },
+      "--partial-chunk": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "ID"
+      },
+      "--max-field-dimension": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "D"
+      },
+      "--max-dimension": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "D"
+      },
+      "--estimate": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": true,
+        "values": ""
+      },
+      "--leaf-estimate": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": true,
+        "values": ""
+      },
+      "--ray": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "I"
+      },
+      "--max-bits": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "B"
+      }
+    }
+  },
+  {
+    "tool": "sic-check-crt-input",
+    "command": "",
+    "sources": [
+      "cpp/checkers/crt/input_check.cpp"
+    ],
+    "independent": true,
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--version": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false,
+        "values": ""
+      },
+      "--help": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false,
+        "values": ""
+      },
+      "--partial-metadata": {
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": true,
+        "values": ""
+      },
+      "--exact-root": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--file-root": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--sha256": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "HEX"
+      },
+      "--partial-element": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "ID"
+      },
+      "--partial-chunk": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "ID"
+      }
+    }
+  }
+]

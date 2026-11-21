@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# No dependency on external publication trees: missing or modified inputs fail.
+file(STRINGS "${ROOT}/SHA256SUMS" _lines)
+if(NOT _lines)
+  message(FATAL_ERROR "Empty fixture manifest: ${ROOT}/SHA256SUMS")
+endif()
+foreach(_line IN LISTS _lines)
+  string(SUBSTRING "${_line}" 0 64 _want)
+  string(SUBSTRING "${_line}" 66 -1 _name)
+  if(NOT EXISTS "${ROOT}/${_name}")
+    message(FATAL_ERROR "Missing pinned test fixture: ${ROOT}/${_name}")
+  endif()
+  file(SHA256 "${ROOT}/${_name}" _got)
+  if(NOT _got STREQUAL _want)
+    message(FATAL_ERROR "Fixture digest mismatch: ${_name}: ${_got} != ${_want}")
+  endif()
+endforeach()

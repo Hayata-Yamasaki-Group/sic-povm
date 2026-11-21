@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sic-hoggar-exact-json/1.0",
+  "title": "sic-hoggar-exact-json/1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "required_features",
+    "d",
+    "id",
+    "field",
+    "coordinates_unnormalized",
+    "normalization",
+    "claims"
+  ],
+  "properties": {
+    "schema": {
+      "const": "sic-hoggar-exact-json/1.0"
+    },
+    "required_features": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "d": {
+      "const": "8"
+    },
+    "id": {
+      "const": "d8-hoggar-c0"
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generator",
+        "name",
+        "relation"
+      ],
+      "properties": {
+        "generator": {
+          "const": "i"
+        },
+        "name": {
+          "const": "Q(i)"
+        },
+        "relation": {
+          "const": "i^2 = -1"
+        }
+      }
+    },
+    "coordinates_unnormalized": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "string",
+          "pattern": "^-?[0-9]+$"
+        }
+      }
+    },
+    "normalization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "norm_squared_unnormalized",
+        "radicand",
+        "scalar",
+        "sqrt_branch"
+      ],
+      "properties": {
+        "norm_squared_unnormalized": {
+          "const": "12"
+        },
+        "radicand": {
+          "const": "12"
+        },
+        "scalar": {
+          "const": "1/sqrt(12)"
+        },
+        "sqrt_branch": {
+          "const": "positive real"
+        }
+      }
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "norm_squared",
+        "overlap_modulus_squared",
+        "overlaps_checked"
+      ],
+      "properties": {
+        "norm_squared": {
+          "const": "1"
+        },
+        "overlap_modulus_squared": {
+          "const": "1/9"
+        },
+        "overlaps_checked": {
+          "const": "63"
+        }
+      }
+    }
+  }
+}

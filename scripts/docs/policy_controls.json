@@ -1,0 +1,137 @@
+{
+  "sic_test_policy_layout": {
+    "test": "sic_test_policy_layout_controls",
+    "reason": "invalid path/include cycle"
+  },
+  "sic_test_policy_layout_controls": {
+    "test": "sic_test_policy_layout_controls",
+    "reason": "invalid path/include cycle",
+    "embedded": "layout-controls"
+  },
+  "sic_test_policy_hygiene": {
+    "test": "sic_test_policy_hygiene_controls",
+    "reason": "forbidden development wording"
+  },
+  "sic_test_policy_hygiene_controls": {
+    "test": "sic_test_policy_hygiene_controls",
+    "reason": "forbidden development wording",
+    "embedded": "hygiene-controls"
+  },
+  "sic_test_policy_data_layout": {
+    "test": "sic_test_policy_data_layout_controls",
+    "reason": "invalid data path"
+  },
+  "sic_test_policy_data_layout_controls": {
+    "test": "sic_test_policy_data_layout_controls",
+    "reason": "invalid data path",
+    "embedded": "data-layout-controls"
+  },
+  "sic_test_policy_symbols": {
+    "test": "sic_test_policy_symbols_controls",
+    "reason": "cross-object dependency cycle"
+  },
+  "sic_test_policy_symbols_controls": {
+    "test": "sic_test_policy_symbols_controls",
+    "reason": "cross-object dependency cycle",
+    "embedded": "symbols-controls"
+  },
+  "sic_test_policy_format_identities": {
+    "test": "sic_test_policy_format_identities",
+    "reason": "mutated frozen identities",
+    "embedded": "format-identities"
+  },
+  "sic_test_policy_data_formats": {
+    "test": "sic_test_policy_data_formats",
+    "reason": "changed numeric coordinate",
+    "embedded": "data-formats"
+  },
+  "sic_test_policy_catalogue_freshness": {
+    "test": "sic_test_policy_catalogue_freshness",
+    "reason": "stale catalogue whitespace",
+    "embedded": "catalogue-freshness"
+  },
+  "sic_test_policy_newton_workers": {
+    "test": "sic_test_policy_newton_workers",
+    "reason": "forbidden direct worker call",
+    "embedded": "newton-workers"
+  },
+  "sic_test_policy_header_namespaces": {
+    "test": "sic_test_policy_header_namespaces_controls",
+    "reason": "namespace-scope using directive"
+  },
+  "sic_test_policy_header_namespaces_controls": {
+    "test": "sic_test_policy_header_namespaces_controls",
+    "reason": "namespace-scope using directive",
+    "embedded": "header-namespaces-controls"
+  },
+  "sic_test_policy_help_contract": {
+    "test": "sic_test_policy_help_contract",
+    "reason": "wrong operand count and missing accepted option",
+    "embedded": "help-contract"
+  },
+  "sic_test_policy_source_claims": {
+    "test": "sic_test_policy_source_claims",
+    "reason": "unused/undeclared option and stale settings",
+    "embedded": "source-claims"
+  },
+  "sic_test_policy_shell_examples": {
+    "test": "sic_test_policy_shell_examples",
+    "reason": "unclassified shell block and command failure",
+    "embedded": "shell-options"
+  },
+  "sic_test_policy_schema_smoke": {
+    "test": "sic_test_policy_schema_smoke",
+    "reason": "wrong version, missing keys and wrong types for every family",
+    "embedded": "schema-smoke"
+  },
+  "sic_test_policy_documented_defaults": {
+    "test": "sic_test_policy_documented_defaults",
+    "reason": "changed prose/source defaults, schema vocabulary, decoder precision, retained fixture bytes and example coverage",
+    "embedded": "default-values"
+  },
+  "sic_test_policy_claim_registry": {
+    "test": "sic_test_policy_claim_registry",
+    "reason": "missing control and matching output with wrong process status",
+    "embedded": "claim-registry"
+  },
+  "sic_test_support_docs_links": {
+    "test": "sic_test_support_docs_links",
+    "reason": "absent documented source/data path",
+    "embedded": "docs-links"
+  },
+  "sic_test_support_docs_fixture_inventory": {
+    "test": "sic_test_support_docs_fixture_inventory",
+    "reason": "unclassified/missing fixture and wrong checksum",
+    "embedded": "docs-fixture-inventory"
+  },
+  "sic_test_policy_test_registry": {
+    "test": "sic_test_policy_test_registry",
+    "reason": "missing label, timeout overflow and invalid selector mutations",
+    "embedded": "test-registry"
+  },
+  "sic_test_policy_cpp_format": {
+    "test": "sic_test_policy_cpp_format",
+    "reason": "unformatted C++ input rejected by the configured formatter",
+    "embedded": "cpp-format"
+  },
+  "sic_test_support_core_installed_consumer": {
+    "test": "sic_test_support_core_installed_consumer",
+    "reason": "added tool, removed header and added component",
+    "embedded": "install-contract"
+  },
+  "sic_test_policy_naming": {
+    "test": "sic_test_policy_naming",
+    "reason": "invalid environment, constant, alias and target spellings",
+    "embedded": "naming"
+  },
+  "sic_test_policy_hex_owner": {
+    "test": "sic_test_policy_hex_owner",
+    "reason": "duplicate production hexadecimal encoder",
+    "embedded": "hex-owner"
+  },
+  "sic_test_policy_failure_boundaries": {
+    "test": "sic_test_policy_failure_boundaries",
+    "reason": "uncategorized direct library throw",
+    "embedded": "failure-boundaries"
+  }
+}

@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+#pragma once
+// clang-format off
+#if @SIC_TEST_HOOKS_MODE@
+// clang-format on
+#ifndef SIC_ENABLE_TEST_HOOKS
+#error "SIC_ENABLE_TEST_HOOKS must be present in this instrumented tree"
+#endif
+#else
+#ifdef SIC_ENABLE_TEST_HOOKS
+#error "SIC_ENABLE_TEST_HOOKS must be absent in this production tree (even =0 enables hooks)"
+#endif
+#endif

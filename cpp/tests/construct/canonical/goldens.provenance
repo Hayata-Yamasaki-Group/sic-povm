@@ -1,0 +1,35 @@
+binary 42f0c8ff246c9d1599d1b6968df2fe81b86bd01e1c69b0e7fe4d0749c6858bf5 artifact:sic-construct
+host recorded-build-host
+cpus ffff00000000000000000000  AMD EPYC 7763 64-Core Processor
+case s2_phased_default_t1 exit=0 wall=.733033812 bytes=5161
+case s2_phased_default_t4 exit=0 wall=.775807563 bytes=5161
+case s2_phased_default_t1_repeat_2 exit=0 wall=.742141071 bytes=5161
+case s2_phased_default_t4_repeat_2 exit=0 wall=.773396123 bytes=5161
+case s3_phased_default_t1 exit=0 wall=1.536041461 bytes=10275
+case s3_phased_default_t4 exit=0 wall=1.646992119 bytes=10275
+case s3_phased_default_t1_repeat_2 exit=0 wall=1.575793319 bytes=10275
+case s3_phased_default_t4_repeat_2 exit=0 wall=1.603154946 bytes=10275
+case s4_phased_default_t1 exit=0 wall=2.536417279 bytes=18387
+case s4_phased_default_t4 exit=0 wall=3.108449209 bytes=18387
+case s4_phased_default_t1_repeat_2 exit=0 wall=2.642202225 bytes=18387
+case s4_phased_default_t4_repeat_2 exit=0 wall=2.551223759 bytes=18387
+case s5_phased_default_t1 exit=0 wall=3.983245161 bytes=46022
+case s5_phased_default_t4 exit=0 wall=3.601770717 bytes=46022
+case s5_phased_default_t1_repeat_2 exit=0 wall=3.954863704 bytes=46022
+case s5_phased_default_t4_repeat_2 exit=0 wall=3.652692056 bytes=46022
+case s6_phased_default_t1 exit=0 wall=15.717358101 bytes=404327
+case s6_phased_default_t4 exit=0 wall=8.100296221 bytes=404327
+case s6_phased_default_t1_repeat_2 exit=0 wall=16.002332969 bytes=404327
+case s6_phased_default_t4_repeat_2 exit=0 wall=8.276325802 bytes=404327
+case s7_phased_default_t4 exit=0 wall=11.674470735 bytes=642882
+case s7_phased_default_t4_repeat_2 exit=0 wall=11.704668870 bytes=642882
+case s3_auto_default_t1 exit=0 wall=1.173916846 bytes=10275
+case s3_auto_default_t4 exit=0 wall=1.187173958 bytes=10275
+case s4_auto_default_t1 exit=0 wall=1.790169949 bytes=18387
+case s4_auto_default_t4 exit=0 wall=1.804885054 bytes=18387
+case s7_auto_standard_t4 exit=0 wall=43.815020872 bytes=7007314
+case s2_phased_standard_t4 exit=0 wall=.743053920 bytes=5161
+case s3_phased_standard_t4 exit=0 wall=1.574720500 bytes=10275
+case s4_phased_standard_t4 exit=0 wall=2.503492581 bytes=18387
+case s5_phased_standard_t4 exit=0 wall=3.646192017 bytes=46022
+case s6_phased_standard_t4 exit=0 wall=8.111368521 bytes=404327

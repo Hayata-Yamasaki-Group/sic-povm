@@ -1,0 +1,520 @@
+[
+  {
+    "file": "docs/data.md",
+    "claim": "Needs a FLINT build. Off by default; a normal build and CTest never touch the network.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/cmake/components/Data.cmake",
+        "text": "set(SIC_DATA_MULTIPLETS \"\" CACHE STRING"
+      },
+      {
+        "file": "cpp/cmake/components/Data.cmake",
+        "text": "add_custom_target(exact-data DEPENDS ${_outputs})  # not in ALL"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "claim": "For each multiplet this fetches a verified SICX into `build/data/d<d>/m<N>/`\nand generates `exact.json` on demand with `sic-inspect --exact-json` where\npower-basis conversion is practical (measured through d16, not large d).\nOptions: `SIC_DATA_SOURCE` (base URL/local parts directory, default the release\nin the manifest), `SIC_DATA_ROOT` (default `data/`), `SIC_DATA_JOBS` (parallel\ndownloads, default 4), `SIC_DATA_EXACT_JSON_FACTOR` (disk forecast multiplier,\ndefault 2). Disk admission covers the SICX, parts in flight and the JSON\nforecast; that multiplier is not a proved size bound for large power bases.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/cmake/components/Data.cmake",
+        "text": "set(SIC_DATA_SOURCE \"\" CACHE STRING \"Part source: base URL or local directory (default: the GitHub release named in each parts file)\")\nset(SIC_DATA_ROOT \"${PROJECT_SOURCE_DIR}/../data\" CACHE PATH \"Repository data tree holding d<d>/m<N>/multiplet.sicx.parts.json\")\nset(SIC_DATA_JOBS \"4\" CACHE STRING \"Parallel part downloads\")\nset(SIC_DATA_EXACT_JSON_FACTOR \"2\" CACHE STRING \"Disk estimate for exact.json as a multiple of the SICX size\")"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "claim": "All tools support `--help` (stdout, exit 0). See the [complete CLI\nreference](library.md#command-argument-contract) for option scopes and exit codes. Fetch and repair\ndefault to `--data-root data`, `--out build/data/d<d>/m<N>`, `--name multiplet.sicx` and `--threads\n4` (range 1..64). Only fetch accepts `--force` and `--extra-bytes`. Split uses the fixed\n1,900,000,000-byte ceiling; `--part-size` accepts only that value.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/apps/container/command_line.cpp",
+        "text": "constexpr std::string_view kDefaultDataRoot = \"data\";"
+      },
+      {
+        "file": "cpp/apps/container/command_line.cpp",
+        "text": "constexpr unsigned kDefaultTransferThreads = 4;"
+      },
+      {
+        "file": "cpp/apps/container/command_line.cpp",
+        "text": "constexpr const char* kDefaultOutputRoot = \"build/data\";"
+      },
+      {
+        "file": "cpp/include/sic/transport/parts.hpp",
+        "text": "inline constexpr const char* kLogicalName = \"multiplet.sicx\";"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "claim": "The SICX reader and decoder also accept a **local parts manifest** with remote byte access. The SICX\nbytes, exact root and certificates are unchanged. Build with libcurl >= 7.81 development headers for\nHTTP support (`SIC_ENABLE_REMOTE` defaults to ON when libcurl is found). The numeric core library\ndoes not link libcurl. The CLIs load shared libcurl when opening an HTTP source, so local decoding\ndoes not load it. `-DSIC_ENABLE_REMOTE=OFF` still supports local files and local parts mirrors.\nTests use a local Node HTTP server and never contact GitHub.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/cmake/components/SicxRemote.cmake",
+        "text": "option(SIC_ENABLE_REMOTE \"Enable HTTP Range access to SICX transport parts\" ${CURL_FOUND})"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "claim": "The default source is `https://github.com/<repository>/releases/download/<tag>` from the manifest;\n`--source URL|DIR` replaces that base. The asset name is appended to it. Redirects preserve Range.\nExplicit `http://` sources are supported for local testing; use HTTPS for public mirrors. Each\nlogical read is split at asset boundaries and at `--range-bytes` (default 1 MiB, maximum 8 MiB). The\nreader also fetches the header, footer, complete LDIR/PDIR, EXMT and RAYS. The decoder derives all\ntower/action chunks and all chunks of each selected representative from that metadata. A coordinate\nis not a same-index stored leaf: it needs its whole representative. Comma-separated coordinates and\ninclusive ranges are accepted (for example `--coordinates 0,128` or `0-3,128`); duplicates are\nremoved and output order is increasing. Contiguous selections use their range filenames.\nNoncontiguous selections write `cN.raw-selected.balls`, with their indices in\n`decode.provenance.json`'s `coordinate_indices`. These are raw enclosures; normalization needs the\ncomplete ray. `sic-container read-range` writes raw bytes to stdout and transfer statistics to\nstderr; its arbitrary output range is a debugging facility, while opening the container still runs\nthe reader's metadata checks.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/access/remote.hpp",
+        "text": "  unsigned jobs = 4, retries = 3;       // retries after the initial attempt\n  uint64_t range_bytes = 1u << 20;      // maximum extent and HTTP request size\n  uint64_t coalesce_gap = 4096;         // maximum admitted gap between scheduled ranges\n  uint64_t prefetch_bytes = 8u << 20;   // disk lookahead; zero disables scheduling\n  uint64_t memory_budget = UINT64_MAX;  // aggregate caller budget; decoder reserves source headroom\n  long timeout_ms = 30000, connect_timeout_ms = 10000;\n  uint64_t max_ranges = 262144;  // hard cap on persistent extent and plan metadata\n  double max_fraction = 0.5;     // union of missing planned ranges / logical size"
+      },
+      {
+        "file": "cpp/src/transport/parts.cpp",
+        "text": "return \"https://github.com/\" + p.repository + \"/releases/download/\" + p.tag;"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "claim": "At most `--range-jobs` requests run concurrently (default 4, range 1..32). The default\nrange size is 1 MiB. Each range request\nrequires **206** and the exact `Content-Range: bytes FIRST-LAST/PART_SIZE`; a 200 response is aborted\nat its headers. Wrong ranges, sizes, encodings and malformed redirects fail immediately. Connection\nfailures, timeouts and HTTP 408/429/5xx retry with exponential backoff (100 ms initially,\n`--remote-retries 3` additional attempts, maximum 10). `--remote-timeout-ms` defaults to 30000 per\nattempt; the connection timeout is 10000 ms, and stalled bodies also have a low-speed timeout.\nWithin a retry, a received prefix is retained and the next Range starts at the next byte. Across\nprocess interruptions, complete atomic cache extents survive; at most the in-flight extents need\nfetching again. The decoder reserves source staging and metadata headroom inside `--memory-mib`:\n`2*jobs*(range_bytes+56) + 2*8 MiB + 512*cache_max_ranges + 8 MiB`, in addition to its measured\nresident baseline and admitted numerical work. This is conservative (about 160 MiB at the defaults),\nso tiny remote budgets require smaller range/job/metadata caps or are refused before decoding.\nRSS remains subject to allocator/library overhead and is checked with `--check-budget`; the admission\nestimate is not a proof of whole-process RSS. `--cache-max-ranges` bounds cache and read-plan metadata\n(default 262144, maximum 1048576); exceeding it recommends a full download.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/access/remote.hpp",
+        "text": "  unsigned jobs = 4, retries = 3;       // retries after the initial attempt\n  uint64_t range_bytes = 1u << 20;      // maximum extent and HTTP request size\n  uint64_t coalesce_gap = 4096;         // maximum admitted gap between scheduled ranges\n  uint64_t prefetch_bytes = 8u << 20;   // disk lookahead; zero disables scheduling\n  uint64_t memory_budget = UINT64_MAX;  // aggregate caller budget; decoder reserves source headroom\n  long timeout_ms = 30000, connect_timeout_ms = 10000;\n  uint64_t max_ranges = 262144;  // hard cap on persistent extent and plan metadata\n  double max_fraction = 0.5;     // union of missing planned ranges / logical size"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "claim": "`--prefetch-mib` (default 8, 0 disables, maximum 256) controls physical-order lookahead to the disk\ncache. One background scheduler shares demand's staging and request limits; it retains no decoded\nchunks. It merges adjacent ranges and gaps up to `--coalesce-gap` bytes (default 4096, maximum 8 MiB),\nnever crossing a part boundary or the request-size cap. Gap bytes count toward the transfer plan.\nThe lookahead does not accumulate whole rays in RAM. Quiescing after decode makes the `REMOTE`\ntransfer/request/buffer statistics final; destruction cancels speculative HTTP and retries.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/access/remote.hpp",
+        "text": "  unsigned jobs = 4, retries = 3;       // retries after the initial attempt\n  uint64_t range_bytes = 1u << 20;      // maximum extent and HTTP request size\n  uint64_t coalesce_gap = 4096;         // maximum admitted gap between scheduled ranges\n  uint64_t prefetch_bytes = 8u << 20;   // disk lookahead; zero disables scheduling\n  uint64_t memory_budget = UINT64_MAX;  // aggregate caller budget; decoder reserves source headroom\n  long timeout_ms = 30000, connect_timeout_ms = 10000;\n  uint64_t max_ranges = 262144;  // hard cap on persistent extent and plan metadata\n  double max_fraction = 0.5;     // union of missing planned ranges / logical size"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "claim": "The default transfer limit is **50% of the logical file**. The decoder preflights all tower/action\nchunks and requested representative chunks, plus the needed finalization chunks, before loading the\ntower. Full verification preflights every chunk. If the union of missing ranges planned in that\nprocess exceeds `--remote-max-fraction 0.5`, access stops and recommends `sic-container fetch`.\nAlready cached ranges cost no transfer budget. Small fixtures and some large representative chunks\ncan exceed the limit even for one coordinate. An explicit fraction in `(0,1]` changes the limit.\nAlternatively, `--fetch-full` permits a separate, explicit verified full-download strategy after a\nthreshold refusal or a rejected HTTP 200 (the Range response itself is always aborted at its\nheaders):",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/access/remote.hpp",
+        "text": "  unsigned jobs = 4, retries = 3;       // retries after the initial attempt\n  uint64_t range_bytes = 1u << 20;      // maximum extent and HTTP request size\n  uint64_t coalesce_gap = 4096;         // maximum admitted gap between scheduled ranges\n  uint64_t prefetch_bytes = 8u << 20;   // disk lookahead; zero disables scheduling\n  uint64_t memory_budget = UINT64_MAX;  // aggregate caller budget; decoder reserves source headroom\n  long timeout_ms = 30000, connect_timeout_ms = 10000;\n  uint64_t max_ranges = 262144;  // hard cap on persistent extent and plan metadata\n  double max_fraction = 0.5;     // union of missing planned ranges / logical size"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "claim": "The default cache is `$XDG_CACHE_HOME/sicx`, or `$HOME/.cache/sicx`; `--cache DIR` overrides it.\nThe sparse cache stores independent extents, not a partial SICX file:",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/access/range_cache.cpp",
+        "text": "filesystem::path default_cache() {\n  const char* xdg = std::getenv(\"XDG_CACHE_HOME\");\n  if (xdg && *xdg) return filesystem::path(xdg) / \"sicx\";\n  const char* home = std::getenv(\"HOME\");\n  if (home && *home) return filesystem::path(home) / \".cache/sicx\";\n  fail(sic::ErrorKind::invalid_argument, \"remote: no user cache directory; pass --cache DIR\");\n}"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "claim": "`sic-construct 1 --out d2.sicx --radicals data/d2/d2.sicrad` reads this record (the default uses the\nembedded pinned record). `sic-certify-stabilizer --d2-exact data/d2/d2.sicrad STABFILE` checks the\nd2 symmetries exactly. The optional exact-JSON GP check also exercises the d2 SICX; its embedding\nlimitations remain as stated in verification. The parsed polynomial identities above are the\nmathematical basis of the radical proof, distinct from the supplementary Arb residual.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/options.cpp",
+        "text": "d2_radicals(raw(\"SIC_D2_RADICALS\"))"
+      },
+      {
+        "file": "cpp/src/construct/stages/dimension_two.cpp",
+        "text": "path.empty() ? static_cast<std::istream&>(embedded) : static_cast<std::istream&>(file);"
+      }
+    ]
+  },
+  {
+    "file": "docs/data.md",
+    "claim": "Certification `sic-certify-stabilizer STABFILE [--d2-exact data/d2/d2.sicrad]`\n(FLINT): for each non-identity element, a ball enclosure (384 bits, Appleby's formula as a direct\nsum) of `1 - |<phi|U phi>|^2/<phi|phi>^2`; pass if the bound is below 2^-100.\nThe default release catalogue lists `c<N>.json`; the checker independently reads\nits HP decimal midpoints/radii as exact rationals and encloses them outward in Arb.\nExplicit TSV catalogues instead select adjacent `normalized-gauged.balls` inputs.\nThe retained shared tables keep their original ray labels and use those explicit\nTSV associations in tests. Generate a table with `sic-stabilizer --dim 2` to check\nthe default release ray with its canonical `d2-m1-c0` label.\nWith `--d2-exact` the d = 2 elements are also verified exactly in FLINT `qqbar`\nfrom the radical artifact (`U psi` proportional to `psi`).",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/checkers/stabilizer/command_line.cpp",
+        "text": "\"  --catalogue JSON|TSV    ray catalogue (default REPO/data/catalogue.json)\\n\""
+      },
+      {
+        "file": "cpp/checkers/stabilizer/command_line.cpp",
+        "text": "if (catalogue.empty()) catalogue = root + \"/data/catalogue.json\";"
+      }
+    ]
+  },
+  {
+    "file": "docs/install.md",
+    "claim": "CMake 3.20 or newer, a C++20 compiler and Node.js are required for the default test-enabled build. A\nbuild configured with `-DSIC_BUILD_TESTS=OFF` does not require Node.js. The test-enabled\nconfiguration also requires `nm` or `llvm-nm`; exact tests require OpenSSL Crypto development files.\nThe plain configuration builds the numerical core and tools without FLINT:",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/CMakeLists.txt",
+        "text": "option(SIC_BUILD_TESTS       \"Build unit tests\"                                 ON)"
+      }
+    ]
+  },
+  {
+    "file": "docs/install.md",
+    "claim": "Set the consumer's `CMAKE_PREFIX_PATH` to the installation prefix and any separate dependency\nprefixes. See the [library API](library.md) for components and ownership rules. Tests are enabled by\ndefault. Test hooks require a separate build with `SIC_ENABLE_TEST_HOOKS=ON`; installation from that\nbuild is refused. See [Contributing](../CONTRIBUTING.md) for validation.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/CMakeLists.txt",
+        "text": "option(SIC_BUILD_TESTS       \"Build unit tests\"                                 ON)"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "Build with C++20. `find_package(sic REQUIRED COMPONENTS core)` provides `sic::core` without FLINT.\nThe `support` and `search` components are also available without FLINT. A FLINT-enabled installation\nadditionally provides components and targets `sicx`, `decode`, `transport`, `access`, `bounds` and\n`data`. The `data` component is also available without FLINT; exact decoding requires FLINT. These\nresolve FLINT and optional HDF5 on the consumer host. HTTP access loads the libcurl ABI by its\nloader name (`SIC_CURL_SONAME`, default `libcurl.so.4`); the host loader search path determines its\nlocation. The core does not link curl or FLINT. Producer and decoder source identity definitions\nare not exported to consumers.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/cmake/components/SicxRemote.cmake",
+        "text": "set(SIC_CURL_SONAME \"libcurl.so.4\" CACHE STRING"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "`ResourceLimits` separates reader/writer resource policy from SICX 1.0 wire limits. Pass the same\npolicy to writer and reader when raising defaults. `ValuationPolicy` admits each dense table and\ntheir total; verification uses the same estimator. `PrecisionPolicy` and decoder `maximum_precision`\nare computational limits. BALL retains its normative maximum of 1024 limbs, independently of\ninformative working precision. A higher computational ceiling does not widen the wire format.\n`InputLimits` configures core text input. HDF5 reads admit dimensions and vector bytes through the\ndefault `InputLimits` before allocation. `RemoteOptions::limits` configures transport resource\nbounds.",
+    "kind": "reference",
+    "reason": "Refers to library policies without stating their omitted numeric values.",
+    "authority": [
+      {
+        "file": "cpp/include/sic/sicx/format.hpp",
+        "text": "inline constexpr unsigned kMaximumBallLimbs = 1024;"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "`sic/support/parse_number.hpp` provides `sic::support::parse_number<T>(text, name,\nkind, low, high, base)` for signed and unsigned integers and finite floating values.\nBounds are inclusive and default to the native type's limits. Conversion consumes\nthe entire string, is locale independent, and rejects overflow, whitespace and a\nleading plus; signed values may have a leading minus. Integer bases are 2–36\n(default 10), without prefixes; floating values use decimal general format.\nCallers retain format tokenization and canonical spelling checks. Use\n`ErrorKind::invalid_argument` for options and `invalid_format` for file or wire\nrecords. Failures throw `sic::Error`. The installed `sic/support/cli.hpp`\n`number<T>` facade retains its default lower bound of zero, `UsageError` subtype\nand usage exit code 2.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/support/parse_number.hpp",
+        "text": "T parse_number(std::string_view text, std::string_view name, ErrorKind kind,\n               T low = std::numeric_limits<T>::lowest(), T high = std::numeric_limits<T>::max(),\n               int base = 10) {"
+      },
+      {
+        "file": "cpp/include/sic/support/cli.hpp",
+        "text": "T number(std::string_view text, std::string_view name, T low = 0,\n         T high = std::numeric_limits<T>::max()) {"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "`SIC_ENABLE_LTO` defaults to ON. CMake checks IPO support and enables LTO only\nin Release and RelWithDebInfo; disable it with `-DSIC_ENABLE_LTO=OFF`. Other configurations and sanitizer\nbuilds do not enable LTO. Independent checker executables use LTO within each\nchecker's own sources and external dependencies; the norm checker instead uses\nprivate inline definitions for its measured hot functions. Checkers do not link\nproduction code or other checkers. Test translation units retain their own settings.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/cmake/components/LinkTimeOptimization.cmake",
+        "text": "option(SIC_ENABLE_LTO \"Optimize Release production and independent checker targets at link time\" ON)"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "`BallVerificationLimits` has defaults of 256 working bits, 64 absolute radius bits, maximum 4096\nworking bits, maximum dimension 2048, 64 Mi total input midpoint bits, 512 MiB admitted workspace\nand a 10,000,000,000 work score. Callers may raise the dimension and precision limits up to\n`LONG_MAX/2` and `sic::kNativeMaximumPrecision`, respectively, subject to work and workspace\nadmission. Dimension is at least 2. Working precision is at least 64 bits, with requested absolute\nradius accuracy in 1..working_bits-32. Exceeding any limit throws.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/bounds/overlap_bounds.hpp",
+        "text": "  long working_bits = 256;\n  // Required maximum-deviation interval radius <=2^(-this value).\n  long minimum_absolute_accuracy_bits = 64;\n  long maximum_working_bits = 4096;\n  std::size_t maximum_dimension = 2048;\n  std::uint64_t maximum_input_mantissa_bits = 64ULL * 1024 * 1024;\n  std::uint64_t maximum_workspace_bytes = 512ULL * 1024 * 1024;\n  // Declared admission score, not a bound on native instructions/bit work.\n  // Default admits dimension2048 at the default precision/workspace limits.\n  std::uint64_t maximum_work_score = 10000000000ULL;"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "This is engineering work admission, not a native-instruction bound or a\nbit-complexity theorem for FLINT. The default score admits d2048, including\nits 4,194,303 nonidentity labels. Lower caller scores still refuse explicitly.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/bounds/overlap_bounds.hpp",
+        "text": "  long working_bits = 256;\n  // Required maximum-deviation interval radius <=2^(-this value).\n  long minimum_absolute_accuracy_bits = 64;\n  long maximum_working_bits = 4096;\n  std::size_t maximum_dimension = 2048;\n  std::uint64_t maximum_input_mantissa_bits = 64ULL * 1024 * 1024;\n  std::uint64_t maximum_workspace_bytes = 512ULL * 1024 * 1024;\n  // Declared admission score, not a bound on native instructions/bit work.\n  // Default admits dimension2048 at the default precision/workspace limits.\n  std::uint64_t maximum_work_score = 10000000000ULL;"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "`components.hpp` separates generator selection, exact representation transformations, rescaling, and\nthe SICX writer. The native defaults are conjugate alignment, no representation transformations, the\nshared greedy dyadic rule, and the shared SICX writer. `--generator-selector step-selection` selects\nthe step-selection presentation. Nonempty representation transformations and nondefault native\nrescaling rules are explicitly refused until their required written-output checks are implemented.\n`NoRescalingRule` exists as an internal interface/conformance control.",
+    "kind": "reference",
+    "reason": "Reviewed native component selection and representation behavior; source constructor and CLI selection are bound explicitly.",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/alignment_options.hpp",
+        "text": "inline constexpr const char* kAlignmentSelector = \"conjugate-alignment\";"
+      },
+      {
+        "file": "cpp/src/construct/components/components.cpp",
+        "text": "Components::Components()\n    : selector(std::make_unique<StepSelectionSelector>()),\n      rescaling(std::make_unique<Greedy2adicRule>()),\n      writer(std::make_unique<ProducerWriter>()) {}"
+      },
+      {
+        "file": "cpp/src/construct/selection/alignment.cpp",
+        "text": "components.selector =\n      std::make_unique<ConjugateAlignmentSelector>(generator_choices, producer_options.alignment);"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "`sic-container reencode IN OUT [--threads N]` is the identity file route: `stored_element_source`\nplus the inverse recorded dyadic shifts, recomputation of the shared default rescaling, and checked\nserialization. It preserves all chunks, physical grouping and optional records byte for byte. Its\npreflight includes both Reader caches, directory/metadata growth, codec windows, valuation tables\nand inverse-tree scratch. Tests reject noncanonical C and insufficient budgets. This route preserves\nthe tower presentation and accepts no nonempty representation transformations or nondefault\nrescaling rules.",
+    "kind": "reference",
+    "reason": "Representation identity contract, not a literal omitted-option value.",
+    "authority": [
+      {
+        "file": "cpp/src/construct/components/components.cpp",
+        "text": "Components::Components()\n    : selector(std::make_unique<StepSelectionSelector>()),\n      rescaling(std::make_unique<Greedy2adicRule>()),\n      writer(std::make_unique<ProducerWriter>()) {}"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "Default library producer threads use distinct physical cores in the process CPU\nallowance, capped by cgroup CPU quotas/cpusets and SLURM_CPUS_PER_TASK. The producer CLI\nalso applies its dimension-dependent work cap; the decoder CLI caps its default\nat 32. Linux topology is cached once per CPU for the process lifetime. On macOS, logical\nallowance uses hw.logicalcpu (hardware_concurrency() as fallback) and physical defaults\nuse hw.physicalcpu (or one). Other platforms without affinity use hardware_concurrency()\nfor logical allowance and one physical core for defaults. Unknown Linux cgroup-v2\nancestry limits defaults to one worker only. Memory discovery still fails closed.\nMalformed readable quotas are errors.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/worker_policy.cpp",
+        "text": "int default_producer_workers(unsigned exponent) {\n  // Small analytic grids do not amortize a large worker team's dispatch and\n  // allocator costs. Saturate at the physical cores, without counting SMT.\n  const int work_limit = exponent < 9 ? std::min(32, 1 << (exponent > 2 ? exponent - 2 : 0)) : 64;\n  return std::min(static_cast<int>(sic::support::resources::requested_threads(nullptr)),\n                  work_limit);\n}"
+      },
+      {
+        "file": "cpp/apps/decode/command_line.cpp",
+        "text": "constexpr WorkerDefault kDefaultWorkers{32};"
+      },
+      {
+        "file": "cpp/src/support/resources/platform_snapshot.cpp",
+        "text": "CpuCounts non_affinity_cpu_counts(Count logical, Count physical, Count hardware_logical) {\n  return {std::max<Count>(1, logical ? logical : hardware_logical), std::max<Count>(1, physical)};\n}"
+      },
+      {
+        "file": "cpp/src/support/resources/platform_snapshot.cpp",
+        "text": "Count process_cpu_allowance(const std::filesystem::path& proc_root) {\n  Snapshot result;\n  result.cpus = affinity_physical_cores();\n  std::vector<std::filesystem::path> paths;\n  try {\n    paths = process_cgroups(proc_root);\n  } catch (const sic::Error& error) {\n    if (error.kind() != ErrorKind::io && error.kind() != ErrorKind::resource) throw;\n    // CPU defaults remain usable without visible cgroup-v2 ancestry. Memory\n    // inspection stays strict; an unknown CPU ceiling permits only one worker.\n    result.cpus = 1;\n  }\n  for (const auto& path : paths) apply_cpu_cgroup(result, path);\n  apply_job_cpus(result);\n  return result.cpus;\n}"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "Explicit SIC_THREADS in the library and --threads in the producer CLI take precedence\nover the default and are never clamped to the CPU allowance; invalid counts are refused.\nDecoder teams retain the requested count, subject to `maximum_threads` and memory\nadmission. Physical compute dispatch uses a subset on distinct placement cores when\nplacement CPUs are known; otherwise it uses the full team. There is no process-allowance\ncap on explicit counts. Internal producer fan-out uses its caller's worker budget,\nbounded by available work and memory.\nSnapshot::cpus retains logical allowance and SLURM_MEM_PER_CPU accounting. The production CLI\ncaptures its options, validates documented inherited producer settings, and clears inherited\nSIC_* settings before running the producer. Invalid unused settings are refused before output\nprobes or construction work.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/support/resources/platform_snapshot.cpp",
+        "text": "int requested_threads(const char* configured) {\n  return configured ? thread_count(configured, \"SIC_THREADS\")\n                    : static_cast<int>(process_cpu_allowance());\n}"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "Complete syntax and option defaults are generated in [Command-line tools](tools.md).\n",
+    "kind": "reference",
+    "reason": "Links the generated help reference; no additional default value is stated.",
+    "authority": [
+      {
+        "file": "scripts/docs/help.mjs",
+        "text": "'sic-construct', 'sic-check'"
+      }
+    ]
+  },
+  {
+    "file": "docs/reproduce.md",
+    "claim": "The default worker ceiling follows the analytic grid size (1 worker through d4, then d/4 through\nd128, 32 at d256, and at most 64 thereafter), bounded by the process CPU allowance. An explicit\n`--threads` uses the requested limit, subject to memory admission. Class concurrency adapts to\nremaining classes, free worker shares and fully charged owner forecasts; each completed owner\nreleases its admission before queued work can reuse it.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/worker_policy.cpp",
+        "text": "int default_producer_workers(unsigned exponent) {\n  // Small analytic grids do not amortize a large worker team's dispatch and\n  // allocator costs. Saturate at the physical cores, without counting SMT.\n  const int work_limit = exponent < 9 ? std::min(32, 1 << (exponent > 2 ? exponent - 2 : 0)) : 64;\n  return std::min(static_cast<int>(sic::support::resources::requested_threads(nullptr)),\n                  work_limit);\n}"
+      }
+    ]
+  },
+  {
+    "file": "docs/reproduce.md",
+    "claim": "The selector’s complete incremental budget defaults to 16384 MiB; optional\ncache ceilings, batch and worker budgets constrain it further. Cache mode is\nused only when both the complete incremental and global live sets fit;\n`--alignment-cache-mib 0` forces deterministic replay. Search parameters,\nbase candidates and exact conjugates enter PROV and authenticated resume\njournals; changing the semantic plan refuses resume. Resource-only retention\nchoices do not enter that semantic plan. `--log-admissions` records decisions.\nDo not interpret an admission refusal as a mathematical disproof.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/alignment_options.hpp",
+        "text": "uint64_t memory_bytes = uint64_t{16} << 30;"
+      }
+    ]
+  },
+  {
+    "file": "docs/reproduce.md",
+    "claim": "The default S=1 source is the embedded pinned radical record. To use the\nexplicit identical input, add `--radicals data/d2/d2.sicrad`.\nIts parsed coefficients must satisfy positivity, A+2B=1, 4AB=1/3 and\n(A−2B)^2=1/3; these are exact identities in Q(√3), not residual tests.\nAn independent exact stabilizer check reads the radical input directly:",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/construct/model/options.cpp",
+        "text": "d2_radicals(raw(\"SIC_D2_RADICALS\"))"
+      }
+    ]
+  },
+  {
+    "file": "docs/sicx.md",
+    "claim": "Implementation resource limits MUST be checked before allocation or expansion.\nThe reference defaults are: integer magnitude at most `2^20` bytes; any JSON\nchunk at most 64 MiB; decoded logical leaf and decoded physical chunk at most\n256 MiB; at most `2^24` entries in each directory; JSON nesting at most 32;\ninteger strings at most 18 digits except `scale`; no unbounded recursion\nfrom input. These are resource refusals and may be raised explicitly, not\nsilently bypassed. Declared lengths MUST NOT force whole-file allocation.\nA partial reader can defer payload-wide checks, but never a failed check on\nbytes it actually uses. Precision/resource refusal MUST be distinguishable\nfrom successful verification and from proved algebraic inconsistency.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/include/sic/sicx/format.hpp",
+        "text": "inline constexpr uint64_t kMaxIntegerBytes = 1u << 20;    // 8 Mbit per integer\ninline constexpr uint64_t kMaxTextChunk = 64ull << 20;    // EXMT/PREC/PROV\ninline constexpr uint64_t kMaxBlockBytes = 256ull << 20;  // one TOWR/BODY block\ninline constexpr uint64_t kMaxChunks = 1ull << 24;"
+      },
+      {
+        "file": "cpp/include/sic/support/json.hpp",
+        "text": "inline constexpr size_t kCanonicalDecimalDigits = 18;"
+      },
+      {
+        "file": "cpp/include/sic/support/json.hpp",
+        "text": "inline constexpr unsigned kDefaultJsonDepth = 32;"
+      }
+    ]
+  },
+  {
+    "file": "docs/verification.md",
+    "claim": "Build with `cmake -S cpp -B cpp/build -DSIC_ENABLE_FLINT=ON`, then `cmake --build cpp/build --target\nsic-certify-norm`; the binary is `cpp/build/sic-certify-norm`. Use\n`-DCMAKE_PREFIX_PATH=FLINT_INSTALL` if FLINT is installed outside the system search path.\nSee the complete [norm checker options](tools.md#sic-certify-norm) for syntax and defaults.\n`--estimate` performs exact preprocessing and a precision estimate without a SIC verdict;\n`--leaf-estimate` gives a heuristic feasibility estimate without exact preprocessing or a SIC\nverdict. Exit codes are 0 for all selected rays certified (or a completed estimate), 1 for an\ninconclusive certificate or BALL mismatch, 2 for usage errors, and 3 for a refused input or\ncomputation. Numeric CLI values must be full-string unsigned decimals with checked overflow;\nmalformed values, missing values and out-of-range options exit 2 before certification. `--max-bits`\naccepts\n1..9223372036854775807, `--ray` accepts a zero-based index, and `--threads` must be positive.\nInput-only limits include 64 MiB per directory/JSON payload and 256 MiB per physical/logical\npayload; see the checker input/admission contract below for the other limits. Mathematical\ncertification requires `d, [L:K] ≤ 4096`; these are resource limits, not feasibility guarantees.\nExact certification supports real quadratic base fields and quadratic tower levels at the final\nhigh-precision stage. Odd levels can be used for estimates, but final certification refuses them.\nExact-only files can be read for estimates; certification requires finalized rays and balls.",
+    "kind": "reference",
+    "reason": "The complete generated norm-checker help owns option defaults; this paragraph links to it and describes estimate/exit scope. Semantic default comparisons use that generated help, and compiled omitted-option controls remain enrolled.",
+    "authority": []
+  },
+  {
+    "file": "docs/verification.md",
+    "claim": "`ctest -L crt` exercises eleven input groups (valid, rejection mutations, boundaries/regrouping,\npartial trust/scope, amendments, primitive guards, mixed odd/quadratic branches, targeted guards,\ngeneral dimensions, deterministic fuzz mutations, and public CLI), five fixture CRT proofs,\nbound-only diagnostics, strict CLI option/error cases, help/parser defaults, help, source\nindependence, a shift retry, and three deliberate mathematical negative controls. The independent\nexecutables are enrolled in the repository’s independence audit. Rehashed negative fixtures pin\nrejection categories so a different later failure cannot silently substitute for the intended check.\nFive additional `sic-test-crt-faults` cases interpose OS/FLINT failures to test otherwise rare\nfail-closed paths; interposition is test-only.",
+    "kind": "reference",
+    "reason": "Lists default-check test coverage; no numeric default is stated.",
+    "authority": [
+      {
+        "file": "cpp/checkers/crt/CMakeLists.txt",
+        "text": "add_test(NAME sic_test_crt_cli_defaults"
+      }
+    ]
+  },
+  {
+    "file": "docs/verification.md",
+    "claim": "**SICX 1.0 measurements.** Measurements on a shared AMD EPYC 7763 host with FLINT 3.6.0, GCC 11.4\nand `-O3`. All runs used 120 threads, the default proved bound, no prime-count override, and their\nrecorded exact presentations. These are measurements of those inputs; they are not current\nrelease-production certificates. Every run finished `[PROVED]`. Wall time and peak RSS are GNU\ntime's whole-process measurements, including input admission. Shared-host timings are approximate.\nLemma I covers levels with `2[F_j:K] ≤ 8192`.",
+    "kind": "recorded",
+    "reason": "Recorded input-specific measurement context rather than a current configurable default.",
+    "authority": []
+  },
+  {
+    "file": "docs/verification.md",
+    "claim": "Default input limits are `d <= 4096`, `D <= 65536`, 4,194,304 total dense\ncoordinates, 64 MiB per directory/JSON payload, 256 MiB per physical/logical\npayload, one MiB per integer, JSON depth 32 and 1,048,576 JSON nodes. Branch\nprecision, branch mantissa bits and branch exponent magnitude are limited to\n`2^20`; exact algebraic operations use degree 256 and height `2^20`.\n`ReadOptions::algebraic_limits` can lower those two budgets. Component extraction,\ntrace contraction, trace-dual construction, integer/dyadic scaling and polynomial\nroot isolation have conservative pre-expansion degree/height bounds and result\nchecks. Admission may refuse a calculation whose eventual minimal polynomial\nwould fit; the reader never expands first and relies only on a later size check.\nThe two dimension\nlimits can be raised with `--max-dimension` and `--max-field-dimension`, and\nallocation limits are explicit in `ReadOptions`. The mathematical certificate\nrequires `d,D <= 4096` and real-base-field restrictions; input-only\nverification accepts `d=2`. No mathematical algorithm or precision policy is\nchanged by raising an input limit.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/checkers/norm/src/model/input_model.hpp",
+        "text": "struct AlgebraicLimits {\n  uint64_t degree = 256, height_bits = 1u << 20;\n};\n\ninline constexpr uint64_t kDefaultMaxDimension = 4096;\ninline constexpr uint64_t kDefaultMaxFieldDimension = 65536;\n\nstruct ReadOptions {\n  bool partial = false;\n  std::optional<Hash> exact_root, file_root, whole_sha256;\n  std::vector<size_t> elements, physical_chunks;\n  uint64_t max_dimension = kDefaultMaxDimension, max_field_dimension = kDefaultMaxFieldDimension;\n  uint64_t max_dense_coordinates = 1u << 22;\n  uint64_t max_directory_bytes = 64u << 20;\n  AlgebraicLimits algebraic_limits;\n};"
+      },
+      {
+        "file": "cpp/checkers/norm/src/format/container.cpp",
+        "text": "resource(c.length <= (json_type(c.type) ? 64u << 20 : 256u << 20), \"physical payload bytes\");"
+      },
+      {
+        "file": "cpp/checkers/norm/src/format/container.cpp",
+        "text": "resource(length <= (256u << 20), \"logical leaf bytes\");"
+      },
+      {
+        "file": "cpp/checkers/norm/src/format/integer_codec.cpp",
+        "text": "resource(n <= (1u << 20), \"integer magnitude\");"
+      },
+      {
+        "file": "cpp/checkers/norm/src/format/canonical_json.cpp",
+        "text": "resource(depth <= 32 && ++nodes <= (1u << 20), \"JSON depth/node count\");"
+      }
+    ]
+  },
+  {
+    "file": "docs/verification.md",
+    "claim": "The default algebraic-fallback resource limit is tower degree 256; the certified interval path does\nnot require a full compositum. The limit can be raised explicitly with `--branch-degree-limit`\n(maximum 2^20). Further reader resource limits are: branch precision and absolute exponents 2^20;\nbranch strings 1 MiB; exact coefficient support 2^18 and bit height 16,384; conservative retained\nBALL admission 1 GiB, including declared midpoint width and allocation headroom; rescaling weight\nkeys 2^24; text lines 256 MiB. The spec's 64 MiB JSON, 256 MiB physical payload, 2^24 directory\nentries, 2^20-byte integer magnitudes and nesting 32 limits also apply. Files beyond a resource\nlimit return refusal, never PASS. Large actual presentations can therefore require a higher limit or\nbe refused.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/checkers/verifier/src/model/input_model.hpp",
+        "text": "branch_degree_limit = 256"
+      }
+    ]
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "claim": "6. **Resources come from the process allowance.** Derive default threads and\n   memory budgets from process affinity and cgroup/job limits, never host totals.\n   Explicit settings take precedence; memory admission fails closed. Platforms\n   without an affinity API use OS logical/physical CPU counts (on macOS,\n   `hw.logicalcpu`/`hw.physicalcpu`). The logical count falls back to\n   `hardware_concurrency()` and the physical count to 1.\n   One function owns CPU allowance; cache topology once per process.\n   `sic_test_policy_newton_workers` checks that the Newton table takes class\n   workers from their owner; review checks the allowance, topology and admission rules.",
+    "kind": "reference",
+    "reason": "Contribution requirement or policy description; no new numeric default value is asserted.",
+    "authority": [
+      {
+        "file": "cpp/src/support/resources/platform_snapshot.cpp",
+        "text": "Count process_cpu_allowance(const std::filesystem::path& proc_root) {\n  Snapshot result;\n  result.cpus = affinity_physical_cores();\n  std::vector<std::filesystem::path> paths;\n  try {\n    paths = process_cgroups(proc_root);\n  } catch (const sic::Error& error) {\n    if (error.kind() != ErrorKind::io && error.kind() != ErrorKind::resource) throw;\n    // CPU defaults remain usable without visible cgroup-v2 ancestry. Memory\n    // inspection stays strict; an unknown CPU ceiling permits only one worker.\n    result.cpus = 1;\n  }\n  for (const auto& path : paths) apply_cpu_cgroup(result, path);\n  apply_job_cpus(result);\n  return result.cpus;\n}"
+      }
+    ]
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "claim": "8. **Documentation and tests follow the code.** Check every documented path,\n   command, option, default, test name and label against the code; prefer generated\n   references. Test every public contract and register every test explicitly.\n   `sic_test_policy_test_registry` checks test labels and documented selectors. The documentation checks\n   below check links, examples and help drift; `sic_test_support_help_defaults`\n   checks help defaults. Enforce each documented-claim check with a policy CTest\n   where one exists; review covers claims without one, contract coverage and\n   explicit registration.",
+    "kind": "reference",
+    "reason": "Contribution requirement or policy description; no new numeric default value is asserted.",
+    "authority": [
+      {
+        "file": "cpp/cmake/checks/Docs.cmake",
+        "text": "foreach(check help_contract source_claims documented_defaults claim_registry symbols_controls)"
+      }
+    ]
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "claim": "Configure with `SIC_BUILD_TESTS=ON` (the default), build, then run\n`ctest --test-dir cpp/build --output-on-failure`. Enable `SIC_ENABLE_FLINT`\nfor the exact-arithmetic, producer, decoder, and release suites.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/CMakeLists.txt",
+        "text": "option(SIC_BUILD_TESTS       \"Build unit tests\"                                 ON)"
+      }
+    ]
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "claim": "The policy checks also enforce the [CLI contract inventory](docs/cli_contract.json),\n[configuration census](docs/configuration.md) and\n[install inventory](docs/install_contract.json). `sic_test_policy_help_contract`\nchecks each selected subcommand's option operands/repeatability and grammar;\n`sic_test_policy_source_claims` checks parser declarations against reads, the\nruntime/CMake input census and the documented read owners. `sic_test_policy_documented_defaults` binds default\nclaims to their source authorities and runs the compiled omitted-option checks.\n`sic_test_support_docs_links` checks explicit code/data pointers as well as links;\n`sic_test_support_docs_fixture_inventory` reconciles purpose, checksums and build copies.\n`sic_test_policy_schema_smoke` validates every schema family against fresh d4/d8\noutputs and retained exceptional and numerical metadata. `sic_test_policy_shell_examples`\nruns blocks tagged `<!-- shell:run -->` with explicit resources; other shell\nblocks must be marked `<!-- shell:template -->` and describe their bindings.\nThe install policy reuses the relocated consumer owner. All tests named `sic_test_policy_*` have\nnegative controls enumerated in `scripts/docs/policy_controls.json`;\n`sic_test_policy_claim_registry` rejects an unenrolled policy and requires both\nexit status and output verdict for every regex-based success assertion.",
+    "kind": "reference",
+    "reason": "Contribution requirement or policy description; no new numeric default value is asserted.",
+    "authority": [
+      {
+        "file": "cpp/cmake/checks/Docs.cmake",
+        "text": "foreach(check help_contract source_claims documented_defaults claim_registry symbols_controls)"
+      }
+    ]
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "claim": "Ordinary tests, including policy tests and default heavy controls, have a\npositive timeout of at most 120 seconds. The sole long-test exemption is\n`sic_test_sicx_exact_gp_d16`: explicitly opt in with `SIC_SICX_GP_D16=ON`;\nit is heavy and retains a 3600-second timeout (one GP shift takes several\nminutes empirically). Its registration is checked without requiring the long\ncomputation. Use `ctest -L independence` for checker boundaries, or\n`ctest -LE heavy` for the ordinary suite. The publication manifest pins the\ncopied test inputs.",
+    "kind": "reference",
+    "reason": "Timeout and optional heavy membership are checked by the registry.",
+    "authority": [
+      {
+        "file": "cpp/cmake/checks/TestLayers.cmake",
+        "text": "set(SIC_TEST_WORKERS \"\" CACHE STRING"
+      }
+    ]
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "claim": "`SIC_TEST_WORKERS` is an optional positive CMake cache integer. When unset or\nempty, the parallel-product test discovers its process CPU allowance at run time\nand uses `max(3, allowance)` native FLINT workers. The hooks install-refusal test\nuses the same runtime default for nested build jobs. An explicit value (for\nexample `-DSIC_TEST_WORKERS=8`) is honoured unchanged and never capped. The\nparallel-product coverage guard fails loudly below three workers; even a\none-CPU test process exercises helper leases. Tile requests `{1,2,8,16,32}` and\nexplicit worker lists in other controls retain their values. Run oversubscribed\ncontrols with `ctest -j1`. Use atomic `mkdtemp` directories for scratch paths\nshared across process namespaces, or paths scoped to the configured CTest build\ndirectory.\nTests requiring an optional external program must report SKIPPED with a clear\nreason when it is unavailable, and use its configured executable path when available.",
+    "kind": "reference",
+    "reason": "Runtime worker discovery and explicit override are checked by the registry.",
+    "authority": [
+      {
+        "file": "cpp/cmake/checks/TestLayers.cmake",
+        "text": "set(SIC_TEST_WORKERS \"\" CACHE STRING"
+      }
+    ]
+  },
+  {
+    "file": "docs/library.md",
+    "claim": "On glibc, `sic-construct` sets the process heap trim threshold to 16 MiB and the\nmmap threshold to 32 MiB before starting construction threads. Ordinary frees\ncan then release free top chunks in worker arenas while medium-sized temporaries\nremain on the heap. If mmap threshold setup is refused, the CLI skips trim setup\nand continues with allocator defaults. If trim setup is refused, it continues\nwith the mmap setting. Any environment\nvariable whose name starts with `MALLOC_`, or any colon-separated entry starting\nwith `glibc.malloc.` in `GLIBC_TUNABLES`, disables the entire CLI default, including\nwhen its value is empty. This includes unrelated allocator settings such as\n`MALLOC_ARENA_MAX` and `glibc.malloc.tcache_count`.",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/apps/construct/main.cpp",
+        "text": "void configure_process_heap() {\n#if defined(__GLIBC__)\n  // Explicit allocator settings own the process policy, including empty values.\n  for (char** entry = environ; *entry; ++entry)\n    if (std::string_view(*entry).starts_with(\"MALLOC_\")) return;\n  if (const char* configured = std::getenv(\"GLIBC_TUNABLES\")) {\n    std::string_view remaining(configured);\n    while (!remaining.empty()) {\n      const auto end = remaining.find(':');\n      if (remaining.substr(0, end).starts_with(\"glibc.malloc.\")) return;\n      if (end == std::string_view::npos) break;\n      remaining.remove_prefix(end + 1);\n    }\n  }\n  // glibc's explicit trim scans arena bins but leaves non-main top chunks.\n  // Bound their retention without routing medium-sized temporaries through mmap.\n  // Setting either threshold freezes adaptation; install the pair explicitly.\n  // Only this standalone CLI opts in, before any construction threads start.\n  constexpr int kHeapTrimThresholdBytes = 16 * 1024 * 1024;\n  constexpr int kHeapMmapThresholdBytes = 32 * 1024 * 1024;\n  if (mallopt(M_MMAP_THRESHOLD, kHeapMmapThresholdBytes) == 1)\n    (void)mallopt(M_TRIM_THRESHOLD, kHeapTrimThresholdBytes);\n#endif\n}"
+      }
+    ]
+  }
+]

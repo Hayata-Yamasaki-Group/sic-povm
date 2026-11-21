@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sic-fiducial-json-all/1.0",
+  "title": "sic-fiducial-json-all/1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "rays"
+  ],
+  "properties": {
+    "schema": {
+      "const": "sic-fiducial-json-all/1.0"
+    },
+    "rays": {
+      "type": "array",
+      "items": {
+        "$ref": "sic-fiducial-json-1.schema.json"
+      }
+    }
+  }
+}

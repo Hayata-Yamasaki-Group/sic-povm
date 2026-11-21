@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sic-release-catalogue/1.0",
+  "title": "sic-release-catalogue/1.0",
+  "description": "Release catalogue. Every number is a decimal string. Paths use data/d<N>/ shared dimension records and data/d<N>/m<M>/c<K>.* ray records; underscores separate words in file names. The data/d2/d2.sicrad basename is retained for canonical provenance. No SICX file is in the tree; each multiplet lists the Release assets (transport parts) of its SICX. The conductor never appears.",
+  "type": "object",
+  "required": ["schema", "release", "dimensions"],
+  "properties": {
+    "schema": {"const": "sic-release-catalogue/1.0"},
+    "release": {"type": "object", "required": ["repository", "tag"], "properties": {"repository": {"type": "string"}, "tag": {"type": "string"}}},
+    "dimensions": {"type": "array", "items": {"type": "object", "required": ["d", "files", "multiplets"], "properties": {
+      "d": {"type": "string", "pattern": "^[0-9]+$"},
+      "files": {"type": "array", "items": {"$ref": "#/$defs/file"}},
+      "multiplets": {"type": "array", "items": {"type": "object", "required": ["id", "labels", "smith", "files", "sicx", "rays"], "properties": {
+        "id": {"type": "string", "pattern": "^d[0-9]+-m[0-9]+$"},
+        "labels": {"type": "object"},
+        "smith": {"type": "array", "items": {"type": "string"}},
+        "files": {"type": "array", "items": {"$ref": "#/$defs/file"}},
+        "sicx": {"type": "object", "required": ["size_bytes", "sha256", "merkle_root", "exact_root", "parts_file", "assets"], "properties": {
+          "size_bytes": {"type": "string"}, "sha256": {"type": "string"}, "merkle_root": {"type": "string"}, "exact_root": {"type": "string"}, "parts_file": {"type": "string"},
+          "assets": {"type": "array", "items": {"type": "object", "required": ["asset", "size_bytes", "sha256"]}}}},
+        "rays": {"type": "array", "items": {"type": "object", "required": ["id", "label", "sicx_ray_label", "exponents", "accuracy_bits", "files"]}}}}}}}}
+  },
+  "$defs": {"file": {"type": "object", "required": ["path", "bytes", "sha256"], "properties": {"path": {"type": "string"}, "bytes": {"type": "string"}, "sha256": {"type": "string"}}}}
+}

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sic-multiplet-manifest/1.0",
+  "title": "sic-multiplet-manifest/1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "d",
+    "multiplet",
+    "labels",
+    "smith",
+    "rays",
+    "sicx"
+  ],
+  "properties": {
+    "schema": {
+      "const": "sic-multiplet-manifest/1.0"
+    },
+    "id": {
+      "type": "string"
+    },
+    "d": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$"
+    },
+    "multiplet": {
+      "type": "string"
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "smith": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]*)$"
+      }
+    },
+    "rays": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "sicx_ray_label",
+          "exponents",
+          "accuracy_bits"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "sicx_ray_label": {
+            "type": "string"
+          },
+          "exponents": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            }
+          },
+          "accuracy_bits": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)$"
+          }
+        }
+      }
+    },
+    "sicx": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parts_file",
+        "size_bytes",
+        "sha256",
+        "merkle_root",
+        "exact_root"
+      ],
+      "properties": {
+        "parts_file": {
+          "type": "string"
+        },
+        "size_bytes": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "merkle_root": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "exact_root": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}

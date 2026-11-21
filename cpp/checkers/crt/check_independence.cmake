@@ -1,0 +1,10 @@
+# The certificate sources must not include the production SICX/exact headers (sic/...).
+file(GLOB_RECURSE _src ${DIR}/*.cpp ${DIR}/*.hpp)
+foreach(_f IN LISTS _src)
+  file(STRINGS ${_f} _inc REGEX "^#include")
+  foreach(_l IN LISTS _inc)
+    if(_l MATCHES "[<\"]sic/")
+      message(FATAL_ERROR "${_f} includes production header: ${_l}")
+    endif()
+  endforeach()
+endforeach()

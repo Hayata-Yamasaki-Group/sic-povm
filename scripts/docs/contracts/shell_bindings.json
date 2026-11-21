@@ -1,0 +1,46 @@
+{
+  "small-certificates": {
+    "expect": [
+      {
+        "pattern": "RESULT: EXACT SIC[^\\n]*\\[PROVED\\]",
+        "count": 2
+      }
+    ]
+  },
+  "d4-recipe": {
+    "substitute": {
+      "WORD_C0": "0,0,0",
+      "ANCHOR_C0": "1"
+    },
+    "expect": [
+      {
+        "pattern": "FINALIZED",
+        "count": 1
+      }
+    ]
+  },
+  "d8-recipe": {
+    "substitute": {
+      "WORD_C0": "0,0,0",
+      "ANCHOR_C0": "1"
+    },
+    "expect": [
+      {
+        "pattern": "FINALIZED",
+        "count": 1
+      }
+    ]
+  },
+  "shared-checks": {
+    "expect": [
+      {
+        "pattern": "RESULT: PASS",
+        "count": 1
+      },
+      {
+        "pattern": "NUMERIC-CHECK PASS",
+        "count": 1
+      }
+    ]
+  }
+}

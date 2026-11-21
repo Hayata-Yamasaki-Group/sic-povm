@@ -1,0 +1,2 @@
+# rule|repository-relative path|reviewed reason
+F3|cpp/src/construct/model/session_state.hpp|Permanent: Construction owns the coupled stage lifetime; splitting its private members requires a cross-stage ownership redesign, while this declaration leaf prevents orchestration back edges.

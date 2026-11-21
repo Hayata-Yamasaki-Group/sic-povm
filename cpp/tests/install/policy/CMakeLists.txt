@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+cmake_minimum_required(VERSION 3.20)
+project(sic-test-install-policy LANGUAGES CXX)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_options(-fno-lto)
+  add_link_options(-fno-lto)
+endif()
+find_package(sic REQUIRED COMPONENTS core support search sicx decode access bounds transport data)
+add_executable(sic-test-install-policy main.cpp)
+target_link_libraries(sic-test-install-policy PRIVATE sic::sicx sic::decode sic::access sic::bounds sic::support sic::search sic::transport sic::data)

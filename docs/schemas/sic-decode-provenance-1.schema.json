@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sic-decode-provenance/1.0",
+  "title": "sic-decode-provenance/1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decoder",
+    "input",
+    "input_bytes",
+    "exact_root",
+    "finalized",
+    "d",
+    "rays",
+    "coordinates",
+    "target_bits",
+    "base_bits",
+    "passes",
+    "replays",
+    "workers"
+  ],
+  "properties": {
+    "decoder": {
+      "const": "sic-decode/1.0"
+    },
+    "input": {
+      "type": "string"
+    },
+    "input_bytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "exact_root": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "finalized": {
+      "type": "boolean"
+    },
+    "d": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rays": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "coordinates": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "target_bits": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "base_bits": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "passes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "replays": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "workers": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "coordinate_indices": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  }
+}

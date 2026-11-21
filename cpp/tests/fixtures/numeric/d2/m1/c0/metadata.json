@@ -1,0 +1,36 @@
+{
+  "schema": "sic-fiducial-fp64/1.0",
+  "dimension": 2,
+  "basis": "Parsed exact Q(sqrt(3)) normalization and WH identities with positive radical branches",
+  "selector": "positive sqrt(3), alpha and beta branches in original SIC_EXACT_D2_RADICALS artifact",
+  "association_contract": "reviewed-enclosure-association-v1; hashes bind declared trusted provenance, not a new proof authority",
+  "wh_convention": "D_(a,b)=tau^(a*b) X^a Z^b; tau=-exp(pi*i/d); X|j>=|j+1>; Z|j>=exp(2*pi*i*j/d)|j>",
+  "gauge": "w=v/sqrt(sum(abs(v)^2))*conj(v[k])/abs(v[k]); anchor imaginary zero follows exactly from this identity",
+  "anchor": 0,
+  "working_bits": 256,
+  "native_workers": 1,
+  "coordinate_complex_error_ceiling": "2^-50",
+  "rounding": "nearest midpoint binary64; rigorously bounded difference from unknown exact normalized/gauged value; no correct-rounding claim",
+  "zero_policy": "canonical positive zero; nonzero subnormals retained",
+  "data_files": {"csv":"fiducial-fp64.csv","normalized_gauged_enclosures":"normalized-gauged.balls","checksums":"SHA256SUMS"},
+  "converter_binary_object_id": "sha256:d9f31bcc57d0a514e0423a87bbc5a573d1e74ec12e4c5b0540aff1d0fcedae48",
+  "native_flint_version": "3.6.0",
+  "reproduction_command_template": "convert_fiducial_data SOURCE_DESCRIPTOR NEW_DIRECTORY 256 50",
+  "portable_provenance": "Public provenance view: artifact identifiers and SHA-256 pins preserve source association; local paths are omitted. Original descriptors remain identified by descriptor_sha256 and require explicit local rebinding for replay",
+  "fp64_point_squared_norm_arb_dump": "800000000000003b2b617b15f29 -6b 0 0",
+  "fp64_point_maximum_squared_overlap_deviation_arb_dump": "4e2da02465982697684ae17ef1bd33749b7ad1e245b34b78fd5 -101 aaaaaab -11b",
+  "point_verification_scope": "rigorous diagnostic of the exact binary64 point; not exact SIC equality",
+  "descriptor_sha256": "b8588c21fdb84ebc1ac7103ab3aba6f0b08425afbeb71dcbb3086b86f1758db2",
+  "pins": [
+    {"role":"vector","artifact_id":"sha256:16fa1d0bc75790823d012140904b03aa2eb67411890c748da4282e07979be762","sha256":"16fa1d0bc75790823d012140904b03aa2eb67411890c748da4282e07979be762","object_id":"sha256:16fa1d0bc75790823d012140904b03aa2eb67411890c748da4282e07979be762"},
+    {"role":"exact","artifact_id":"sha256:16fa1d0bc75790823d012140904b03aa2eb67411890c748da4282e07979be762","sha256":"16fa1d0bc75790823d012140904b03aa2eb67411890c748da4282e07979be762","object_id":"sha256:16fa1d0bc75790823d012140904b03aa2eb67411890c748da4282e07979be762"},
+    {"role":"producer","artifact_id":"sha256:7af6bfcf3246947bcf283e79b4606c3e5a0249b5bd1d389cd9de4199516755fb","sha256":"7af6bfcf3246947bcf283e79b4606c3e5a0249b5bd1d389cd9de4199516755fb","object_id":"sha256:7af6bfcf3246947bcf283e79b4606c3e5a0249b5bd1d389cd9de4199516755fb"},
+    {"role":"source","artifact_id":"sha256:7e8bd0108673ddf305356d14a22b37f06a775e5814a4bf91a215ff2486f38957","sha256":"7e8bd0108673ddf305356d14a22b37f06a775e5814a4bf91a215ff2486f38957","object_id":"sha256:7e8bd0108673ddf305356d14a22b37f06a775e5814a4bf91a215ff2486f38957"},
+    {"role":"selector","artifact_id":"sha256:16fa1d0bc75790823d012140904b03aa2eb67411890c748da4282e07979be762","sha256":"16fa1d0bc75790823d012140904b03aa2eb67411890c748da4282e07979be762","object_id":"sha256:16fa1d0bc75790823d012140904b03aa2eb67411890c748da4282e07979be762"},
+    {"role":"association","artifact_id":"sha256:1ee450f90ea6fd157e5bbd50ce2b6ad7e3078ee2e5c646c454ca07782ef9d269","sha256":"1ee450f90ea6fd157e5bbd50ce2b6ad7e3078ee2e5c646c454ca07782ef9d269","object_id":"sha256:1ee450f90ea6fd157e5bbd50ce2b6ad7e3078ee2e5c646c454ca07782ef9d269"}
+  ],
+  "components": [
+    {"index":0,"real_binary64_hex":"3fec6b19d12bae70","imag_binary64_hex":"0000000000000000","complex_error_arb_dump":"63ed7df7356160656a08a895b3386bd4c4170c821a410e9f1d -100 3f467b3 -117"},
+    {"index":1,"real_binary64_hex":"3fd4cdbe52cbff4d","imag_binary64_hex":"3fd4cdbe52cbff4d","complex_error_arb_dump":"2838454b1608b7f092a06c9c21037106c2807d2554af3276209dd8eb7 -119 f17d16d -119"}
+  ]
+}

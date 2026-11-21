@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+cmake_minimum_required(VERSION 3.20)
+project(ball-bounds-public-consumer LANGUAGES CXX)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(SIC_ENABLE_FLINT ON CACHE BOOL "" FORCE)
+set(SIC_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(SIC_BUILD_BENCH OFF CACHE BOOL "" FORCE)
+add_subdirectory(../../.. sic-build)
+add_executable(ball-bounds-public-consumer ../../bounds/ball_bounds.cpp)
+target_link_libraries(ball-bounds-public-consumer PRIVATE sic::bounds)

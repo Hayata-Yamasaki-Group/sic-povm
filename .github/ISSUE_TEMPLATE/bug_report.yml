@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a data or build problem.
+title: "[Bug]: "
+body:
+  - type: dropdown
+    id: problem-type
+    attributes:
+      label: Problem type
+      options:
+        - Data problem
+        - Build or test problem
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Expected and observed behavior
+      description: Describe what you expected and what happened, including any verification failure.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include the exact commands, options and relevant SIC_* environment variables.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Version and environment
+      description: Include the commit, OS, compiler, CMake and FLINT version (if enabled). For resource failures, include RAM and thread count.
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: Affected data
+      description: For data problems, give the file path or asset URL, dimension, multiplet/ray ID, SHA-256 and verification command. Link large inputs rather than pasting them.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Build or verification output
+      description: Include the relevant error and CTest output; attach or link longer logs.
+      render: text
