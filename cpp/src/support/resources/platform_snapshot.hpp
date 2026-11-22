@@ -43,6 +43,8 @@ Count affinity_physical_cores(const std::filesystem::path& sysfs_root = "/sys/de
 Count process_cpu_allowance(const std::filesystem::path& proc_root = "/proc");
 // Explicit SIC_THREADS wins; a null setting selects the process CPU allowance.
 int requested_threads(const char* configured);
+// Process CPU allowance capped by the caller's default worker ceiling.
+int default_threads(int ceiling);
 Snapshot inspect();
 bool release_free_heap();
 }  // namespace sic::support::resources

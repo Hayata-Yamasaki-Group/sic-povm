@@ -97,7 +97,7 @@ export function checkContracts(build) {
   for(const row of inventory) {
     const cache=read(path.join(build,'CMakeCache.txt'));
     if(/SIC_ENABLE_FLINT:BOOL=OFF/.test(cache) && !['sic-check','sic-overlaps','sic-identify','sic-stabilizer'].includes(row.tool))continue;
-    if(/SIC_BUILD_APPS:BOOL=OFF/.test(cache) && ['sic-check','sic-overlaps','sic-identify','sic-stabilizer'].includes(row.tool))continue;
+    if(/SIC_BUILD_APPS:BOOL=OFF/.test(cache) && ['sic-check','sic-overlaps','sic-identify','sic-stabilizer','sic-ray-selector'].includes(row.tool))continue;
     const bin=toolPath(build,row.tool);
     const help=run(bin,[...(row.command?[row.command]:[]),'--help']);
     checkRow(row,help);++checked;

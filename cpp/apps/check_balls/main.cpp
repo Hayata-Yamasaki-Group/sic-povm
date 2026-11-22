@@ -44,11 +44,13 @@ const sic::support::cli::Parser kParser{
       1, 1}}};
 }  // namespace
 int main(int argc, char** argv) {
+  sic::support::cli::prepare_stdout();
   if (const auto status = sic::support::cli::version_request(argc, argv, "sic-check-balls"))
     return *status;
   try {
     flint_set_num_threads(1);
-    return sic::bounds::check_balls(kParser.parse(argc, argv));
+    const int status = sic::bounds::check_balls(kParser.parse(argc, argv));
+    return sic::support::cli::finish_stdout(status, "sic-check-balls");
   } catch (const std::exception& e) {
     return sic::support::cli::report(kParser, e, "sic-check-balls");
   }

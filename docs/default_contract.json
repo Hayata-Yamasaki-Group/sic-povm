@@ -150,7 +150,7 @@
   },
   {
     "file": "docs/install.md",
-    "claim": "CMake 3.20 or newer, a C++20 compiler and Node.js are required for the default test-enabled build. A\nbuild configured with `-DSIC_BUILD_TESTS=OFF` does not require Node.js. The test-enabled\nconfiguration also requires `nm` or `llvm-nm`; exact tests require OpenSSL Crypto development files.\nThe plain configuration builds the numerical core and tools without FLINT:",
+    "claim": "CMake 3.20 or newer and a C++20 compiler are required. The default test-enabled build also requires\nNode.js 20 or newer, Bash 4 or newer, and `nm` or `llvm-nm`. A build configured with\n`-DSIC_BUILD_TESTS=OFF` needs only the build dependencies.",
     "kind": "value",
     "authority": [
       {
@@ -315,7 +315,7 @@
     "authority": [
       {
         "file": "scripts/docs/help.mjs",
-        "text": "'sic-construct', 'sic-check'"
+        "text": "'sic-construct', 'sic-ray-selector', 'sic-check'"
       }
     ]
   },

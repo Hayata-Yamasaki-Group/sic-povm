@@ -37,6 +37,7 @@ const std::map<std::string_view, Parser> kCommands{
 };
 }  // namespace
 int main(int argc, char** argv) {
+  sic::support::cli::prepare_stdout();
   if (const auto status = sic::support::cli::version_request(argc, argv, "sic-data"))
     return *status;
   const std::string_view command = argc > 1 ? argv[1] : "";
@@ -46,7 +47,8 @@ int main(int argc, char** argv) {
     flint_set_num_threads(1);
     if (command == "--help") throw sic::support::cli::HelpRequested{};
     sic::support::cli::require(selected != kCommands.end(), "expected a sic-data command");
-    return sic::data::run(std::string(command), usage.parse(argc, argv, 2));
+    const int status = sic::data::run(std::string(command), usage.parse(argc, argv, 2));
+    return sic::support::cli::finish_stdout(status, "sic-data");
   } catch (const std::exception& e) {
     return sic::support::cli::report(usage, e, "sic-data");
   }

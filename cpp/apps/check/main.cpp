@@ -24,6 +24,7 @@ const sic::support::cli::Parser kParser{
 }  // namespace
 
 int main(int argc, char** argv) {
+  sic::support::cli::prepare_stdout();
   if (const auto status = sic::support::cli::version_request(argc, argv, "sic-check"))
     return *status;
   try {
@@ -43,7 +44,7 @@ int main(int argc, char** argv) {
               << r.worst_p1 << ", " << r.worst_p2 << ")\n"
               << (ok ? "OK: SIC fiducial" : "FAIL: not a SIC fiducial") << " (tol = " << tol
               << ")\n";
-    return ok ? 0 : 1;
+    return sic::support::cli::finish_stdout(ok ? 0 : 1, "sic-check");
   } catch (const std::exception& e) {
     return sic::support::cli::report(kParser, e, "sic-check");
   }

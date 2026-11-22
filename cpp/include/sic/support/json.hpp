@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Canonical decimal-string JSON shared by production serialization (no FLINT dependency).
+// Decimal-string and bare-integer JSON shared by production tools (no FLINT dependency).
 #pragma once
 #include <cstdint>
 #include <initializer_list>
@@ -23,7 +23,7 @@ namespace json_detail {
 }  // namespace json_detail
 // ------------------------------------------------------------ canonical JSON
 // Canonical form: no whitespace, object keys strictly increasing in byte
-// order, integers in int64 range without leading zeros or "-0", strings with
+// order, integers written as decimal strings, strings with
 // exactly the escapes \" \\ and \u00XX (lowercase hex) for bytes below 0x20,
 // valid UTF-8 otherwise. No floats, no null.
 inline constexpr size_t kCanonicalDecimalDigits = 18;
@@ -36,11 +36,14 @@ struct Json {
   std::map<std::string, Json> object;
 
   Json() = default;
+  // Store a signed integer. dump_json writes it as a decimal string;
+  // dump_integer_json writes it as a bare number.
   static Json integer_value(int64_t value);
   static Json boolean_value(bool value);
   static Json string_value(std::string value);
   static Json array_value();
   static Json object_value() { return Json(); }
+  // Build an array of integer values. Each element must fit in int64_t.
   template <class T>
   static Json integer_array(const std::vector<T>& values) {
     Json j = array_value();
@@ -50,7 +53,7 @@ struct Json {
   Json& operator[](const std::string& key);
   const Json& at(const std::string& key) const;
   bool has(const std::string& key) const { return kind == Kind::object && object.contains(key); }
-  // Numbers are canonical decimal strings ("0", "-12"; no leading zeros, no "-0").
+  // Accept stored integers and canonical decimal strings ("0", "-12").
   int64_t as_int() const;
   uint64_t as_uint() const;
   const std::string& as_str() const;
@@ -72,20 +75,30 @@ struct Json {
 
 void dump_json(std::string& out, const Json& value);
 std::string dump_json(const Json& value);
+// For documents with bare signed 64-bit integers, in sorted-key compact form.
+std::string dump_integer_json(const Json& value);
 
 inline constexpr unsigned kDefaultJsonDepth = 32;
 class JsonParser {
   unsigned maximum_depth_ = kDefaultJsonDepth;
   std::string_view text_;
   size_t at_ = 0;
+  bool integer_document_ = false;
   [[noreturn]] void error(const char* what) const;
   char peek() const;
+  char token();
   void expect(char c);
   std::string string();
   Json value(int depth);
+  void skip_space();
+  static Json parse_impl(std::string_view text, unsigned maximum_depth, bool integer_document);
 
  public:
   static Json parse(std::string_view text, unsigned maximum_depth = kDefaultJsonDepth);
+  // Also accept JSON whitespace, unsorted unique keys and bare int64 numbers.
+  // Bare integers reject leading zeros and "-0"; floats and null are unsupported.
+  static Json parse_integer_document(std::string_view text,
+                                     unsigned maximum_depth = kDefaultJsonDepth);
 };
 
 }  // namespace sic::support

@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <functional>
 #include <future>
 #include <memory>
 #include <span>
@@ -72,6 +73,12 @@ std::string digest_hex(std::span<const unsigned char> bytes);
 // `sha256sum < path`; /dev/fd/N and /proc/PID/exe paths reopen the target).
 // Throws on any open/read error.
 std::string file_hex(const std::filesystem::path& path, Compress compress = best_compress());
+
+inline constexpr size_t kFileChunkBytes = size_t{8} << 20;
+// Visit the same bytes hashed, in file order, on the calling thread.
+using FileChunkVisitor = std::function<void(std::span<const unsigned char>)>;
+std::string file_hex_visit(const std::filesystem::path& path, bool read_ahead,
+                           const FileChunkVisitor& visit, Compress compress = best_compress());
 
 }  // namespace sic::support::sha256
 

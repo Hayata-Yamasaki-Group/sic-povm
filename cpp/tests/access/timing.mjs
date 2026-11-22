@@ -8,7 +8,7 @@ import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 const [base, candidate, inputs, work] = process.argv.slice(2);
 await fs.mkdir(work, {recursive: true});
-const threads = Number(process.env.X4_THREADS || 8), repeats = Number(process.env.X4_TIMING_REPEATS || 9);
+const threads = Number(process.env.SIC_TEST_ACCESS_THREADS || 8), repeats = Number(process.env.SIC_TEST_ACCESS_TIMING_REPEATS || 9);
 const median = a => [...a].sort((a, b) => a - b)[Math.floor(a.length / 2)];
 const records = [];
 for (const d of [256, 512, 1024]) {

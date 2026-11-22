@@ -23,3 +23,19 @@ execute_process(COMMAND "${TOOL}" --version --help RESULT_VARIABLE rc OUTPUT_VAR
 if(NOT rc EQUAL 2 OR NOT out STREQUAL "")
   message(FATAL_ERROR "--version accepted extra arguments: ${rc}: ${out}: ${err}")
 endif()
+execute_process(COMMAND "${TOOL}" --version RESULT_VARIABLE rc OUTPUT_FILE /dev/full ERROR_VARIABLE err)
+if(NOT rc EQUAL 1 OR NOT err MATCHES ": \\[io\\] stdout write failed")
+  message(FATAL_ERROR "--version ignored stdout write failure: ${rc}: ${err}")
+endif()
+# Keep the write end open until after the only reader has exited.
+execute_process(COMMAND bash -ec [=[
+  coproc sink { read -r done; }
+  pid=$sink_PID
+  exec 3>&"${sink[1]}"
+  printf '\n' >&3
+  wait "$pid"
+  exec "$1" --version >&3
+]=] bash "${TOOL}" RESULT_VARIABLE rc ERROR_VARIABLE err)
+if(NOT rc EQUAL 1 OR NOT err MATCHES ": \\[io\\] stdout write failed")
+  message(FATAL_ERROR "--version failed to classify a closed stdout pipe: ${rc}: ${err}")
+endif()

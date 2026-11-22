@@ -50,7 +50,7 @@ endmacro()
 if(MODE STREQUAL "roundtrip")
   roundtrip("${FIXTURE}")
 elseif(MODE STREQUAL "release")
-  # Release data tree v3 for two d = 8 multiplets: m1 (FIXTURE, conductor 1) and m2 (FIXTURE2, conductor 3), N from provenance
+  # Release data tree for two d = 8 multiplets: m1 (FIXTURE, conductor 1) and m2 (FIXTURE2, conductor 3), N from provenance
   # conductors; no SICX, no conductor, parts reassemble to the fixtures; catalogue golden.
   set(root "${WORK}/data")
   set(assets "${WORK}/assets")

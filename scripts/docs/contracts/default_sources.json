@@ -150,7 +150,7 @@
   },
   {
     "file": "docs/install.md",
-    "starts": "CMake 3.20 or newer, a C++20 compiler and Node.js are required for the default test-enabled build. A",
+    "starts": "CMake 3.20 or newer and a C++20 compiler are required. The default test-enabled build",
     "kind": "value",
     "authority": [
       {
@@ -314,7 +314,7 @@
     "authority": [
       {
         "file": "scripts/docs/help.mjs",
-        "pattern": "'sic\\-construct',\\ 'sic\\-check'"
+        "pattern": "'sic\\-construct',\\ 'sic\\-ray\\-selector',\\ 'sic\\-check'"
       }
     ],
     "reason": "Links the generated help reference; no additional default value is stated."

@@ -14,8 +14,7 @@ struct WorkerDefault {
   unsigned ceiling;
   unsigned value(const sic::support::cli::Arguments& args, unsigned explicit_fallback) const {
     if (args.has("--threads")) return explicit_fallback;
-    return static_cast<unsigned>(std::min<sic::support::resources::Count>(
-        ceiling, sic::support::resources::requested_threads(nullptr)));
+    return sic::support::resources::default_threads(ceiling);
   }
   std::string description() const {
     return "process CPU allowance, capped at " + default_text(ceiling);

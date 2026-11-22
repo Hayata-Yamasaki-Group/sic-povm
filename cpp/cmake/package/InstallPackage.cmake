@@ -38,7 +38,7 @@ if(SIC_ENABLE_FLINT)
 endif()
 
 foreach(_tool sic-check sic-overlaps sic-identify sic-stabilizer sic-certify-stabilizer
-              sic-construct sic-decode sic-verify sic-inspect sic-container sic-verify-independent sic-certify-norm sic-certify-crt sic-check-crt-input)
+              sic-construct sic-ray-selector sic-decode sic-verify sic-inspect sic-container sic-verify-independent sic-certify-norm sic-certify-crt sic-check-crt-input)
   if(TARGET ${_tool})
     install(TARGETS ${_tool} RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
   endif()

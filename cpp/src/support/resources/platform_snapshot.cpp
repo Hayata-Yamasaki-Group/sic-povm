@@ -364,6 +364,8 @@ int requested_threads(const char* configured) {
                     : static_cast<int>(process_cpu_allowance());
 }
 
+int default_threads(int ceiling) { return std::min(ceiling, requested_threads(nullptr)); }
+
 void apply_cgroup(Snapshot& result, const std::filesystem::path& path) {
   for (const char* name : {"memory.max", "memory.high"}) {
     const auto limit_text = read(path / name);

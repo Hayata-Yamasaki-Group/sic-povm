@@ -491,6 +491,63 @@ Canonical SICX bytes and certification gates are independent of these decisions.
 Precision retries and allocation admission remain active. Memory forecasts are
 estimates used for admission and planning, not proved bounds.
 
+## Ray-list selection
+
+[`sic-ray-selector`](tools.md#sic-ray-selector) is available with FLINT and
+`SIC_BUILD_APPS=ON`. It consumes a native `SICGROUP` version 1 checkpoint from
+`sic-construct --group-cache`. The selector accepts the exact Group source
+identity of its own build. Supply the checkpoint's lowercase SHA-256 from the
+trusted producer or run record via `--sha256` or the
+producer-written `.sha256` sidecar.
+
+<!-- shell:template -->
+```sh
+sic-ray-selector derive --group group.bin --threads 8 > selection.json
+sic-ray-selector check --group group.bin --threads 8 --words selection.json
+```
+
+Use `--dimension-two` for dimension two. Its Smith factors are `[2]` and its
+sole word is `"0"`.
+
+`derive` chooses the first native mixed-radix element in each ordinary class
+with Smith coordinate 0 varying fastest. Its output is one compact JSON
+object with integer `smith` factors followed by `words`, each a comma-separated
+string of unsigned decimal residues, and a final LF. As in
+[SICX RAYS](sicx.md#spec-51a-rays-first-finalization-chunk), output words are sorted
+lexicographically by their numeric coordinates. `check` reads this entry
+shape, with a 1 MiB limit and optional `map` or `smithSource` metadata. It
+validates the Smith factors, ranks, residues, class count and distinctness,
+and writes the supplied transversal in the same sorted form.
+
+The authenticated Group read streams the entire digest while keeping only
+the prefix and the principal-base images of the identity and Smith axes.
+The ordinary class computation uses certified ideal arithmetic on those
+axes. The checkpoint's producer owns certification of the full Group action.
+The exact source identity fixes the class enumeration convention, and
+the trusted SHA-256 pin binds the bytes that use those labels.
+Physical ray acceptance uses the separate SICX verification gates.
+The requested thread count caps worker dispatch, including read-ahead.
+Omit `--threads` to use the process CPU allowance, capped at 1024 workers.
+The tool uses the process memory allowance with the optional
+`--memory-mib` cap.
+
+`--receipt FILE` writes a new
+[`sic-ray-selection-receipt/1.0`](schemas/sic-ray-selection-receipt-1.schema.json)
+JSON document before writing stdout. It binds `output_sha256` to
+the exact bytes prepared for stdout and, for `check`, `words_sha256` to the input bytes.
+The receipt is valid only when the command exits with status 0.
+The receipt records the same `version` and `source_commit` as `--version`,
+along with `mode`, `dimension`, `threads`, `group_source`,
+`group_sha256`, `group_bytes`, `group_read_us` (authentication and prefix
+extraction), and `selection_us` (selection or check through serialization).
+Numbers are decimal strings. In the dimension-two path the Group strings
+are empty and the Group counts are zero.
+
+With `sic-construct --progress --group-cache FILE`, a new Group emits
+`group closure complete [<elapsed>s]` just before saving. Subtract this
+stamp from the existing `validated exact group checkpoint saved` stamp
+to measure the save interval, including SHA-256 and sidecar publication.
+
 ## Command argument contract
 
 Production tools use the C++20 parser in `sic/support/cli.hpp`. Each tool's

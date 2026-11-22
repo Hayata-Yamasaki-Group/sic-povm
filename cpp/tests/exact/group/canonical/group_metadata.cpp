@@ -23,7 +23,7 @@ void require(bool condition, const char* message) {
 }
 
 // Every value below is either an exact-header expectation or an independently
-// recorded expectation (coverage-v1.json / ring-class formula) that the exact
+// recorded ring-class formula expectation that the exact
 // computation must reproduce. Derived quantities are recomputed, not trusted.
 struct Case {
   const char* name;
@@ -89,7 +89,7 @@ const std::vector<Case>& cases() {
        10,
        10485760,
        1},
-      // Nonmaximal selected orders (v3): the producer default Z[eps] with conductor > 1.
+      // Nonmaximal selected orders: the producer default Z[eps] with conductor > 1.
       // Every order quantity uses the arithmetic discriminant conductor^2 * Delta; Delta
       // stays the field discriminant (export header D0).
       {"standard128",
@@ -122,7 +122,7 @@ const std::vector<Case>& cases() {
        18,
        4718592,
        3},
-      // v4: fixed-field-tower validation cases and the d2048 target (all-quadratic towers).
+      // Fixed-field-tower validation cases and the d2048 target (all-quadratic towers).
       {"standard16", 4, false, 1, 221, 221, {13, 17}, 9, {}, -15, 1, 4, 2, 512, 1},
       {"standard32", 5, false, 1, 957, 957, {3, 11, 29}, 11, {}, -31, 1, 4, 2, 2048, 1},
       // standard2048: no golden (about 30 min); kept so the table equals the selector contract
@@ -195,8 +195,7 @@ void check() {
               pb == -C().principal_B && pb * pb - arith == 4 * C().principal_C &&
               equal(ar.cls[0].tau[0], add(omega, QuadraticNumber((pb - 1) / 2))),
           "actual principal form and basis");
-  // v4: overflow guard; reduced forms have A, C < b <= (Delta + 1) / 2 (v3: 1e6, unchanged below
-  // d2048).
+  // Overflow guard: reduced forms have A, C < b <= (Delta + 1) / 2.
   const long form_bound = std::max<long>(1000000, (ar.Delta + 1) / 2 + 1);
   std::set<std::tuple<long, long, long>> reduced_forms;
   for (const auto& cls : ar.cls) {
@@ -240,14 +239,14 @@ void check() {
   // Independent rectangle/factor enumeration, rather than the producer's
   // triangular (u,k) scan. If b=-B=A+C+k and k>=1, then
   // Delta=(A-C)^2+2k(A+C)+k^2, giving b<=(Delta+1)/2.
-  // v4 window (see header): for the smaller divisor a <= c of ac, a + c < b
+  // For the enumeration window, for the smaller divisor a <= c of ac, a + c < b
   // forces (c - a)^2 = (a + c)^2 - 4ac < b^2 - (b^2 - Delta) = Delta, hence
   // c < a + root_ceil with root_ceil = ceil(sqrt(Delta)) and ac < a (a + root_ceil).
   // The scan below runs a down from isqrt(ac) and stops at the first a with
   // a (a + root_ceil) <= ac; every smaller a also fails, so nothing is skipped.
   // Each divisor pair is emitted as (a, c) and, when distinct, (c, a); the
   // original conditions (a + 1 < b, a + c < b, primitivity) are then checked
-  // for each orientation exactly as in v3.
+  // for each orientation.
   std::set<std::tuple<long, long, long>> independent_forms;
   long root_ceil = 0;
   while (root_ceil * root_ceil < ar.Delta) ++root_ceil;

@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// representative-fast-v3: freed Arb limbs of a representative band must not
+// Freed Arb limbs of a representative band must not
 // stay counted as live RSS by the next band's admission.
 //
-// The d=2048 count208 run filled a band of 2^26 Arb
-// balls (~2.2 KB of limbs each) from 128 worker threads, freed them leaf by
-// leaf during recognition, and was then refused before band 1 because VmRSS
-// had not fallen. This test reproduces the pattern at a moderate size: worker
+// This test reproduces the allocation pattern at a moderate size: worker
 // threads fill a vector of high-precision balls while keeping small long-lived
 // allocations interleaved in their arenas; the main thread then clears every
 // ball. It checks that malloc_trim(0) (sic::support::resources::release_free_heap) returns
@@ -85,8 +82,7 @@ int main() {
       (unsigned long long)limbs, (unsigned long long)base, (unsigned long long)full,
       (unsigned long long)freed, (unsigned long long)trimmed);
   check(full > base + limbs / 2, "band allocation is resident");
-  check(freed > base + limbs / 2,
-        "freed band limbs stay resident without a trim (the count208 failure mode)");
+  check(freed > base + limbs / 2, "freed band limbs stay resident without a trim");
   check(trimmed < base + limbs / 8, "malloc_trim returns at least 7/8 of the band");
 
   // Budget: same pattern, then admit an extra band-sized forecast under a cap

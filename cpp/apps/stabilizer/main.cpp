@@ -4,10 +4,13 @@
 #include "sic/support/tool_version.hpp"
 
 int main(int argc, char** argv) {
+  sic::support::cli::prepare_stdout();
   if (const auto status = sic::support::cli::version_request(argc, argv, "sic-stabilizer"))
     return *status;
   try {
-    return sic::apps::stabilizer::command(sic::apps::stabilizer::parse_command_line(argc, argv));
+    const int status =
+        sic::apps::stabilizer::command(sic::apps::stabilizer::parse_command_line(argc, argv));
+    return sic::support::cli::finish_stdout(status, "sic-stabilizer");
   } catch (const std::exception& error) {
     return sic::support::cli::report(sic::apps::stabilizer::command_line_parser(), error,
                                      "sic-stabilizer");

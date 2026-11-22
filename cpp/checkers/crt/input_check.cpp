@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Container verification only. Mathematical CRT certification remains in crt_certificate.cpp.
+#include <csignal>
+#include <cstdio>
 #include <iostream>
 #include <limits>
 
@@ -9,7 +11,8 @@
 #include "src/runtime/diagnostics.hpp"
 
 using namespace sic_check::crt::sicx;
-int main(int argc, char** argv) {
+namespace {
+int run_command(int argc, char** argv) {
   for (int version_arg = argc - 1; version_arg > 0; --version_arg) {
     if (std::string(argv[version_arg]) == "--version") {
       if (argc != 2) {
@@ -87,4 +90,16 @@ int main(int argc, char** argv) {
     std::cerr << e.what() << '\n';
     return 1;
   }
+}
+}  // namespace
+
+int main(int argc, char** argv) {
+  std::signal(SIGPIPE, SIG_IGN);
+  const int status = run_command(argc, argv);
+  std::cout.flush();
+  if (std::fflush(stdout) != 0 || std::ferror(stdout) || !std::cout) {
+    std::fputs("sic-check-crt-input: [io] stdout write failed\n", stderr);
+    return 1;
+  }
+  return status;
 }

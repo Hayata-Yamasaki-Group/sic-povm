@@ -114,13 +114,16 @@ void Json::keys(std::initializer_list<const char*> required,
 }  // namespace sic::support
 
 namespace sic::support {
-void dump_json(std::string& out, const Json& value) {
+namespace {
+void dump(std::string& out, const Json& value, bool bare_integers) {
   switch (value.kind) {
     case Json::Kind::boolean_value:
       out += value.boolean ? "true" : "false";
       return;
     case Json::Kind::integer_value:
-      out += '"' + std::to_string(value.integer) + '"';
+      if (!bare_integers) out.push_back('"');
+      out += std::to_string(value.integer);
+      if (!bare_integers) out.push_back('"');
       return;
     case Json::Kind::string: {
       out.push_back('"');
@@ -141,7 +144,7 @@ void dump_json(std::string& out, const Json& value) {
       out.push_back('[');
       for (size_t i = 0; i < value.array.size(); ++i) {
         if (i) out.push_back(',');
-        dump_json(out, value.array[i]);
+        dump(out, value.array[i], bare_integers);
       }
       out.push_back(']');
       return;
@@ -151,14 +154,23 @@ void dump_json(std::string& out, const Json& value) {
       for (const auto& [key, item] : value.object) {
         if (!first) out.push_back(',');
         first = false;
-        dump_json(out, Json::string_value(key));
+        dump(out, Json::string_value(key), bare_integers);
         out.push_back(':');
-        dump_json(out, item);
+        dump(out, item, bare_integers);
       }
       out.push_back('}');
       return;
     }
   }
+}
+}  // namespace
+
+void dump_json(std::string& out, const Json& value) { dump(out, value, false); }
+
+std::string dump_integer_json(const Json& value) {
+  std::string out;
+  dump(out, value, true);
+  return out;
 }
 }  // namespace sic::support
 
@@ -184,8 +196,18 @@ char JsonParser::peek() const {
 }  // namespace sic::support
 
 namespace sic::support {
+void JsonParser::skip_space() {
+  if (!integer_document_) return;
+  while (at_ < text_.size() && std::string_view(" \t\r\n").find(text_[at_]) != text_.npos) ++at_;
+}
+
+char JsonParser::token() {
+  skip_space();
+  return peek();
+}
+
 void JsonParser::expect(char c) {
-  if (peek() != c) error("unexpected character");
+  if (token() != c) error("unexpected character");
   ++at_;
 }
 }  // namespace sic::support
@@ -249,22 +271,22 @@ std::string JsonParser::string() {
 namespace sic::support {
 Json JsonParser::value(int depth) {
   if (static_cast<unsigned>(depth) > maximum_depth_) error("nesting");
-  const char c = peek();
+  const char c = token();
   if (c == '{') {
     ++at_;
     Json result = Json::object_value();
-    if (peek() == '}') {
+    if (token() == '}') {
       ++at_;
       return result;
     }
     std::string last;
     for (bool first = true;; first = false) {
       std::string key = string();
-      if (!first && !(last < key)) error("keys not strictly increasing");
+      if (!integer_document_ && !first && !(last < key)) error("keys not strictly increasing");
       expect(':');
-      result.object.emplace(key, value(depth + 1));
+      if (!result.object.emplace(key, value(depth + 1)).second) error("duplicate key");
       last = std::move(key);
-      if (peek() == ',') {
+      if (token() == ',') {
         ++at_;
         continue;
       }
@@ -275,13 +297,13 @@ Json JsonParser::value(int depth) {
   if (c == '[') {
     ++at_;
     Json result = Json::array_value();
-    if (peek() == ']') {
+    if (token() == ']') {
       ++at_;
       return result;
     }
     for (;;) {
       result.array.push_back(value(depth + 1));
-      if (peek() == ',') {
+      if (token() == ',') {
         ++at_;
         continue;
       }
@@ -290,20 +312,40 @@ Json JsonParser::value(int depth) {
     }
   }
   if (c == '"') return Json::string_value(string());
+  if (integer_document_ && (c == '-' || (c >= '0' && c <= '9'))) {
+    const size_t start = at_++;
+    while (at_ < text_.size() && text_[at_] >= '0' && text_[at_] <= '9') ++at_;
+    const auto literal = text_.substr(start, at_ - start);
+    const auto digits = c == '-' ? literal.substr(1) : literal;
+    if (digits.empty() || (digits.front() == '0' && literal.size() != 1))
+      error("invalid integer spelling");
+    return Json::integer_value(
+        parse_number<int64_t>(literal, "JSON integer", ErrorKind::invalid_format));
+  }
   error("bare JSON number or literal (every number is a decimal string)");
 }
 }  // namespace sic::support
 
 namespace sic::support {
 Json JsonParser::parse(std::string_view text, unsigned maximum_depth) {
+  return parse_impl(text, maximum_depth, false);
+}
+
+Json JsonParser::parse_integer_document(std::string_view text, unsigned maximum_depth) {
+  return parse_impl(text, maximum_depth, true);
+}
+
+Json JsonParser::parse_impl(std::string_view text, unsigned maximum_depth, bool integer_document) {
   JsonParser parser;
   if (maximum_depth > 1024)
     throw sic::Error(ErrorKind::invalid_argument, "JSON depth exceeds native recursion profile");
   parser.maximum_depth_ = maximum_depth;
   parser.text_ = text;
+  parser.integer_document_ = integer_document;
   Json result = parser.value(0);
+  parser.skip_space();
   if (parser.at_ != text.size()) parser.error("trailing bytes");
-  if (dump_json(result) != text) parser.error("re-serialization differs");
+  if (!integer_document && dump_json(result) != text) parser.error("re-serialization differs");
   return result;
 }
 }  // namespace sic::support

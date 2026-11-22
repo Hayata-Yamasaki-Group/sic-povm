@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Final-format physical-unit validation admits its bounded parser scratch as well
-# as numerical work; 16 MiB exercises the small-budget path (2 MiB still refuses).
+# Final-format physical-unit validation admits parser scratch and numerical work.
+# On Ubuntu 24.04, d32 refused at 14 MiB and passed at 16 MiB with 1 and 4 workers.
+# With 16 workers it refused at 16, 17 and 18 MiB and passed from 19 MiB, with
+# peak RSS about 12 MiB. Keep 24 MiB for that control and 2 MiB for the refusal.
 # Decoder iteration tests: identical outputs for any worker
 # count, a hard memory budget (peak RSS checked by --check-budget), the streamed-tower fallback,
 # and fail-closed refusal when the budget cannot hold one stage.
@@ -8,8 +10,10 @@
 # Sanitizers retain allocator metadata; only these three success-path tests
 # need additional headroom. Production admission and the refusal test are unchanged.
 set(_sic_decode_test_budget 16)
+set(_sic_decode_test_budget_wide 24)
 if(CMAKE_CXX_FLAGS MATCHES "-fsanitize=")
   set(_sic_decode_test_budget 256)
+  set(_sic_decode_test_budget_wide 256)
 endif()
 foreach(case d2 d4 d8 d8-maximal d16 d32)
   if(case MATCHES "^d(16|32)$")
@@ -27,14 +31,18 @@ endforeach()
 add_test(NAME sic_test_decode_decode_budget_d32
   COMMAND ${CMAKE_COMMAND} -DCMD=$<TARGET_FILE:sic-decode> -DINPUT=${_fix}/d32.sicx
     -DWORK=${CMAKE_CURRENT_BINARY_DIR}/sicx-work/budget-d32 "-DTHREADS=1;4;16"
-    "-DARGS=--no-pin --memory-mib ${_sic_decode_test_budget} --check-budget" -P "${PROJECT_SOURCE_DIR}/tests/decode/run_decode_identity.cmake")
+    "-DMEMORY_MIB=${_sic_decode_test_budget};${_sic_decode_test_budget};${_sic_decode_test_budget_wide}"
+    "-DARGS=--no-pin --check-budget"
+    -DGOLDEN=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/canonical/d32.decode.sha256
+    -P "${PROJECT_SOURCE_DIR}/tests/decode/run_decode_identity.cmake")
 set_tests_properties(sic_test_decode_decode_budget_d32 PROPERTIES LABELS sicx)
 # A raised policy ceiling must not reserve unused high-precision output limbs.
 # Retain the configured cap, RSS assertion and existing numerical goldens.
 add_test(NAME sic_test_decode_decode_precision_ceiling_budget_d32
   COMMAND ${CMAKE_COMMAND} -DCMD=$<TARGET_FILE:sic-decode> -DINPUT=${_fix}/d32.sicx
     -DWORK=${CMAKE_CURRENT_BINARY_DIR}/sicx-work/ceiling-budget-d32 "-DTHREADS=1;4;16"
-    "-DARGS=--no-pin --memory-mib ${_sic_decode_test_budget} --maximum-precision 1048576 --check-budget"
+    "-DMEMORY_MIB=${_sic_decode_test_budget};${_sic_decode_test_budget};${_sic_decode_test_budget_wide}"
+    "-DARGS=--no-pin --maximum-precision 1048576 --check-budget"
     -DGOLDEN=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/canonical/d32.decode.sha256
     -P "${PROJECT_SOURCE_DIR}/tests/decode/run_decode_identity.cmake")
 set_tests_properties(sic_test_decode_decode_precision_ceiling_budget_d32 PROPERTIES LABELS sicx)

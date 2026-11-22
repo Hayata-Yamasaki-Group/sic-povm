@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Source identities of the exact constructor headers (cache/checkpoint compatibility keys).
 #
-# A leading "// SPDX-License-Identifier: ..." line is excluded from the digest, so the group and
-# table identities equal those of the frozen candidate headers that had no license line (the
-# representative-fast-v3 build: table 20350bc1...). Every other byte counts.
+# A leading "// SPDX-License-Identifier: ..." line is excluded from the digest.
+# Every other byte counts.
 
 set(_sic_spdx_line "// SPDX-License-Identifier: AGPL-3.0-or-later\n")
 string(LENGTH "${_sic_spdx_line}" _sic_spdx_length)

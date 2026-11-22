@@ -2,6 +2,9 @@
 #include "sic/support/tool_version.hpp"
 
 #include <iostream>
+
+#include "sic/support/cli.hpp"
+
 namespace sic::support::cli {
 std::optional<int> version_request(int argc, char** argv, std::string_view name) {
   for (int i = 1; i < argc; ++i) {
@@ -12,8 +15,8 @@ std::optional<int> version_request(int argc, char** argv, std::string_view name)
     }
     std::cout << "{\"name\":\"" << name
               << "\",\"schema\":\"sic-tool-version/1.0\",\"source_commit\":\"" << SIC_SOURCE_COMMIT
-              << "\",\"version\":\"1.0.0\"}\n";
-    return 0;
+              << "\",\"version\":\"" << kToolVersionNumber << "\"}\n";
+    return finish_stdout(kSuccess, name);
   }
   return std::nullopt;
 }

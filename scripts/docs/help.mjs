@@ -7,7 +7,7 @@ import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const names = ['sic-construct', 'sic-check', 'sic-overlaps',
+const names = ['sic-construct', 'sic-ray-selector', 'sic-check', 'sic-overlaps',
   'sic-identify', 'sic-stabilizer', 'sic-decode', 'sic-verify',
   'sic-inspect', 'sic-container', 'sic-data', 'sic-check-balls',
   'sic-certify-stabilizer', 'sic-verify-independent', 'sic-certify-crt',
@@ -44,6 +44,10 @@ try {
   } else if (mode === '--write' || mode === '--check') {
     if (args.length !== names.length) throw Error(`Expected ${names.length} executable paths in the documented order`);
     let doc = '# Command-line tools\n\nGenerated from the tools’ `--help` output by `scripts/docs/help.mjs`.\n\n';
+    doc += 'The exit codes below describe normal command completion. A failed write to a closed\n' +
+      'stdout pipe (for example, `tool | head` when `head` exits early) reports `[io]`\n' +
+      "and exits 1. If the command is already reporting an error, it keeps that error's\n" +
+      'exit status and adds the stdout diagnostic.\n\n';
     for (let i = 0; i < names.length; i++) doc += blocks(args[i], names[i]).join('\n') + '\n';
     doc = doc.trimEnd() + '\n';
     if (mode === '--write') fs.writeFileSync(docPath, doc);

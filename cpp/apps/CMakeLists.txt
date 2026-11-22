@@ -34,6 +34,8 @@ if(SIC_ENABLE_FLINT AND SIC_BUILD_APPS)
   add_executable(sic-construct "${PROJECT_SOURCE_DIR}/apps/construct/main.cpp")
   target_include_directories(sic-construct PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/src")
   target_link_libraries(sic-construct PRIVATE sic_construct sic_core sic_exact)
+  sic_add_executable(sic-ray-selector "${PROJECT_SOURCE_DIR}/apps/ray_selector/main.cpp")
+  target_link_libraries(sic-ray-selector PRIVATE sic_exact)
 endif()
 
 if(SIC_ENABLE_FLINT)

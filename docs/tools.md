@@ -2,6 +2,11 @@
 
 Generated from the tools’ `--help` output by `scripts/docs/help.mjs`.
 
+The exit codes below describe normal command completion. A failed write to a closed
+stdout pipe (for example, `tool | head` when `head` exits early) reports `[io]`
+and exits 1. If the command is already reporting an error, it keeps that error's
+exit status and adds the stdout diagnostic.
+
 <!-- cli:sic-construct -->
 ## sic-construct
 
@@ -43,6 +48,27 @@ Options (available in the forms listed above):
 Exit codes: 0 success; 1 failed check or runtime/input error; 2 usage error.
 ```
 <!-- /cli:sic-construct -->
+
+<!-- cli:sic-ray-selector -->
+## sic-ray-selector
+
+```text
+usage: sic-ray-selector derive|check (--group FILE | --dimension-two) [OPTIONS]
+
+Options (available in the forms listed above):
+  --group FILE  Read a verified native Group checkpoint.
+  --sha256 HEX  Group SHA-256 pin (default: FILE.sha256).
+  --dimension-two  Use the dimension-two closed form.
+  --words FILE  Required in check mode: selector entry JSON.
+  --threads N  Worker limit, 1..1024 (default process CPU allowance, capped at 1024).
+  --memory-mib M  Positive finite memory cap in MiB (default: discovered budget).
+  --receipt FILE  Write a new verification receipt valid only with exit status 0.
+  --version  Print tool identity as canonical JSON and exit 0.
+  --help  Print this help to stdout and exit 0.
+
+Exit codes: 0 success; 1 failed check or runtime/input error; 2 usage error.
+```
+<!-- /cli:sic-ray-selector -->
 
 <!-- cli:sic-check -->
 ## sic-check

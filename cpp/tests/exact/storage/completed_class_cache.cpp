@@ -193,7 +193,8 @@ int main() {
     auto changed = valid_manifest;
     const auto position = changed.find(text);
     SIC_CHECK(position != std::string::npos);
-    changed[position] = changed[position] == '0' ? '1' : 'e';
+    if (position == std::string::npos) continue;
+    changed[position] = changed[position] == '0' ? '1' : '0';
     write(manifest, changed);
     write(checksum, checkpoint_digest(manifest) + "\n");
     SIC_CHECK(throws([&] { cache.inventory(); }));

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+#include <cstdio>
 #include <functional>
 #include <sstream>
 
@@ -76,4 +77,18 @@ int main() {
       sic::support::cli::report(parser, sic::support::cli::UsageError("bad usage"), "test");
   std::cerr.rdbuf(saved);
   check(status == 2 && diagnostic.str().find("usage: ") != std::string::npos);
+
+  // Buffer real stdout bytes before reporting a usage error. The completion
+  // failure must follow the original diagnostic and help, without changing exit 2.
+  check(std::freopen("/dev/full", "w", stdout) != nullptr);
+  check(std::setvbuf(stdout, nullptr, _IOFBF, BUFSIZ) == 0);
+  check(std::fputs("pending stdout\n", stdout) >= 0);
+  diagnostic.str("");
+  saved = std::cerr.rdbuf(diagnostic.rdbuf());
+  const int failed_stdout_status =
+      sic::support::cli::report(parser, sic::support::cli::UsageError("bad usage"), "test");
+  std::cerr.rdbuf(saved);
+  check(failed_stdout_status == 2);
+  check(diagnostic.str() == "test: [invalid_argument] bad usage\n" + parser.help() +
+                                "test: [io] stdout write failed\n");
 }

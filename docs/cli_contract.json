@@ -481,6 +481,91 @@
     }
   },
   {
+    "tool": "sic-ray-selector",
+    "command": "",
+    "sources": [
+      "cpp/apps/ray_selector/main.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ],
+    "options": {
+      "--group": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--sha256": {
+        "values": "HEX",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--dimension-two": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--words": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--threads": {
+        "values": "N",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--memory-mib": {
+        "values": "M",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--receipt": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
+      "--help": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      },
+      "--version": {
+        "values": "",
+        "operands": [
+          0,
+          0
+        ],
+        "repeat": false
+      }
+    }
+  },
+  {
     "tool": "sic-decode",
     "command": "",
     "sources": [

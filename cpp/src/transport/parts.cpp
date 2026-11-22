@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "transport/parts.hpp"
 
+#include <csignal>
+
 #include "sic/support/durable_file.hpp"
 #include "sic/support/parse_number.hpp"
 #include "sic/transport/parts.hpp"
@@ -276,16 +278,48 @@ void write_atomic(const std::filesystem::path& path, const std::string& text) {
 }  // namespace sic::transport
 
 namespace sic::transport {
-int run(const std::vector<std::string>& args) {
+namespace {
+int spawn_command(pid_t& pid, const std::vector<std::string>& args, int output_fd = -1) {
   std::vector<char*> argv;
   for (const auto& a : args) argv.push_back(const_cast<char*>(a.c_str()));
   argv.push_back(nullptr);
-  pid_t pid;
-  if (posix_spawnp(&pid, argv[0], nullptr, nullptr, argv.data(), environ)) return -1;
+
+  // CLI entry points ignore SIGPIPE so they can report failed writes themselves.
+  // External commands start with the normal disposition.
+  sigset_t defaults;
+  sigemptyset(&defaults);
+  sigaddset(&defaults, SIGPIPE);
+  posix_spawnattr_t attributes;
+  if (const int error = posix_spawnattr_init(&attributes)) return error;
+  int error = posix_spawnattr_setsigdefault(&attributes, &defaults);
+  if (!error) error = posix_spawnattr_setflags(&attributes, POSIX_SPAWN_SETSIGDEF);
+  posix_spawn_file_actions_t actions;
+  posix_spawn_file_actions_t* redirection = nullptr;
+  if (!error && output_fd >= 0) {
+    error = posix_spawn_file_actions_init(&actions);
+    if (!error) {
+      redirection = &actions;
+      error = posix_spawn_file_actions_adddup2(&actions, output_fd, STDOUT_FILENO);
+    }
+  }
+  if (!error) error = posix_spawnp(&pid, argv[0], redirection, &attributes, argv.data(), environ);
+  if (redirection) posix_spawn_file_actions_destroy(redirection);
+  posix_spawnattr_destroy(&attributes);
+  return error;
+}
+
+int wait_command(pid_t pid) {
   int status = 0;
   while (waitpid(pid, &status, 0) < 0)
     if (errno != EINTR) return -1;
   return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+}
+}  // namespace
+
+int run(const std::vector<std::string>& args) {
+  pid_t pid;
+  if (spawn_command(pid, args)) return -1;
+  return wait_command(pid);
 }
 }  // namespace sic::transport
 
@@ -297,13 +331,31 @@ int run_sh(const std::string& cmd, const std::string& arg) {
 
 namespace sic::transport {
 std::string capture_sh(const std::string& cmd) {
-  FILE* f = ::popen(cmd.c_str(), "r");
-  if (!f) throw sic::Error(sic::ErrorKind::io, "cannot run " + cmd);
-  std::unique_ptr<FILE, decltype(&::pclose)> owner(f, ::pclose);
   std::string out;
-  char buf[256];
-  while (size_t n = std::fread(buf, 1, sizeof buf, f)) out.append(buf, n);
-  if (::pclose(owner.release()) != 0) sic::sicx::fail(sic::ErrorKind::io, "command failed: " + cmd);
+  int pipe_fds[2];
+  if (::pipe2(pipe_fds, O_CLOEXEC)) throw sic::Error(sic::ErrorKind::io, "cannot run " + cmd);
+  PartDescriptor input(pipe_fds[0]), output(pipe_fds[1]);
+  pid_t pid;
+  if (spawn_command(pid, {"/bin/sh", "-c", "--", cmd, "sh"}, output.get()))
+    throw sic::Error(sic::ErrorKind::io, "cannot run " + cmd);
+  output.close();
+  try {
+    char buf[256];
+    for (;;) {
+      const ssize_t n = ::read(input.get(), buf, sizeof buf);
+      if (n == 0) break;
+      if (n > 0)
+        out.append(buf, static_cast<size_t>(n));
+      else if (errno != EINTR)
+        throw sic::Error(sic::ErrorKind::io, "cannot read output of " + cmd);
+    }
+  } catch (...) {
+    input.close();
+    (void)wait_command(pid);
+    throw;
+  }
+  input.close();
+  if (wait_command(pid) != 0) sic::sicx::fail(sic::ErrorKind::io, "command failed: " + cmd);
   while (!out.empty() && (out.back() == '\n' || out.back() == ' ')) out.pop_back();
   return out;
 }

@@ -6,7 +6,7 @@ sic_add_executable(sic-test-support-cli-parser tests/cli/parser.cpp)
 add_test(NAME sic_test_support_cli_parser COMMAND sic-test-support-cli-parser)
 set_tests_properties(sic_test_support_cli_parser PROPERTIES LABELS "unit;cli")
 foreach(_tool sic-construct sic-check read-fiducial sic-overlaps sic-identify sic-stabilizer
-    sic-decode sic-verify sic-inspect sic-container sic-data sic-check-balls)
+    sic-ray-selector sic-decode sic-verify sic-inspect sic-container sic-data sic-check-balls)
     string(REPLACE "-" "_" _tool_case "${_tool}")
   if(TARGET ${_tool})
   add_test(NAME sic_test_support_cli_help_${_tool_case}
@@ -20,8 +20,16 @@ add_test(NAME sic_test_support_cli_refusals COMMAND ${CMAKE_COMMAND} -DBIN=$<TAR
   -DREPO=${SIC_REPO_ROOT} -DWORK=${PROJECT_BINARY_DIR}/cli-refusals -DFIXTURE=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx -P ${PROJECT_SOURCE_DIR}/tests/cli/refusals.cmake)
 set_tests_properties(sic_test_support_cli_refusals PROPERTIES LABELS cli)
 
+if(TARGET sic-ray-selector)
+  add_test(NAME sic_test_exact_ray_selector_cli COMMAND ${CMAKE_COMMAND}
+    -DSELECTOR=$<TARGET_FILE:sic-ray-selector> -DPRODUCER=$<TARGET_FILE:sic-construct>
+    -DWORK=${PROJECT_BINARY_DIR}/ray-selector-test
+    -P ${PROJECT_SOURCE_DIR}/tests/exact/group/ray_selector_cli.cmake)
+  set_tests_properties(sic_test_exact_ray_selector_cli PROPERTIES LABELS "integration;exact" TIMEOUT 120)
+endif()
+
 foreach(_tool sic-check sic-overlaps sic-identify sic-stabilizer sic-construct sic-decode
-    sic-verify sic-inspect sic-container sic-data sic-check-balls sic-certify-stabilizer
+    sic-ray-selector sic-verify sic-inspect sic-container sic-data sic-check-balls sic-certify-stabilizer
     sic-verify-independent sic-certify-crt sic-certify-norm sic-check-crt-input)
   if(TARGET ${_tool})
     string(REPLACE "-" "_" _tool_case "${_tool}")

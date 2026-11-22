@@ -197,6 +197,11 @@ std::string digest_hex(std::span<const unsigned char> bytes) {
 
 namespace sic::support::sha256 {
 std::string file_hex(const std::filesystem::path& path, Compress compress) {
+  return file_hex_visit(path, true, {}, compress);
+}
+
+std::string file_hex_visit(const std::filesystem::path& path, bool read_ahead,
+                           const FileChunkVisitor& visit, Compress compress) {
   const int fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     throw sic::Error(sic::ErrorKind::io,
@@ -211,15 +216,14 @@ std::string file_hex(const std::filesystem::path& path, Compress compress) {
   // Double buffering: chunk k+1 is read on a helper thread while chunk k is
   // hashed, so the rate is min(read, compress) instead of their harmonic sum.
   // The bytes are hashed strictly in file order; a short chunk means EOF.
-  constexpr size_t kChunk = size_t(8) << 20;
   struct ReadResult {
     size_t filled;
     int error;
   };
   const auto read_full = [fd](unsigned char* data) -> ReadResult {
     size_t filled = 0;
-    while (filled < kChunk) {
-      const ssize_t count = ::read(fd, data + filled, kChunk - filled);
+    while (filled < kFileChunkBytes) {
+      const ssize_t count = ::read(fd, data + filled, kFileChunkBytes - filled);
       if (count < 0) {
         if (errno == EINTR) continue;
         return {filled, errno};
@@ -229,22 +233,34 @@ std::string file_hex(const std::filesystem::path& path, Compress compress) {
     }
     return {filled, 0};
   };
-  std::unique_ptr<unsigned char[]> current(new unsigned char[kChunk]),
-      next(new unsigned char[kChunk]);
+  std::unique_ptr<unsigned char[]> current(new unsigned char[kFileChunkBytes]);
+  std::unique_ptr<unsigned char[]> next;
+  if (read_ahead) next.reset(new unsigned char[kFileChunkBytes]);
   Hasher hasher(compress);
-  auto [filled, error] = read_full(current.get());
-  while (!error && filled == kChunk) {
-    auto pending = std::async(std::launch::async, read_full, next.get());
+  const auto consume = [&](size_t filled) {
     hasher.update(current.get(), filled);
-    const auto result = pending.get();
-    filled = result.filled;
-    error = result.error;
-    std::swap(current, next);
+    if (visit && filled) visit({current.get(), filled});
+  };
+  auto [filled, error] = read_full(current.get());
+  while (!error && filled == kFileChunkBytes) {
+    if (read_ahead) {
+      auto pending = std::async(std::launch::async, read_full, next.get());
+      consume(filled);
+      const auto result = pending.get();
+      filled = result.filled;
+      error = result.error;
+      std::swap(current, next);
+    } else {
+      consume(filled);
+      const auto result = read_full(current.get());
+      filled = result.filled;
+      error = result.error;
+    }
   }
   if (error)
     throw sic::Error(sic::ErrorKind::io,
                      "SHA-256: read failed for " + path.string() + ": " + std::strerror(error));
-  hasher.update(current.get(), filled);
+  consume(filled);
   return hasher.finish_hex();
 }
 }  // namespace sic::support::sha256

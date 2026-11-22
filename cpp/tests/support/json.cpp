@@ -40,6 +40,14 @@ int main() try {
   refuses([] { support::Json::string_value("01").as_int(); });
   refuses([] { support::Json::integer_value(-1).as_uint(); });
 
+  const auto integers = support::JsonParser::parse_integer_document(
+      " { \"z\": -9223372036854775808, \"a\" : [9223372036854775807,\" 0\"] }\n");
+  check(support::dump_integer_json(integers) ==
+            "{\"a\":[9223372036854775807,\" 0\"],\"z\":-9223372036854775808}",
+        "bare integer JSON round trip");
+  for (const auto* bad : {"{\"a\":0,\"a\":1}", "[-0]", "[01]", "[1.0]", "[9223372036854775808]"})
+    refuses([&] { support::JsonParser::parse_integer_document(bad); });
+
   return 0;
 } catch (const std::exception& error) {
   std::cerr << error.what() << '\n';

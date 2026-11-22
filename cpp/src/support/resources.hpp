@@ -56,7 +56,7 @@ Bytes process_limit(const Snapshot& snapshot, std::optional<Bytes> user_cap = {}
 
 // Return free allocator pages to the kernel. Arb limbs freed by worker
 // threads stay resident in their glibc arenas until a trim, so an RSS-based
-// admission would count freed memory as live (d=2048 count208, band 1).
+// admission would count freed memory as live.
 // Returns false where no trim is available.
 
 struct Budget {

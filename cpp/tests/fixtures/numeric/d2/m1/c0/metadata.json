@@ -3,7 +3,7 @@
   "dimension": 2,
   "basis": "Parsed exact Q(sqrt(3)) normalization and WH identities with positive radical branches",
   "selector": "positive sqrt(3), alpha and beta branches in original SIC_EXACT_D2_RADICALS artifact",
-  "association_contract": "reviewed-enclosure-association-v1; hashes bind declared trusted provenance, not a new proof authority",
+  "association_contract": "reviewed enclosure association; hashes bind declared trusted provenance, not a new proof authority",
   "wh_convention": "D_(a,b)=tau^(a*b) X^a Z^b; tau=-exp(pi*i/d); X|j>=|j+1>; Z|j>=exp(2*pi*i*j/d)|j>",
   "gauge": "w=v/sqrt(sum(abs(v)^2))*conj(v[k])/abs(v[k]); anchor imaginary zero follows exactly from this identity",
   "anchor": 0,

@@ -16,7 +16,7 @@
     "c0": "c2",
     "c2": "c3"
   },
-  "chosen_conjugates": "identical to opt-experiments V1",
+  "chosen_conjugates": "Conjugate alignment uses delta [1,1,0,24,11] and the recorded reference-to-fixture label map",
   "native_sha256": "f92a39d123d5455aa39f00b75069b49ad77b1c690632214b13a0d510482bc8ac",
   "native_exact_root": "4dc3c9a2ffd642ca3403817151b33758c4926f2b12212daea02a537dcb52c162",
   "final_sha256": "a4c150832bc6d6aef269aead3dab6a8ca7cc7b592e223cac5832c379c80b1486",

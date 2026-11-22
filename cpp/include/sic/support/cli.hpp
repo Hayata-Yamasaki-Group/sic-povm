@@ -91,6 +91,10 @@ class Parser {
   std::vector<Option> options_;
 };
 
+// Let CLI writes to a closed pipe report EPIPE.
+void prepare_stdout();
+// Complete buffered CLI output before returning a process exit status.
+int finish_stdout(int status, std::string_view tool);
 int report(const Parser& parser, const std::exception& error, std::string_view tool);
 
 }  // namespace sic::support::cli

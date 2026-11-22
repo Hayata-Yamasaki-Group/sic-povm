@@ -27,6 +27,9 @@ function record(id, value) {
 }
 function json(file, id) {const value=JSON.parse(read(file)); record(id || value.schema,value);}
 recipes(build,work);
+const selectionReceipt = path.join(work,'ray-selection.json');
+run(toolPath(build,'sic-ray-selector'),['derive','--dimension-two','--threads','1','--receipt',selectionReceipt]);
+json(selectionReceipt);
 for (const d of [4,8]) {
   const dir=path.join(work,`d${d}`), file=path.join(dir,'fresh.sicx');
   const tool=(name,args) => run(toolPath(build,name),args,{cwd:dir});

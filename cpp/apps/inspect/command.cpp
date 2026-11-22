@@ -44,7 +44,6 @@ int command(Invocation invocation) try {
       std::ios::sync_with_stdio(false);
       sic::sicx::StreamSink sink(std::cout);
       sic::sicx::dump_text_json(reader, sha, sink, threads);
-      if (!std::cout) throw sic::Error(sic::ErrorKind::io, "text output failed");
       return 0;
     }
     if (part_bytes) {

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sic-ray-selection-receipt/1.0",
+  "title": "sic-ray-selection-receipt/1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "source_commit",
+    "mode",
+    "dimension",
+    "threads",
+    "group_source",
+    "group_sha256",
+    "group_bytes",
+    "group_read_us",
+    "selection_us",
+    "output_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "sic-ray-selection-receipt/1.0"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "source_commit": {"type": "string", "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"},
+    "mode": {"enum": ["derive", "check"]},
+    "dimension": {"type": "string", "pattern": "^[1-9][0-9]*$"},
+    "threads": {"type": "string", "pattern": "^[1-9][0-9]*$"},
+    "group_source": {"type": "string"},
+    "group_sha256": {"type": "string", "pattern": "^([0-9a-f]{64})?$"},
+    "group_bytes": {"type": "string", "pattern": "^(0|[1-9][0-9]*)$"},
+    "group_read_us": {"type": "string", "pattern": "^(0|[1-9][0-9]*)$"},
+    "selection_us": {"type": "string", "pattern": "^(0|[1-9][0-9]*)$"},
+    "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "words_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "oneOf": [
+    {"properties": {"mode": {"const": "derive"}, "words_sha256": false}},
+    {"properties": {"mode": {"const": "check"}}, "required": ["words_sha256"]}
+  ]
+}

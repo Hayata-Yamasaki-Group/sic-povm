@@ -369,6 +369,7 @@ function(sic_label_tests)
     sic_test_support_cli_help_sic_check
     sic_test_support_cli_help_sic_check_balls
     sic_test_support_cli_help_sic_construct
+    sic_test_support_cli_help_sic_ray_selector
     sic_test_support_cli_help_sic_container
     sic_test_support_cli_help_sic_data
     sic_test_support_cli_help_sic_decode
@@ -410,7 +411,6 @@ function(sic_label_tests)
     sic_test_support_norm_certificate_input_cli_d8
     sic_test_support_performance_limits
     sic_test_support_performance_parameters
-    sic_test_support_public_tree_export
     sic_test_support_test_hooks_install_refusal
     sic_test_support_test_hooks_installed_isolation
     sic_test_transport_parts_d16

@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "sic/support/cli.hpp"
 
+#include <csignal>
+#include <cstdio>
+
 namespace sic::support::cli {
 std::string Arguments::get(const std::string& name, const std::string& fallback) const {
   const auto it = options.find(name);
@@ -109,20 +112,39 @@ Arguments Parser::parse(int argc, char** argv, int first) const {
 }  // namespace sic::support::cli
 
 namespace sic::support::cli {
+namespace {
+bool flush_stdout() {
+  // CLI commands use both C stdio and C++ streams and may disable their synchronization.
+  std::cout.flush();
+  return std::fflush(stdout) == 0 && !std::ferror(stdout) && std::cout.good();
+}
+
+int stdout_error(std::string_view tool) {
+  std::cerr << tool << ": [" << sic::error_kind_name(ErrorKind::io) << "] stdout write failed\n";
+  return kFailure;
+}
+}  // namespace
+
+void prepare_stdout() { std::signal(SIGPIPE, SIG_IGN); }
+
+int finish_stdout(int status, std::string_view tool) {
+  return flush_stdout() ? status : stdout_error(tool);
+}
+
 int report(const Parser& parser, const std::exception& error, std::string_view tool) {
   if (dynamic_cast<const HelpRequested*>(&error)) {
     std::cout << parser.help();
-    return kSuccess;
+    return finish_stdout(kSuccess, tool);
   }
+  const bool stdout_ok = flush_stdout();
   std::cerr << tool << ": ";
   if (const auto* classified = dynamic_cast<const sic::Error*>(&error))
     std::cerr << '[' << sic::error_kind_name(classified->kind()) << "] ";
   std::cerr << error.what() << '\n';
-  if (dynamic_cast<const UsageError*>(&error)) {
-    std::cerr << parser.help();
-    return kUsageError;
-  }
-  return kFailure;
+  const bool usage = dynamic_cast<const UsageError*>(&error) != nullptr;
+  if (usage) std::cerr << parser.help();
+  if (!stdout_ok) stdout_error(tool);
+  return usage ? kUsageError : kFailure;
 }
 }  // namespace sic::support::cli
 

@@ -52,6 +52,7 @@
       "sic-identify",
       "sic-inspect",
       "sic-overlaps",
+      "sic-ray-selector",
       "sic-stabilizer",
       "sic-verify",
       "sic-verify-independent"
@@ -112,6 +113,7 @@
   },
   "optional_apps": [
     "sic-construct",
+    "sic-ray-selector",
     "sic-decode",
     "sic-verify",
     "sic-inspect",

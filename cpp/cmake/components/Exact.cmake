@@ -483,6 +483,7 @@
     "${PROJECT_SOURCE_DIR}/src/exact/group/group_fourier.cpp"
     "${PROJECT_SOURCE_DIR}/src/exact/group/maximal_order_orbits.cpp"
     "${PROJECT_SOURCE_DIR}/src/exact/group/orbit_table.cpp"
+    "${PROJECT_SOURCE_DIR}/src/exact/group/ray_selection.cpp"
     "${PROJECT_SOURCE_DIR}/src/exact/runtime/disk_budget.cpp"
     "${PROJECT_SOURCE_DIR}/src/exact/runtime/memory/ball_storage.cpp"
     "${PROJECT_SOURCE_DIR}/src/exact/runtime/memory/phase_accounting.cpp"

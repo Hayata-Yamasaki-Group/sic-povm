@@ -10,7 +10,7 @@ foreach(_check links status private)
 endforeach()
 add_test(NAME sic_test_support_docs_fixture_inventory COMMAND "${SIC_NODE_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tests/check_fixture_inventory.mjs" "${PROJECT_BINARY_DIR}")
 set_tests_properties(sic_test_support_docs_fixture_inventory PROPERTIES LABELS docs TIMEOUT 30)
-foreach(_tool sic-construct sic-check read-fiducial sic-overlaps sic-identify sic-stabilizer sic-decode sic-verify sic-inspect sic-container sic-data sic-check-balls)
+foreach(_tool sic-construct sic-ray-selector sic-check read-fiducial sic-overlaps sic-identify sic-stabilizer sic-decode sic-verify sic-inspect sic-container sic-data sic-check-balls)
   string(REPLACE "-" "_" _tool_case "${_tool}")
   if(TEST sic_test_support_cli_help_${_tool_case})
     set_property(TEST sic_test_support_cli_help_${_tool_case} APPEND PROPERTY LABELS docs)
@@ -44,7 +44,7 @@ endif()
 include("${PROJECT_BINARY_DIR}/doc-examples/examples.cmake")
 # Check each available executable in plain builds and the complete generated file
 # when all installed tools are available.
-set(_help_tools sic-construct sic-check sic-overlaps sic-identify sic-stabilizer
+set(_help_tools sic-construct sic-ray-selector sic-check sic-overlaps sic-identify sic-stabilizer
     sic-decode sic-verify sic-inspect sic-container sic-data sic-check-balls
     sic-certify-stabilizer sic-verify-independent sic-certify-crt sic-certify-norm sic-check-crt-input)
 set(_help_paths)
@@ -67,12 +67,40 @@ if(_help_complete)
 endif()
 
 # Match the pinned CI formatter; retain include order for the whitespace-only pass.
-find_program(SIC_CLANG_FORMAT_EXECUTABLE clang-format-14)
-if(SIC_CLANG_FORMAT_EXECUTABLE)
-  add_test(NAME sic_test_policy_cpp_format COMMAND "${SIC_NODE_EXECUTABLE}"
-    "${_docs_root}/scripts/docs/format.mjs" "${SIC_CLANG_FORMAT_EXECUTABLE}" "${_docs_root}")
-  set_tests_properties(sic_test_policy_cpp_format PROPERTIES LABELS "docs;hygiene" TIMEOUT 120)
+function(_sic_formatter_is_version_14 executable result)
+  set(valid FALSE)
+  if(executable)
+    execute_process(COMMAND "${executable}" --version
+      RESULT_VARIABLE status OUTPUT_VARIABLE version ERROR_QUIET TIMEOUT 5)
+    if("${status}" STREQUAL "0" AND version MATCHES "clang-format version 14\\.")
+      set(valid TRUE)
+    endif()
+  endif()
+  set(${result} "${valid}" PARENT_SCOPE)
+endfunction()
+
+set(_sic_formatter "${SIC_CLANG_FORMAT_EXECUTABLE}")
+_sic_formatter_is_version_14("${_sic_formatter}" _sic_formatter_valid)
+# The previous find_program call used the default help string for its cache entry.
+# Keep explicit overrides separate from new discovery.
+get_property(_sic_formatter_cache_help CACHE SIC_CLANG_FORMAT_EXECUTABLE PROPERTY HELPSTRING)
+if(NOT DEFINED SIC_CLANG_FORMAT_EXECUTABLE OR
+    (NOT _sic_formatter_valid AND _sic_formatter_cache_help STREQUAL "Path to a program."))
+  find_program(_sic_formatter_discovered NAMES clang-format-14 clang-format)
+  set(_sic_formatter "${_sic_formatter_discovered}")
+  unset(_sic_formatter_discovered CACHE)
+  _sic_formatter_is_version_14("${_sic_formatter}" _sic_formatter_valid)
 endif()
+if(_sic_formatter_valid)
+  add_test(NAME sic_test_policy_cpp_format COMMAND "${SIC_NODE_EXECUTABLE}"
+    "${_docs_root}/scripts/docs/format.mjs" "${_sic_formatter}" "${_docs_root}")
+else()
+  set(_sic_format_skip "SKIP: clang-format 14 unavailable")
+  message(STATUS "sic_test_policy_cpp_format: ${_sic_format_skip}")
+  add_test(NAME sic_test_policy_cpp_format COMMAND "${CMAKE_COMMAND}" -E echo "${_sic_format_skip}")
+  set_tests_properties(sic_test_policy_cpp_format PROPERTIES SKIP_REGULAR_EXPRESSION "^${_sic_format_skip}")
+endif()
+set_tests_properties(sic_test_policy_cpp_format PROPERTIES LABELS "docs;hygiene" TIMEOUT 120)
 
 # Permanent documented-claim checks reuse the help/link/fixture/install owners.
 foreach(check help_contract source_claims documented_defaults claim_registry symbols_controls)

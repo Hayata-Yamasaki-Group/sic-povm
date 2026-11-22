@@ -1,9 +1,21 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 file(REMOVE_RECURSE "${WORK}")
 separate_arguments(args UNIX_COMMAND "${ARGS}")
+if(DEFINED MEMORY_MIB)
+  list(LENGTH MEMORY_MIB budgets)
+  list(LENGTH THREADS workers)
+  if(NOT budgets EQUAL workers)
+    message(FATAL_ERROR "MEMORY_MIB must give one cap for each entry in THREADS")
+  endif()
+endif()
 set(first "")
 foreach(t ${THREADS})
-  execute_process(COMMAND "${CMD}" "${INPUT}" "${WORK}/t${t}" --threads ${t} ${args}
+  set(memory_args)
+  if(DEFINED MEMORY_MIB)
+    list(POP_FRONT MEMORY_MIB cap)
+    set(memory_args --memory-mib "${cap}")
+  endif()
+  execute_process(COMMAND "${CMD}" "${INPUT}" "${WORK}/t${t}" --threads ${t} ${args} ${memory_args}
     RESULT_VARIABLE status OUTPUT_VARIABLE out ERROR_VARIABLE err)
   if(NOT status EQUAL 0 OR NOT out MATCHES "\nPASS")
     message(FATAL_ERROR "decode with ${t} workers failed (${status})\n${out}\n${err}")

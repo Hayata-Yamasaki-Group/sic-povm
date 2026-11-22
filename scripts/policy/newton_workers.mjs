@@ -29,7 +29,7 @@ const root = path.resolve(path.dirname(process.argv[2]), '../../../..');
 const sourceRoots = ['src', 'apps', 'include', 'checkers', 'bench', 'examples'];
 function rediscovery(text, file) {
   let scrubbed = text;
-  if (file === 'construct/model/worker_policy.cpp' || file === 'apps/decode/command_line.cpp')
+  if (file === 'construct/model/worker_policy.cpp')
     scrubbed = scrubbed.replace('requested_threads(nullptr)', 'default_workers');
   if (file === 'construct/model/options.cpp')
     scrubbed = scrubbed.replace('requested_threads(raw("SIC_THREADS"))', 'configured_workers');

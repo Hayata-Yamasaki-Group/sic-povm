@@ -54,6 +54,7 @@ sidecar schema. Neither the sidecar nor RAYS has a `schema` field naming that de
 | `sic-hoggar-manifest/1.0` | textual identity (`sic[x]-<name>/1.0`) | data/d8/hoggar/manifest.json and schema | No |
 | `sic-multiplet-manifest/1.0` | textual identity (`sic[x]-<name>/1.0`) | Multiplet manifest and schema | No |
 | `sic-npz-bundle/1.0` | textual identity (`sic[x]-<name>/1.0`) | NPZ ZIP archive comment and schema | No |
+| `sic-ray-selection-receipt/1.0` | textual identity (`sic[x]-<name>/1.0`) | Ray selection receipt | No |
 | `sic-release-catalogue/1.0` | textual identity (`sic[x]-<name>/1.0`) | data/catalogue.json and schema | No |
 | `sic-tool-version/1.0` | textual identity (`sic[x]-<name>/1.0`) | CLI --version output and schema | No |
 | `sicx-text-json/1.0` | textual identity (`sic[x]-<name>/1.0`) | JSONL header and schema | No; text representation |

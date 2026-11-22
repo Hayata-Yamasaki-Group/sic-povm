@@ -77,7 +77,7 @@ class DirectEtaRoot {
   long dimension() const { return d_; }
   slong precision() const { return p_; }
 
-  // Test-only control (representative-fast-v2): when set, the row loop throws
+  // Test-only control: when set, the row loop throws
   // a non-stop runtime_error at row census.rows/2 after other rows may already
   // have been evaluated, so callers must unwind and refuse the whole class.
 #ifdef SIC_ENABLE_TEST_HOOKS

@@ -118,6 +118,7 @@ const cli::Parser kParser{"read-fiducial FILE.csv|FILE.npy|FILE.txt", {}, false}
 }
 
 int main(int argc, char** argv) {
+  cli::prepare_stdout();
   try {
     const auto args = kParser.parse(argc, argv);
     args.positionals(1, 1);
@@ -149,8 +150,7 @@ int main(int argc, char** argv) {
                 dev, kind);
     if (!ends_with(".txt")) std::printf(" at (a,b) = (%zu,%zu)", wa, wb);
     std::printf("\nelapsed %.3f s\n", secs);
-    if (!(dev < 1e-10)) return 1;  // written so that NaN fails
-    return 0;
+    return cli::finish_stdout(dev < 1e-10 ? 0 : 1, "read-fiducial");  // NaN fails.
   } catch (const std::exception& e) {
     return cli::report(kParser, e, "error");
   }

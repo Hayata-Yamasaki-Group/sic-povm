@@ -12,6 +12,7 @@ const groups={
   'sic-identify':['cpp/apps/identify/command_line.cpp'],
   'sic-stabilizer':['cpp/apps/stabilizer/command_line.cpp'],
   'sic-construct':['cpp/src/construct/runtime/command_line.cpp'],
+  'sic-ray-selector':['cpp/apps/ray_selector/main.cpp'],
   'sic-decode':['cpp/apps/decode/command_line.cpp','cpp/src/access/source_arguments.cpp'],
   'sic-verify':['cpp/apps/verify/command_line.cpp','cpp/src/access/source_arguments.cpp'],
   'sic-inspect':['cpp/apps/inspect/command_line.cpp'],

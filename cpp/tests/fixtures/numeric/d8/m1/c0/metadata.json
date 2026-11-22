@@ -3,7 +3,7 @@
   "dimension": 8,
   "basis": "Independently exact-certified analytic maximal-order d8 ray: all64 WH quartic identities (15 direct zero normal forms plus49 exact symmetry consequences), positive selected norm and certified physical conjugation; PEC M1 separates this ray from the retained standard-order d8 ray. No classification exhaustion or named-orbit label.",
   "selector": "analytic maximal order_index=3, d8, D0=5; original authoritative path_ball; ordinary identity word0,0,0; physical conjugation word0,1,0 sign_mask12 is a conjugation certificate, not a new selected ray",
-  "association_contract": "reviewed-enclosure-association-v1; hashes bind declared trusted provenance, not a new proof authority",
+  "association_contract": "reviewed enclosure association; hashes bind declared trusted provenance, not a new proof authority",
   "wh_convention": "D_(a,b)=tau^(a*b) X^a Z^b; tau=-exp(pi*i/d); X|j>=|j+1>; Z|j>=exp(2*pi*i*j/d)|j>",
   "gauge": "w=v/sqrt(sum(abs(v)^2))*conj(v[k])/abs(v[k]); anchor imaginary zero follows exactly from this identity",
   "anchor": 5,

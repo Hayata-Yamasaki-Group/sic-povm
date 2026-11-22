@@ -1,8 +1,13 @@
 # Installation and quick start
 
-CMake 3.20 or newer, a C++20 compiler and Node.js are required for the default test-enabled build. A
-build configured with `-DSIC_BUILD_TESTS=OFF` does not require Node.js. The test-enabled
-configuration also requires `nm` or `llvm-nm`; exact tests require OpenSSL Crypto development files.
+CMake 3.20 or newer and a C++20 compiler are required. The default test-enabled build also requires
+Node.js 20 or newer, Bash 4 or newer, and `nm` or `llvm-nm`. A build configured with
+`-DSIC_BUILD_TESTS=OFF` needs only the build dependencies.
+
+Only the C++ formatting test needs clang-format 14 (`clang-format-14` on Ubuntu 24.04).
+CTest reports that test as skipped when a working version 14 is unavailable.
+Exact tests require OpenSSL Crypto development files. Install `pari-gp` to run the GP controls and
+libcurl development files to run the HTTP Range controls.
 The plain configuration builds the numerical core and tools without FLINT:
 
 <!-- shell:template -->
@@ -13,8 +18,8 @@ ctest --test-dir build-plain --output-on-failure
 cmake --install build-plain --prefix "$PWD/install-plain"
 ```
 
-For exact construction, SICX, decoding and certification, install FLINT 3 with Arb, GMP and MPFR,
-then configure a separate build:
+For exact construction, SICX, decoding and certification, install FLINT 3 with Arb, GMP and MPFR.
+Install `m4` when building FLINT from its release tarball. Configure a separate build:
 
 <!-- shell:template -->
 ```sh

@@ -106,6 +106,7 @@ int Construction::group_stage() try {  // Construct the group G'.
     if (unit_power && (*group_).N != D)
       throw sic::Error(sic::ErrorKind::construction, "reduced order: |G'| differs from h d^2/(2k)");
     if (group_cache) {
+      sic::support::progressf("group closure complete [%.1fs]\n", stamp());
       GroupCheckpoint::save((*group_), group_cache);
       if (pinned_inputs)
         verified_group_digest = cache_checksum_file(std::string(group_cache) + ".sha256");

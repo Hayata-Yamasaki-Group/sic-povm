@@ -11,7 +11,7 @@ import {startServer} from './server.mjs';
 const [file, binaryDir, work, baseline] = process.argv.slice(2);
 await fs.mkdir(work, {recursive: true});
 const scratch = path.join(work, 'scratch'); await fs.mkdir(scratch);
-const threads = Number(process.env.X4_THREADS || 8);
+const threads = Number(process.env.SIC_TEST_ACCESS_THREADS || 8);
 async function run(name, executable, args) {
   const out = [], err = [], start = performance.now();
   const code = await new Promise((resolve, reject) => {
@@ -34,20 +34,20 @@ const text = Buffer.alloc(Number(head.readBigUInt64LE(24))); await fd.read(text,
 const d = Number(JSON.parse(text).d), inputBytes = (await fs.stat(file)).size;
 const inputSha256 = await hash(file);
 const parts = path.join(scratch, 'parts');
-if (process.env.X4_PARTS_MANIFEST) {
+if (process.env.SIC_TEST_ACCESS_PARTS_MANIFEST) {
   // Reuse a split, fully verified immutable snapshot on repeat runs.
-  const manifest = JSON.parse(await fs.readFile(process.env.X4_PARTS_MANIFEST, 'utf8'));
+  const manifest = JSON.parse(await fs.readFile(process.env.SIC_TEST_ACCESS_PARTS_MANIFEST, 'utf8'));
   assert.equal(manifest.sha256, inputSha256); assert.equal(Number(manifest.size_bytes), inputBytes);
   assert.equal(manifest.parts.length, 1, 'repeat harness expects one part');
   await fs.mkdir(parts); await fs.link(file, path.join(parts, manifest.parts[0].asset));
-  await fs.copyFile(process.env.X4_PARTS_MANIFEST, path.join(parts, 'multiplet.sicx.parts.json'));
+  await fs.copyFile(process.env.SIC_TEST_ACCESS_PARTS_MANIFEST, path.join(parts, 'multiplet.sicx.parts.json'));
 } else {
   await run('split', path.join(binaryDir, 'sic-container'), ['split', file, '--out', parts, '--asset-prefix', `d${d}-m1`]);
 }
 await fs.copyFile(path.join(parts, 'multiplet.sicx.parts.json'), path.join(work, 'multiplet.sicx.parts.json'));
 const server = await startServer(parts);
 const summary = {input: file, input_bytes: inputBytes, input_sha256: inputSha256, dimension: d,
-  reused_parts_manifest: process.env.X4_PARTS_MANIFEST || null,
+  reused_parts_manifest: process.env.SIC_TEST_ACCESS_PARTS_MANIFEST || null,
   target_bits: 128, threads, memory_mib: 8192, seed: 'not applicable (deterministic)',
   coordinates: [0, d / 2], rays: ['c0', 'c1'], runs: {}, raw_sha256: {}, local_timing: []};
 const persist = () => fs.writeFile(path.join(work, 'measurement.json'), JSON.stringify(summary, null, 2) + '\n');
@@ -88,7 +88,7 @@ try {
   assert(summary.runs.full_remote.transferred <= inputBytes + 4096, 'full remote duplicate transfer');
   assert(summary.runs.full_remote.peak_rss_kib * 1024 <= 8192 * 1048576, 'full remote RSS');
   await persist();
-  const repeats = baseline ? Number(process.env.X4_TIMING_REPEATS || 5) : 1;
+  const repeats = baseline ? Number(process.env.SIC_TEST_ACCESS_TIMING_REPEATS || 5) : 1;
   for (let i = 0; i < repeats; ++i) {
     for (const name of (i % 2 ? ['after', 'before'] : ['before', 'after'])) {
       if (name === 'before' && !baseline) continue;

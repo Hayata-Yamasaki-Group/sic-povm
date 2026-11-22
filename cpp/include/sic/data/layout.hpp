@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Release data tree v3 (docs/sicx.md section 10a). The tree holds
+// Release data tree (docs/sicx.md section 10a). The tree holds
 // numerical data and manifests only; every SICX is a GitHub Release asset, transported as parts
 // (docs/sicx.md section 10a):
 //   ROOT/d<d>/{all.npz, stabilizers.txt}                        (other writers)

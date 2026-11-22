@@ -55,6 +55,17 @@
     ]
   },
   {
+    "tool": "sic-ray-selector",
+    "command": "",
+    "sources": [
+      "cpp/apps/ray_selector/main.cpp"
+    ],
+    "arity": [
+      1,
+      1
+    ]
+  },
+  {
     "tool": "sic-decode",
     "command": "",
     "sources": [

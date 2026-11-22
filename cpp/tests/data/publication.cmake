@@ -49,7 +49,7 @@ file(READ "${WORK}/exact.json" exact)
 if(NOT exact MATCHES "sic-exact-json/1.0" OR EXISTS "${WORK}/exact.json.partial")
   message(FATAL_ERROR "incomplete exact publication")
 endif()
-# The CLI preserves its earlier nonempty-directory refusal; the unit tests the writer directly.
+# The CLI refuses a nonempty directory; the unit tests the writer directly.
 file(MAKE_DIRECTORY "${WORK}/decode")
 file(WRITE "${WORK}/decode/decode.provenance.json" "preserved provenance\n")
 refuse("${WORK}/decode/decode.provenance.json" "output directory must be absent or empty:" sic-decode

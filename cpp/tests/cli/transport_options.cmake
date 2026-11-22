@@ -1,10 +1,18 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 file(REMOVE_RECURSE "${WORK}")
 file(MAKE_DIRECTORY "${WORK}")
+# Both callbacks must start with the default SIGPIPE disposition. An inherited
+# SIG_IGN would let the probe exit 42 instead of being terminated by SIGPIPE.
+file(WRITE "${WORK}/check-sigpipe.sh" [=[
+sh -c 'kill -s PIPE "$$"; exit 42' 2>/dev/null
+[ "$?" -eq 141 ] || exit 43
+exec "$@"
+]=])
+set(check_sigpipe "sh '${WORK}/check-sigpipe.sh'")
 # The upload command only records the size of its local argument.
 file(WRITE "${WORK}/upload.sh" "#!/bin/sh\nstat -c %s \"$1\" > '${WORK}/confirmed-size'\n")
-set(upload "sh '${WORK}/upload.sh'")
-set(confirm "cat '${WORK}/confirmed-size'")
+set(upload "${check_sigpipe} sh '${WORK}/upload.sh'")
+set(confirm "${check_sigpipe} cat '${WORK}/confirmed-size'")
 execute_process(COMMAND "${BIN}/sic-container" split "${FIXTURE}" --out "${WORK}/assets"
   --asset-prefix d4-m1 --repository example/project --tag test-release
   --emit-and-upload "${upload}" --confirm-size-cmd "${confirm}"

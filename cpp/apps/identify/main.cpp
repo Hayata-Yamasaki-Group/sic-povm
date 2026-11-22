@@ -4,10 +4,13 @@
 #include "sic/support/tool_version.hpp"
 
 int main(int argc, char** argv) {
+  sic::support::cli::prepare_stdout();
   if (const auto status = sic::support::cli::version_request(argc, argv, "sic-identify"))
     return *status;
   try {
-    return sic::apps::identify::command(sic::apps::identify::parse_command_line(argc, argv));
+    const int status =
+        sic::apps::identify::command(sic::apps::identify::parse_command_line(argc, argv));
+    return sic::support::cli::finish_stdout(status, "sic-identify");
   } catch (const std::exception& error) {
     return sic::support::cli::report(sic::apps::identify::command_line_parser(), error,
                                      "sic-identify");

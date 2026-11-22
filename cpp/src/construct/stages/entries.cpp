@@ -79,10 +79,10 @@ int Construction::entries() {  // ---------------- entries of the cheap column a
   // additionally evaluates every entry by the literal path and requires ball
   // overlap (control mode; the consumed values are the direct ones).
   direct_eta_check = producer_options.direct_eta_check.get();
-  // Test-only fault injection (representative-fast-v2 controls). Applies to
+  // Test-only fault injection. Applies to
   // root-backed classes with an even class index only, so one run mixes
   // direct classes with refused (literal) classes. Production environments
-  // must not set it; the export208-v2 authority refuses the key.
+  // must not set it; the production option parser refuses the key.
 #ifdef SIC_ENABLE_TEST_HOOKS
 
   if (producer_options.raw("SIC_DIRECT_ETA_TEST_FAULT")) {
@@ -93,7 +93,7 @@ int Construction::entries() {  // ---------------- entries of the cheap column a
   }
 #endif
 
-  // representative-fast-v3: a band's channel limbs are freed leaf by leaf
+  // A band's channel limbs are freed leaf by leaf
   // during recognition, from glibc arenas filled by every worker. Return them
   // to the kernel before the next band is admitted against the measured RSS.
 

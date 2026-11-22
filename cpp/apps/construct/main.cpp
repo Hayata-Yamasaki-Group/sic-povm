@@ -42,6 +42,7 @@ void configure_process_heap() {
 }  // namespace
 
 int main(int argc, char** argv) {
+  sic::support::cli::prepare_stdout();
   if (const auto status = sic::support::cli::version_request(argc, argv, "sic-construct"))
     return *status;
   try {
@@ -54,7 +55,8 @@ int main(int argc, char** argv) {
     const sic::construct::ProducerOptions options(command.exponent, command.alignment,
                                                   command.policy);
     const int result = sic::construct::run(options, {}, {});
-    return result == 0 ? sic::support::cli::kSuccess : sic::support::cli::kFailure;
+    return sic::support::cli::finish_stdout(
+        result == 0 ? sic::support::cli::kSuccess : sic::support::cli::kFailure, "sic-construct");
   } catch (const std::exception& error) {
     return sic::support::cli::report(sic::construct::ProducerCommandLine::parser(), error,
                                      "sic-construct");

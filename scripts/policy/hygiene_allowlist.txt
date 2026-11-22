@@ -38,3 +38,5 @@ LICENSE|7|af108b15ac7d9e48d947099ba78177f27eb74978c115589ea327d5141861f6cd|Froze
 scripts/docs/allow_list.txt|7|26d77ae4e1003ffec77417b240739c8ad05d623c312b0e8cd48a73a59ba7ab5e|Exact documentation-lint record mirrors the bibliographic metadata in the preprint citation.
 LICENSE-ODbL|7|1f5e71e94ea8ca7b1264cbdf5e4c2f170bf7fd11bf8813bad1d9b479515094ed|Unmodified ODbL text cites the date of a database directive.
 LICENSE-ODbL|4|cf697d674b3bda1b08047a0115acb49fb78cb077b4886fb2c83dc4195c3f8683|Unmodified ODbL text describes prior license violations.
+LICENSE|8|ed4c96465764887fc773d819f8fe546694d2c4da940f29e927292410d1081933|License text
+cpp/src/core/io/mat.cpp|9|de788dc1a0d7b30fc5a2e001d011ceadc9224a22e0d1226a8a93e5e19271ca15|MAT file format version

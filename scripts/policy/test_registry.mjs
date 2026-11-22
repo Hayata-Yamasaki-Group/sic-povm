@@ -15,6 +15,7 @@ const components = new Set(['access', 'bounds', 'construct', 'core', 'crt', 'dat
 const primary = new Set(['unit', 'integration', 'e2e']);
 const owner = /^sic_test_([a-z]+)_[a-z0-9_]+$/;
 const gp = 'sic_test_sicx_exact_gp_d16';
+const privateTreeExport = 'sic_test_support_public_tree_export';
 const mixedHookControls = ['sic_test_construct_failure_categories',
   'sic_test_exact_storage_failure_categories', 'sic_test_exact_failure_categories',
   'sic_test_support_cli_failure_categories'];
@@ -81,6 +82,9 @@ export function checkTests(tests) {
     if (long) assert.equal(p.TIMEOUT, 3600, 'GP explicit timeout');
   }
   assert.equal(names.has(gp), exact && enabled(contract.gp_d16), 'Opt-in GP enrollment');
+  assert.equal(names.has(privateTreeExport),
+    fs.existsSync(path.join(root, 'private/scripts/release/test-public-tree.mjs')),
+    'Private-tree export test enrollment');
   if (full && contract.enabled === 1)
     for (const name of hooks) assert(names.has(name), `Missing hook control: ${name}`);
   for (const name of ['sic_test_support_json', 'sic_test_support_cli_parser',
@@ -103,7 +107,7 @@ const promises = new Map([
   }],
   ['-L policy', {family: /^sic_test_policy_/, witnesses: ['sic_test_policy_layout', 'sic_test_policy_test_registry']}],
   ['-L hygiene', {family: /^(sic_test_policy_(hygiene|cpp_format)|sic_test_support_public_tree_export)$/,
-    witnesses: ['sic_test_policy_hygiene']}],
+    witnesses: ['sic_test_policy_hygiene', 'sic_test_policy_cpp_format']}],
   ['-L independence', {
     family: /^sic_test_(support_(independence_|norm_certificate_input_cli_)|verifier_(release_)?d|stabilizer_(text_headers|json_inputs)$|norm_certificate_)/,
     witnesses: ['sic_test_support_independence_gp'],
@@ -253,6 +257,13 @@ for (const file of scratchFiles) checkScratch(fs.readFileSync(path.join(root, 'c
 function rejects(name, action, reason) {
   assert.throws(action, reason, `Negative control accepted: ${name}`);
 }
+const wrongTree = tests.some(t => t.name === privateTreeExport)
+  ? tests.filter(t => t.name !== privateTreeExport)
+  : [...tests, {name: privateTreeExport, properties: [
+    {name: 'LABELS', value: ['integration', 'support']}, {name: 'TIMEOUT', value: 120},
+  ]}];
+rejects('wrong private-tree export enrollment', () => checkTests(wrongTree),
+  /Private-tree export test enrollment/);
 const noLayer = structuredClone(tests);
 noLayer[0].properties.find(p => p.name === 'LABELS').value =
   properties(noLayer[0]).LABELS.filter(l => !primary.has(l));

@@ -3,7 +3,7 @@
   "dimension": 8,
   "basis": "The retained exact artifact passes an independent exact quartic certificate with a certified general physical conjugation map and positive norm.",
   "selector": "catalogue original physical embedding; authoritative path_ball in exact export; no extra selector",
-  "association_contract": "reviewed-enclosure-association-v1; hashes bind declared trusted provenance, not a new proof authority",
+  "association_contract": "reviewed enclosure association; hashes bind declared trusted provenance, not a new proof authority",
   "wh_convention": "D_(a,b)=tau^(a*b) X^a Z^b; tau=-exp(pi*i/d); X|j>=|j+1>; Z|j>=exp(2*pi*i*j/d)|j>",
   "gauge": "w=v/sqrt(sum(abs(v)^2))*conj(v[k])/abs(v[k]); anchor imaginary zero follows exactly from this identity",
   "anchor": 0,

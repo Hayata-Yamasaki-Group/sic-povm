@@ -55,6 +55,13 @@ if(!process.env.SIC_CONTROL_PROBE)for(const t of tests.filter(t=>manifest[t.name
     }
     const output=run(program,childArgs,{cwd:properties(t).WORKING_DIRECTORY||build,timeout:110000,
       env:{...process.env,SIC_CONTROL_PROBE:'1',SIC_THREADS:'1',SIC_MEMORY_MB:'2048'}});
+    if(t.name==='sic_test_policy_cpp_format' && properties(t).SKIP_REGULAR_EXPRESSION) {
+      const reason='SKIP: clang-format 14 unavailable';
+      assert.deepEqual(properties(t).SKIP_REGULAR_EXPRESSION,[`^${reason}`]);
+      assert.deepEqual(args,['-E','echo',reason]);
+      assert.equal(output.trim(),reason);
+      continue;
+    }
     assert(output.split('\n').some(line=>line.replace(/^-- /,'').trim()===`SIC_NEGATIVE_CONTROL:${entry.embedded}`||line.replace(/^-- /,'').trim().startsWith(`SIC_NEGATIVE_CONTROL:${entry.embedded} (`)),`registry: embedded control did not execute ${t.name}: ${entry.embedded}`);
   } finally {
     fs.rmSync(scratch,{recursive:true,force:true});
