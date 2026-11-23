@@ -43,6 +43,7 @@
 #include "exact/group/group.hpp"
 #include "exact/group/group_checkpoint.hpp"
 #include "exact/group/group_fourier.hpp"
+#include "exact/group/ray_selection.hpp"
 #include "exact/runtime/newton_class_memory.hpp"
 #include "exact/runtime/parallel.hpp"
 #include "exact/storage/analytic_generator.hpp"
@@ -91,6 +92,7 @@ int run(const ProducerOptions& producer_options, Components components,
   sic::support::StopScope stop_scope(runtime.stop ? runtime.stop : &owned_stop);
   sic::support::check_stop();
   if (producer_options.exponent == 1) {
+    const auto start = std::chrono::steady_clock::now();
     components.require_closed_form_supported();
     // d = 2 (s = 1) lies outside the real-quadratic Stark-unit construction (K = Q(sqrt(-3))): it
     // is produced from its explicit closed form (the tetrahedral fiducial),
@@ -123,6 +125,20 @@ int run(const ProducerOptions& producer_options, Components components,
     sic::sicx::Reader checked(closed_form.path(), producer_options.policy.resources);
     (void)sic::sicx::verify_all(
         checked, 1, {producer_options.policy.precision, producer_options.policy.valuation});
+    if (!producer_options.rays_out.empty()) {
+      const auto stamp = [&] {
+        return std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+      };
+      sic::support::progressf("ray selection started [%.6fs]\n", stamp());
+      auto budget = sic::support::resources::Budget{};
+      auto rays = select_rays(dimension_two_projection(), 1, budget);
+      rays.exact_root = sic::sicx::hex(checked.exact_root());
+      sic::support::progressf("ray selection complete: %zu rays [%.6fs]\n", rays.words.size(),
+                              stamp());
+      const auto written = write_ray_list(producer_options.rays_out, rays, budget);
+      closed_form.record_ray_pair(checked.size(), sic::sicx::hex(checked.root()), rays.exact_root,
+                                  written.bytes, written.sha256);
+    }
     closed_form.publish();
     return 0;
   }

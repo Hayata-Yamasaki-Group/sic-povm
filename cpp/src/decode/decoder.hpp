@@ -14,6 +14,7 @@
 #include <functional>
 #include <iostream>
 #include <set>
+#include <span>
 #include <sstream>
 
 #include "decode/input/leaf_values.hpp"
@@ -27,6 +28,18 @@
 namespace sic::decode {
 using sic::sicx::Reader;
 
+// Private CLI access to the decoder's reusable state and worker team.
+struct DecoderAccess {
+  static ComplexBallVector decode_rays(Decoder& decoder,
+                                       const std::vector<Decoder::Request>& requests,
+                                       size_t ray_size, slong& working_bits,
+                                       bool test_replay_first);
+  static uint64_t request_headroom(Decoder& decoder);
+  static Pool& workers(Decoder& decoder);
+  // Release numerical state before packing the last batch.
+  static std::unique_ptr<Pool> take_workers(Decoder&& decoder);
+};
+
 class Decoder::Impl {
  public:
   using Options = Decoder::Options;
@@ -34,16 +47,18 @@ class Decoder::Impl {
   static Options validate_options(Options options, const Reader& reader);
   Impl(const Reader& reader, Options options);
   Impl(const Reader& reader, Options options, const std::vector<Request>& requests);
-  static std::vector<size_t> input_chunks(const Reader& reader,
-                                          const std::vector<Request>& requests);
+  static std::vector<size_t> input_chunks(const Reader& reader, std::span<const Request> requests);
   const Stats& stats() const;
   const Placement& placement() const;
   slong base_precision() const;
   unsigned pool_groups() const;
-  ComplexBallVector decode(const std::vector<Request>& requests);
+  ComplexBallVector decode(std::span<const Request> requests, size_t ray_size = 0,
+                           bool test_replay_first = false);
   friend class Decoder;
+  friend struct DecoderAccess;
 
  private:
+  Impl(const Reader& reader, Options options, size_t planned_requests);
   const Reader& reader_;
   const Meta& meta_;
   Options options_;
@@ -55,9 +70,15 @@ class Decoder::Impl {
   std::unique_ptr<Pool> pool_;
   uint64_t tree_serial_ = 0;
   mutable Stats stats_;
-  slong base_prec_ = 0;
-  std::vector<ComplexBallVector> base_roots_;  // per level, at base_prec_
-  std::vector<ElementLeaves> tower_;           // per element id (tower and action elements)
+  struct BasePath {
+    slong precision;
+    std::vector<ComplexBallVector> roots;
+  };
+  std::map<slong, BasePath> base_paths_;  // by requested minimum precision
+  const BasePath* base_ = nullptr;
+  slong maximum_base_precision_ = 0;
+  slong working_precision_ = 0;
+  std::vector<ElementLeaves> tower_;  // per element id (tower and action elements)
   struct ElementKey {
     std::string kind;
     unsigned level;
@@ -65,11 +86,10 @@ class Decoder::Impl {
     auto operator<=>(const ElementKey&) const = default;
   };
   std::map<ElementKey, size_t> element_id_;
-  std::vector<std::vector<uint64_t>> generations_;  // graph nodes by depth (depth >= 1)
   std::set<int64_t> planned_representatives_;
   std::set<int64_t> consumed_representatives_;
   bool exact_checked_ = false;
-  void plan_input(const std::vector<Request>& requests);
+  void plan_input(std::span<const Request> requests);
 
   bool accurate(acb_srcptr v) const;
   static double seconds(std::chrono::steady_clock::time_point s);
@@ -158,7 +178,7 @@ class Decoder::Impl {
   Tree prepare(const Graph& graph, slong bits, bool authoritative,
                std::vector<std::vector<uint64_t>>* node_classes_out);
 
-  void base_path();
+  void base_path(slong bits);
 
   // Keep only the classes on paths to the endpoints (the engine's prune step),
   // relabelled in increasing old-label order at every level.
@@ -193,7 +213,7 @@ class Decoder::Impl {
   std::vector<PhysicalTask> physical_tasks(const std::vector<BodyJob>& jobs);
   uint64_t contract_body(const BodyJob& job, const Reader::ElementChunk& unit, const BodyPlan& body,
                          const Tree& tree, std::vector<Sparse>& parts);
-  ComplexBallVector decode_pass(const std::vector<Request>& requests, slong wp);
+  ComplexBallVector decode_pass(const std::vector<Request>& requests, slong wp, bool test_refuse);
 };
 
 }  // namespace sic::decode

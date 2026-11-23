@@ -33,6 +33,7 @@ json(selectionReceipt);
 for (const d of [4,8]) {
   const dir=path.join(work,`d${d}`), file=path.join(dir,'fresh.sicx');
   const tool=(name,args) => run(toolPath(build,name),args,{cwd:dir});
+  json(path.join(dir,'ray-list.json'));
   json(path.join(dir,'finalize/decode.provenance.json'),'sic-decode-provenance/1.0');
   for (const name of fs.readdirSync(build).filter(n => /^sic-/.test(n) && fs.statSync(path.join(build,n)).isFile() && (fs.statSync(path.join(build,n)).mode & 0o111))) {
     // Only public tools are in the generated command reference.

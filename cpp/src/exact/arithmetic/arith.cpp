@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "exact/arithmetic/arith.hpp"
 
+#include <algorithm>
+#include <numeric>
+#include <tuple>
+
 #include "sic/error.hpp"
 
 namespace sic::exact {
@@ -10,21 +14,10 @@ Arithmetic::Arithmetic(int s_, bool minimal, DimensionPolicy policy) : s(s_) {
   t = d - 1;
   Delta = t * t - 4;
   original_Delta = Delta;
-  // The reduced-order route has verified period and phase conventions at
-  // d=128, d=512, and d=1024. Other nonmaximal orders need separate checks.
   if (minimal) {
-    long fundamental = Delta;
-    for (long p = 3; p * p <= fundamental; p += 2)
-      while (fundamental % (p * p) == 0) {
-        fundamental /= p * p;
-        order_index *= p;
-      }
-    if (order_index != 1 && s != 7 && s != 9 && s != 10)
-      throw sic::Error(
-          sic::ErrorKind::unsupported,
-          "minimal order is implemented only for d=128, d=512, d=1024, or an already maximal "
-          "order");
-    Delta = fundamental;
+    const auto order = maximal_quadratic_order(Delta);
+    order_index = order.conductor;
+    Delta = order.discriminant;
   }
   kc.Delta = Delta;
   eps = QuadraticNumber(Rational(t, 2), Rational(order_index, 2));
@@ -93,7 +86,7 @@ void Arithmetic::enumerate_classes() {
     cls.push_back(cr);
   }
   // Principal lattice O: its reduced generator has A=1 and the smallest
-  // positive odd -B greater than sqrt(Delta). This also covers O_K at d=128.
+  // positive odd -B greater than sqrt(Delta).
   long pb = sq + 1;
   if (pb % 2 == 0) ++pb;
   for (size_t c = 0; c < cls.size(); ++c)

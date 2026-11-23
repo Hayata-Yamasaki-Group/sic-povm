@@ -13,6 +13,7 @@
     tests/fixtures/sicx/canonical/d64.sicx
     tests/fixtures/sicx/d8-c0.json
     tests/fixtures/sicx/d8-maximal.sicx
+    tests/fixtures/sicx/d8_native.jsonl
     tests/fixtures/sicx/d8_release_catalogue.json
     tests/fixtures/sicx/d8.jsonl
     tests/fixtures/sicx/d8.sicx

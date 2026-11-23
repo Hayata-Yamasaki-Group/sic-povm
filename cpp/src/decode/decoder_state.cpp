@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-#include "support/resources/platform_snapshot.hpp"
 #include "decode/decoder.hpp"
 #include "decode/input/element_source.hpp"
+#include "support/resources/platform_snapshot.hpp"
 
 namespace sic::decode {
 void Decoder::Impl::check_owner() const {
@@ -29,7 +29,7 @@ const Stats& Decoder::Impl::stats() const {
 
 const Placement& Decoder::Impl::placement() const { return place_; }
 
-slong Decoder::Impl::base_precision() const { return base_prec_; }
+slong Decoder::Impl::base_precision() const { return maximum_base_precision_; }
 
 unsigned Decoder::Impl::pool_groups() const { return pool_->groups(); }
 
@@ -75,7 +75,8 @@ void Decoder::Impl::load_elements(const std::vector<size_t>& ids) {
 
 uint64_t Decoder::Impl::payload_of(size_t id) const {
   uint64_t bytes = 0;
-  for (auto c : reader_.element_blocks(id)) bytes += reader_.leaf_entry(c).length;
+  for (auto c : reader_.element_blocks(id))
+    bytes = checked_add(bytes, reader_.leaf_entry(c).length);
   return bytes;
 }
 
@@ -90,23 +91,26 @@ void Decoder::Impl::load_tower() {
     if (e.kind == "rep") continue;
     ids.push_back(id);
     tower_[id].payload_bytes = payload_of(id);
-    payload += tower_[id].payload_bytes;
+    payload = checked_add(payload, tower_[id].payload_bytes);
   }
   rebase();
   // Tight budget (below twice the measured unbudgeted peak, about 17x the tower
   // payload at d256-d1024): at most 8 glibc arenas, since per-thread free lists
   // otherwise hold memory outside the accounting (measured overshoot 0.8-8 % with
   // 64 arenas). Not by default: the cap costs 2.5x wall time at 64 workers.
-  if (options_.tune_process_allocator && budget_.limit() < 34 * payload) {
+  if (options_.tune_process_allocator && budget_.limit() < checked_mul(34, payload)) {
     mallopt(M_ARENA_MAX, 8);
     stats_.arenas_capped = true;
   }
-  const bool fits = kParsedPerPayload * payload <= budget_.available() / 2;
+  const auto tower_bytes = checked_mul(kParsedPerPayload, payload);
+  const bool fits = tower_bytes <= budget_.available() / 2;
   stats_.tower_resident = options_.tower_resident < 0 ? fits : options_.tower_resident == 1;
-  if (stats_.tower_resident)
+  if (stats_.tower_resident) {
+    ReserveGuard tower_guard(budget_, tower_bytes, "resident decoder tower");
     load_elements(ids);
-  else
+  } else {
     ++stats_.budget_fallbacks;
+  }
   stats_.seconds_tower_load += seconds(start);
   if (options_.profile)
     progress() << "SICX-PROFILE tower payload=" << payload << " resident=" << stats_.tower_resident

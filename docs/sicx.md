@@ -55,7 +55,7 @@ sidecar schema. Neither the sidecar nor RAYS has a `schema` field naming that de
 | `sic-multiplet-manifest/1.0` | textual identity (`sic[x]-<name>/1.0`) | Multiplet manifest and schema | No |
 | `sic-npz-bundle/1.0` | textual identity (`sic[x]-<name>/1.0`) | NPZ ZIP archive comment and schema | No |
 | `sic-ray-selection-receipt/1.0` | textual identity (`sic[x]-<name>/1.0`) | Ray selection receipt | No |
-| `sic-release-catalogue/1.0` | textual identity (`sic[x]-<name>/1.0`) | data/catalogue.json and schema | No |
+| `sic-release-catalogue/1.0` | textual identity (`sic[x]-<name>/1.0`) | release/catalogue.json and schema | No |
 | `sic-tool-version/1.0` | textual identity (`sic[x]-<name>/1.0`) | CLI --version output and schema | No |
 | `sicx-text-json/1.0` | textual identity (`sic[x]-<name>/1.0`) | JSONL header and schema | No; text representation |
 | `sicx-text-json-parts/1.0` | textual identity (`sic[x]-<name>/1.0`) | JSONL parts index and schema | No; text representation |
@@ -63,7 +63,6 @@ sidecar schema. Neither the sidecar nor RAYS has a `schema` field naming that de
 | `sic-decode/1.0` | textual identity (`sic[x]-<name>/1.0`) | RAYS decoder.name; decode provenance decoder field | Yes, in RAYS |
 | `sicx-2adic-greedy/1.0` | textual identity (`sic[x]-<name>/1.0`) | EXMT rescaling metadata | Yes |
 | `sicx-divisors/1.0` | textual identity (`sic[x]-<name>/1.0`) | EXMT entry-rule metadata | Yes |
-| `sicx-dyadic/1.0` | textual identity (`sic[x]-<name>/1.0`) | Construction dimension-policy contract | No |
 | `sicx-chunks/1.0` | textual identity (`sic[x]-<name>/1.0`) | Parts manifest alignment field | No |
 | `sicx-remote/1.0` | textual identity (`sic[x]-<name>/1.0`) | HTTP User-Agent | No |
 | `sic-step-selection/1.0` | textual identity (`sic[x]-<name>/1.0`) | Construction component identity; PROV selector metadata | Yes, when recorded |
@@ -802,9 +801,9 @@ radius `m·2^e`, set `b = e + bitlen(m)`. The ray's `accuracy_bits` MUST be
 `−max b` over all such parts, with absolute value at most `2^20`. All-zero
 radii are rejected. Every radius is strictly below `2^−accuracy_bits`.
 
-The anchor fixes §2's gauge and is recorded, not inferred by readers. The
-CLI requires an explicit anchor for every finalization ray. Its decode cost
-is discussed in §5.2a.
+The anchor fixes §2's gauge. Readers use the recorded anchor. The finalizer
+accepts an explicit anchor or selects one from its certified raw coordinate
+enclosures. Its decode cost is discussed in §5.2a.
 
 The decoder record is informative; it does not certify BALL by assertion.
 Release finalizers MUST write it after certified decoding, BALL construction
@@ -1585,17 +1584,15 @@ SICX a GitHub Release asset transported as parts (§10b,
 [data-download.md](data.md#transport-getting-the-exact-data)). The conductor appears in no public
 name.
 
-Release production uses native Smith words and recorded anchors for the exact presentation being
-finalized. It generates the current per-ray bindings in `data/catalogue.json` and the ray records.
-Finalization consumes those words directly. A ray is published only with its checked exact root and
-authenticated file association; current production bindings are not available merely from an
-identification catalogue or an illustrative fixture. See [current ray
-bindings](reproduce.md#current-ray-bindings).
+The producer selects native Smith words for the exact presentation. The
+finalizer checks the exact-root binding and records certified anchors. The
+per-ray records and generated `catalogue.json` preserve the checked exact root and
+authenticated file association. See [selecting and finalizing rays](reproduce.md#selecting-and-finalizing-rays).
 
 ```
-data/catalogue.json
-data/d<d>/all.npz, stabilizers.txt                         (other writers)
-data/d<d>/m<N>/manifest.json, multiplet.sicx.parts.json, c<N>.json (+ c<N>.npy/.mat/.h5/.csv from other writers)
+release/catalogue.json
+release/d<d>/all.npz, stabilizers.txt                         (other writers)
+release/d<d>/m<N>/manifest.json, multiplet.sicx.parts.json, c<N>.json (+ c<N>.npy/.mat/.h5/.csv from other writers)
 ```
 
 `m<N>` numbers follow increasing construction conductor within a dimension; N is given on the
@@ -2030,7 +2027,7 @@ D_p = τ^(p1·p2) X^p1 Z^p2,      p = (p1, p2).
   where `v` is the exact (decoded) vector and `a` is the ray's **anchor**: a coordinate index with `v_a ≠ 0`.
   Hence `‖w‖ = 1` and `w_a > 0` is real positive, with imaginary part **exactly** zero (also in the
   binary32 and binary64 files).
-- **The anchor is recorded, not derived.** Each ray file stores it (`labels.anchor` in `c<N>.json`,
+- **The finalizer records the anchor.** Each ray file stores it (`labels.anchor` in `c<N>.json`,
   `anchor` in `.mat` metadata when supplied). HDF5 exports from `sic-data` omit the anchor; read it
   from the source JSON. It is **not** always coordinate 0: for example the anchor is 0 at `d = 2`, 1
   in the worked `d = 4` fixture, and can be as large as 569 in a recorded `d = 1024` numerical
@@ -2190,7 +2187,7 @@ states `D_p w` (`σ_x = [[0, 1], [1, 0]]`, `σ_y = [[0, −i], [i, 0]]`, `σ_z =
 (1, 1, 1)/√3,  (−1, −1, 1)/√3,  (1, −1, −1)/√3,  (−1, 1, −1)/√3      for p = (0,0), (0,1), (1,0), (1,1),
 ```
 
-the vertices of a regular tetrahedron. The stabilizer table (`data/d2/stabilizers.txt`) lists six
+the vertices of a regular tetrahedron. The generated d2 stabilizer table lists six
 elements; for example `F = [[1, 1], [1, 2]]` (mod 4), `χ = (0, 1)`, `det = +1`, order 3, `tr F = 3 ≡
 −1 (mod 2)`: a Zauner-type element, and `|⟨w|D_χ U_F w⟩| = 1` to binary64 rounding.
 
@@ -2222,7 +2219,7 @@ Selected overlaps (`τ = −exp(πi/4)`, `ω = i`), computed from these values w
 
 All 15 nonzero labels give `|a_p|² = 1/5` within `1e-16` in binary64. The stabilizer has order 6; one
 Zauner-type element is `F = [[0, 1], [7, 3]]` (mod 8), `χ = (0, 2)`, `tr F = 3 ≡ −1 (mod 4)`, with
-`|⟨w|D_χ U_F w⟩| = 1` to binary64 rounding (`data/d4/stabilizers.txt`, element 3).
+`|⟨w|D_χ U_F w⟩| = 1` to binary64 rounding (element 3 of the generated d4 stabilizer table).
 
 These checks are floating-point illustrations of the conventions. The status of each statement about the
 released data (exact, certified or conditional) is given in [verification.md](verification.md).

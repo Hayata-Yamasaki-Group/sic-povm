@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "sicx/container/reader.hpp"
 
+#include <algorithm>
+#include <cstring>
+
 #include "sicx/codec/ball.hpp"
 #include "sicx/codec/integer.hpp"
 #include "sicx/container/directory.hpp"
@@ -234,7 +237,7 @@ Reader::State::State(std::shared_ptr<sic::support::ByteSource> source, ResourceL
     const auto directory_bytes = checked_add(ll, pl);
     const auto bootstrap_bytes = checked_mul(8, directory_bytes);
     if (bootstrap_bytes > limits_.reader_memory_bytes)
-      throw Error(ErrorKind::resource, "SICX: reader metadata memory policy exceeded");
+      throw Error(ErrorKind::resource, "SICX: memory budget too small for reader metadata");
     bootstrap.push_back({ldir_offset_, checked_add(16, ll)});
     bootstrap.push_back({po, checked_add(16, pl)});
     std::memcpy(exact_root_.data(), footer + 32, 32);
@@ -312,12 +315,19 @@ Reader::State::State(std::shared_ptr<sic::support::ByteSource> source, ResourceL
   if (e.first_leaf || e.leaf_count != 1 || logical_[0].type_name() != "EXMT" ||
       logical_[0].element || logical_[0].first || logical_[0].count != 1)
     fail(sic::ErrorKind::invalid_format, "EXMT directory mapping");
-  if (checked_add(checked_mul(8, checked_add(8 + logical_.size() * 64, 8 + index_.size() * 112)),
-                  checked_mul(64, index_[0].length)) > limits_.reader_memory_bytes)
+  const auto directory_memory =
+      checked_mul(8, checked_add(8 + logical_.size() * 64, 8 + index_.size() * 112));
+  auto exmt_memory = checked_add(directory_memory, checked_mul(64, e.length));
+  if (exmt_memory > limits_.reader_memory_bytes)
     throw Error(ErrorKind::resource, "SICX: EXMT memory policy exceeded");
   const auto bytes = chunk(0);
   const std::string_view text(reinterpret_cast<const char*>(bytes.data()), bytes.size());
   meta_json_ = sic::support::JsonParser::parse(text, limits_.json_depth);
+  const auto dimension = meta_json_.at("d").as_uint();
+  if (dimension <= kMaximumDimension)
+    exmt_memory = checked_add(exmt_memory, checked_mul(dimension, sizeof(uint32_t)));
+  if (exmt_memory > limits_.reader_memory_bytes)
+    fail(ErrorKind::resource, "SICX: EXMT unit-group memory policy exceeded");
   meta_ = meta_from_json(meta_json_);
   if (sic::support::dump_json(meta_to_json(meta_)) != text)
     fail(sic::ErrorKind::invalid_format, "noncanonical EXMT");
@@ -329,6 +339,9 @@ Reader::State::State(std::shared_ptr<sic::support::ByteSource> source, ResourceL
   source_->bind_layout(boundaries, rays_chunk_ ? index_[*rays_chunk_].offset : ldir_offset_,
                        meta_.d);
   if (rays_chunk_) {
+    if (checked_add(exmt_memory, checked_mul(64, index_[*rays_chunk_].length)) >
+        limits_.reader_memory_bytes)
+      fail(ErrorKind::resource, "RAYS memory policy exceeded");
     const auto rb = chunk(*rays_chunk_);
     const std::string_view rt(reinterpret_cast<const char*>(rb.data()), rb.size());
     rays_from_json(sic::support::JsonParser::parse(rt, limits_.json_depth), meta_);

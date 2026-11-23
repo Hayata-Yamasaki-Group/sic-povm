@@ -123,8 +123,8 @@ void StreamWriter::put_note(const std::string& key, const ByteBuffer& value) {
 void StreamWriter::adopt(size_t n) { state_->adopt(n); }
 
 std::vector<IndexEntry> StreamWriter::peek_journal(const std::filesystem::path& journal,
-                                                   Digest* plan) {
-  return State::peek_journal(journal, plan);
+                                                   Digest* plan, const WorkspaceAdmission& admit) {
+  return State::peek_journal(journal, plan, admit);
 }
 
 ByteBuffer StreamWriter::read_chunk_at(const std::filesystem::path& file, const IndexEntry& e,

@@ -47,13 +47,15 @@ int main(int argc, char** argv) {
     return *status;
   try {
     sic::construct::ProducerCommandLine command(argc, argv);
+    if (command.list_orders)
+      return sic::support::cli::finish_stdout(sic::support::cli::kSuccess, "sic-construct");
     command.install_kernel_options(
         environ);  // CLI owns process setup; library runs never mutate it.
     configure_process_heap();
     setvbuf(stdout, nullptr, _IOLBF, 0);
     sic::support::admission::LogScope logging(command.log_admissions);
-    const sic::construct::ProducerOptions options(command.exponent, command.alignment,
-                                                  command.policy);
+    sic::construct::ProducerOptions options(command.exponent, command.alignment, command.policy);
+    options.rays_out = command.rays_out;
     const int result = sic::construct::run(options, {}, {});
     return sic::support::cli::finish_stdout(
         result == 0 ? sic::support::cli::kSuccess : sic::support::cli::kFailure, "sic-construct");

@@ -100,6 +100,8 @@ void read_exact(int fd, off_t offset, void* destination, size_t bytes);
 // Caller-owned scratch bounds memory. Empty ranges hash the empty string; a
 // nonempty scratch buffer is required for nonempty ranges. Short/failed reads
 // throw sic::Error(io); unrepresentable ranges throw std::overflow_error.
-std::string range_hash(int fd, uint64_t offset, uint64_t size, std::span<unsigned char> scratch);
+// Read-ahead requests at most the next scratch-sized range from the kernel.
+std::string range_hash(int fd, uint64_t offset, uint64_t size, std::span<unsigned char> scratch,
+                       bool read_ahead = false);
 
 }  // namespace sic::support::sha256

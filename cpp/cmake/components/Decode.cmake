@@ -42,6 +42,7 @@ add_library(sic_decode STATIC
   "${PROJECT_SOURCE_DIR}/src/decode/decoder_state.cpp"
   "${PROJECT_SOURCE_DIR}/src/decode/input/element_source.cpp"
   "${PROJECT_SOURCE_DIR}/src/decode/input/leaf_values.cpp"
+  "${PROJECT_SOURCE_DIR}/src/decode/kernels/anchor.cpp"
   "${PROJECT_SOURCE_DIR}/src/decode/kernels/kernels.cpp"
   "${PROJECT_SOURCE_DIR}/src/decode/model.cpp"
   "${PROJECT_SOURCE_DIR}/src/decode/placement.cpp"
@@ -60,6 +61,8 @@ target_include_directories(sic_decode PRIVATE "${PROJECT_SOURCE_DIR}/src")
 
 # Complete compiled decoder closure, including private inline definitions.
 set(SIC_DECODE_IDENTITY_INPUTS
+  "${PROJECT_SOURCE_DIR}/src/decode/kernels/anchor.cpp"
+  "${PROJECT_SOURCE_DIR}/src/decode/kernels/anchor.hpp"
   "${PROJECT_SOURCE_DIR}/include/sic/decode/decoder.hpp"
   "${PROJECT_SOURCE_DIR}/include/sic/decode/placement.hpp"
   "${PROJECT_SOURCE_DIR}/src/decode/build_identity.hpp.in"

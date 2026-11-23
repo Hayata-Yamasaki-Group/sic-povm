@@ -231,7 +231,7 @@ function(sic_label_tests)
     sic_test_construct_runtime_isolation
     sic_test_core_fiducial_io
     sic_test_core_interchange_roundtrip
-    sic_test_core_read_fiducial_csv_d16
+    sic_test_core_read_fiducial_csv
     sic_test_crt_cli_defaults
     sic_test_crt_d16
     sic_test_crt_d16_inject_act
@@ -315,13 +315,12 @@ function(sic_label_tests)
     sic_test_policy_cpp_format
     sic_test_policy_data_formats
     sic_test_search_clifford_fiducials_d128
-    sic_test_search_clifford_fiducials_d256
     sic_test_search_clifford_fiducials_d2_d64
-    sic_test_search_identify_d16_ordinary_1
+    sic_test_search_identify_d2
     sic_test_search_identify_d3_no_match
     sic_test_search_identify_usage_refused
     sic_test_search_overlaps_d64
-    sic_test_search_stabilizer_d8
+    sic_test_search_stabilizer_d2
     sic_test_search_stabilizer_usage_refused
     sic_test_sicx_d16_fixture
     sic_test_sicx_d2_fixture
@@ -449,7 +448,6 @@ function(sic_label_tests)
   set(_heavy_tests
     sic_test_sicx_exact_gp_d16
     sic_test_search_clifford_fiducials_d128
-    sic_test_search_clifford_fiducials_d256
     sic_test_construct_native_s6_phased_default_t1
     sic_test_construct_native_s6_phased_default_t4
     sic_test_construct_native_s6_phased_default_t1_repeat_2

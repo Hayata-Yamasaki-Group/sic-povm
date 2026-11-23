@@ -1,6 +1,76 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "fixtures/fixture.hpp"
+#include "temporary_directory.hpp"
+
+#include <algorithm>
+
 namespace sicx_tests {
+namespace {
+void compact_leaf_admission(Fixture& fixture) {
+  using namespace sic::sicx;
+  const sic_test::TemporaryDirectory scratch("sicx-compact-leaves");
+  constexpr size_t rows = 4096;
+  ByteBuffer body;
+  for (size_t first = 0; first < rows; ++first) {
+    put_varint(body, 0);
+    put_varint(body, first);
+    put_varint(body, 1);
+    put_varint(body, 2);  // One all-zero coordinate.
+  }
+  const auto& exmt = fixture.good.front().bytes;
+  const auto write_body = [&](StreamWriter& writer) {
+    writer.chunk("BODY", kRequired, body, 0, 0, rows);
+  };
+  for (const std::string mode : {"fresh", "replay", "adopt", "retained"}) {
+    const auto path = scratch.path / (mode + ".sicx");
+    StreamOptions options;
+    options.resume = mode == "replay" || mode == "adopt";
+    if (options.resume) {
+      StreamWriter prior(path);
+      prior.chunk("EXMT", kRequired, exmt);
+      write_body(prior);
+    }
+    const std::string_view phase =
+        mode == "retained" ? "writer directory append" : "logical leaf rows";
+    bool tight = false;
+    options.admit_workspace = [&](const char* stage, uint64_t bytes) {
+      if (tight && phase == stage && bytes > 48 * 1024)
+        throw sic::Error(sic::ErrorKind::resource, stage);
+    };
+    StreamWriter writer(path, options);
+    if (options.resume)
+      writer.adopt(1);
+    else
+      writer.chunk("EXMT", kRequired, exmt);
+    const auto offset = writer.offset();
+    const auto partial = path.string() + ".partial", journal = path.string() + ".partial.journal";
+    const auto prefix_bytes = read_file(partial), journal_bytes = read_file(journal);
+    const auto append = [&] {
+      if (mode == "adopt")
+        writer.adopt(1);
+      else
+        write_body(writer);
+    };
+    tight = true;
+    try {
+      append();
+      throw std::runtime_error("compact leaf workspace unexpectedly admitted");
+    } catch (const sic::Error& error) {
+      if (error.kind() != sic::ErrorKind::resource || phase != error.what()) throw;
+    }
+    if (writer.offset() != offset || writer.index().size() != 1 ||
+        prefix_bytes != read_file(partial) || journal_bytes != read_file(journal))
+      throw std::runtime_error("compact leaf refusal changed writer state");
+    tight = false;
+    append();
+    if (writer.index().back().leaf_count != rows || writer.pending_replay() != 0)
+      throw std::runtime_error("compact leaf retry lost coverage");
+    ++fixture.tests;
+    std::cout << "PASS compact leaf admission " << mode << '\n';
+  }
+}
+}  // namespace
+
 void directory_cases(Fixture& fixture) {
   auto& source = fixture.source;
   auto& good = fixture.good;
@@ -182,6 +252,7 @@ void directory_cases(Fixture& fixture) {
   }
   if (source.leaf(0) != source.chunk(0)) throw std::runtime_error("EXMT leaf 0");
   ++tests;
+  compact_leaf_admission(fixture);
 }
 }  // namespace sicx_tests
 int main(int argc, char** argv) {

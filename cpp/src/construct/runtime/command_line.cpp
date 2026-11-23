@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "construct/runtime/command_line.hpp"
 
+#include <limits>
+
 #include "construct/model/options.hpp"
 #include "construct/model/worker_policy.hpp"
+#include "construct/runtime/resources/construction_model.hpp"
 
 namespace sic::construct {
 namespace {
@@ -87,11 +90,14 @@ sic::support::cli::Parser ProducerCommandLine::parser() {
       "sic-construct S --out FILE [OPTIONS] (default S=1.." +
           default_text(kDefaultPolicy.dimension.maximum_exponent) +
           "; only d=2^S construction)\n"
+          "       sic-construct S --orders [--maximum-exponent S]\n"
           "glibc heap policy: trim 16 MiB, mmap 32 MiB before threads; any MALLOC_* or "
           "glibc.malloc.* tunable disables both defaults.",
       {{"--out", "FILE", "Required new output; its parent must be writable.", 1, 1},
-       {"--order", "standard|maximal", "Default order follows the canonical dimension profile.", 1,
+       {"--rays-out", "FILE", "Write the selected ray list for this exact SICX to a new file.", 1,
         1},
+       {"--order", "standard|maximal", "Construction order (default standard).", 1, 1},
+       {"--orders", "", "List available orders as ORDER CONDUCTOR rows and exit.", 0, 0},
        {"--threads", "N", "Positive worker limit, honored subject to memory admission.", 1, 1},
        {"--memory-mib", "M", "Positive finite memory cap in MiB; default discovered budget.", 1, 1},
        {"--maximum-exponent", "S",
@@ -225,7 +231,26 @@ ProducerCommandLine::ProducerCommandLine(int argc, char** argv,
         cli::number<unsigned>(parsed.get("--maximum-exponent"), "--maximum-exponent", 1,
                               sic::exact::DimensionPolicy::kWireMaximumExponent);
   const auto s = cli::number<unsigned>(parsed.pos[0], "S", 1, policy.dimension.maximum_exponent);
-  (void)policy.dimension.checked(s);
+  const long dimension = policy.dimension.checked(s);
+  // Enumeration and explicit CLI admission share the native point-index model.
+  // Smaller dimensions still pass their actual (order-specific) count in Model.
+  if (s >= 12) {
+    // Even a single narrow class can overflow the index at large exponents.
+    (void)resources::construction_points(dimension, 0);
+    sic::exact::Arithmetic arithmetic(static_cast<int>(s), false, policy.dimension);
+    (void)resources::construction_points(dimension, arithmetic.h());
+  }
+  if (parsed.has("--orders")) {
+    parsed.only({"--orders", "--maximum-exponent"});
+    list_orders = true;
+    const long conductor =
+        dimension == 2
+            ? 1
+            : sic::exact::maximal_quadratic_order((dimension + 1) * (dimension - 3)).conductor;
+    if (conductor > 1) std::cout << "maximal 1\n";
+    std::cout << "standard " << conductor << '\n';
+    return;
+  }
   if (s == 1 && resume_)
     throw cli::UsageError("--resume is unsupported by the closed-form d=2 producer");
   if (s != 1 && kernel_options_.contains("SIC_D2_RADICALS"))
@@ -252,10 +277,29 @@ ProducerCommandLine::ProducerCommandLine(int argc, char** argv,
   // Validate documented environment inputs before output probes or CLI environment setup.
   ProducerOptions(s, alignment, policy).validate_settings();
   validate_output(kernel_options_.at("SIC_OUT"), resume_);
+  if (parsed.has("--rays-out")) {
+    rays_out = parsed.get("--rays-out");
+    cli::require(!rays_out.empty(), "--rays-out requires a nonempty file path");
+    const auto exact = std::filesystem::weakly_canonical(kernel_options_.at("SIC_OUT")).string();
+    const auto rays = std::filesystem::weakly_canonical(rays_out).string();
+    cli::require(rays != exact && !rays.starts_with(exact + ".sicx-quarantine") &&
+                     !rays.starts_with(exact + ".partial") && !rays.starts_with(exact + ".spool."),
+                 "--rays-out must be separate from the SICX and its working files");
+    if (const auto cache = kernel_options_.find("SIC_GROUP_CACHE");
+        cache != kernel_options_.end()) {
+      const auto checkpoint = std::filesystem::weakly_canonical(cache->second).string();
+      cli::require(
+          rays != checkpoint && rays != checkpoint + ".sha256" && rays != checkpoint + ".partial",
+          "--rays-out must be separate from the Group checkpoint");
+    }
+    if (!resume_ &&
+        std::filesystem::symlink_status(rays_out).type() != std::filesystem::file_type::not_found)
+      throw sic::Error(sic::ErrorKind::io, "--rays-out already exists: " + rays_out.string());
+    if (rays_out.has_parent_path() && !std::filesystem::is_directory(rays_out.parent_path()))
+      throw sic::Error(sic::ErrorKind::io, "--rays-out parent is not a directory");
+  }
   exponent = s;
-  if (!kernel_options_.contains("SIC_ORDER"))
-    kernel_options_["SIC_ORDER"] =
-        sic::exact::CanonicalProfile::maximal_order(s) ? "maximal" : "standard";
+  kernel_options_.try_emplace("SIC_ORDER", "standard");
 } catch (const std::filesystem::filesystem_error& error) {
   throw sic::Error(sic::ErrorKind::io, error.what());
 }

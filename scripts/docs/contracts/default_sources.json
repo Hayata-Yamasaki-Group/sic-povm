@@ -21,7 +21,7 @@
     "authority": [
       {
         "file": "cpp/cmake/components/Data.cmake",
-        "pattern": "set\\(SIC_DATA_SOURCE\\ \"\"\\ CACHE\\ STRING\\ \"Part\\ source:\\ base\\ URL\\ or\\ local\\ directory\\ \\(default:\\ the\\ GitHub\\ release\\ named\\ in\\ each\\ parts\\ file\\)\"\\)\\\nset\\(SIC_DATA_ROOT\\ \"\\$\\{PROJECT_SOURCE_DIR\\}/\\.\\./data\"\\ CACHE\\ PATH\\ \"Repository\\ data\\ tree\\ holding\\ d<d>/m<N>/multiplet\\.sicx\\.parts\\.json\"\\)\\\nset\\(SIC_DATA_JOBS\\ \"[0-9]+(?:\\.[0-9]+)?\"\\ CACHE\\ STRING\\ \"Parallel\\ part\\ downloads\"\\)\\\nset\\(SIC_DATA_EXACT_JSON_FACTOR\\ \"[0-9]+(?:\\.[0-9]+)?\"\\ CACHE\\ STRING\\ \"Disk\\ estimate\\ for\\ exact\\.json\\ as\\ a\\ multiple\\ of\\ the\\ SICX\\ size\"\\)"
+        "pattern": "set\\(SIC_DATA_SOURCE \"\" CACHE STRING \"Part source: base URL or local directory \\(default: the GitHub release named in each parts file\\)\"\\)\nset\\(SIC_DATA_ROOT \"\" CACHE PATH \"Explicit release tree holding d<d>/m<N>/multiplet\\.sicx\\.parts\\.json\"\\)\nset\\(SIC_DATA_JOBS \"4\" CACHE STRING \"Parallel part downloads\"\\)\nset\\(SIC_DATA_EXACT_JSON_FACTOR \"2\" CACHE STRING \"Disk estimate for exact\\.json as a multiple of the SICX size\"\\)"
       }
     ]
   },
@@ -30,10 +30,6 @@
     "starts": "All tools support `--help` (stdout, exit 0). See the [complete CLI reference](library.md#command-arg",
     "kind": "value",
     "authority": [
-      {
-        "file": "cpp/apps/container/command_line.cpp",
-        "pattern": "constexpr\\ std::string_view\\ kDefaultDataRoot\\ =\\ \"data\";"
-      },
       {
         "file": "cpp/apps/container/command_line.cpp",
         "pattern": "constexpr\\ unsigned\\ kDefaultTransferThreads\\ =\\ [0-9]+(?:\\.[0-9]+)?;"
@@ -130,21 +126,6 @@
       {
         "file": "cpp/src/construct/stages/dimension_two.cpp",
         "pattern": "path\\.empty\\(\\)\\ \\?\\ static_cast<std::istream\\&>\\(embedded\\)\\ :\\ static_cast<std::istream\\&>\\(file\\);"
-      }
-    ]
-  },
-  {
-    "file": "docs/data.md",
-    "starts": "Certification `sic-certify-stabilizer STABFILE [--d2-exact data/d2/d2.sicrad]`",
-    "kind": "value",
-    "authority": [
-      {
-        "file": "cpp/checkers/stabilizer/command_line.cpp",
-        "pattern": "\"\\ \\ \\-\\-catalogue\\ JSON\\|TSV\\ \\ \\ \\ ray\\ catalogue\\ \\(default\\ REPO/data/catalogue\\.json\\)\\\\n\""
-      },
-      {
-        "file": "cpp/checkers/stabilizer/command_line.cpp",
-        "pattern": "if\\ \\(catalogue\\.empty\\(\\)\\)\\ catalogue\\ =\\ root\\ \\+\\ \"/data/catalogue\\.json\";"
       }
     ]
   },
@@ -338,6 +319,21 @@
       {
         "file": "cpp/src/construct/model/alignment_options.hpp",
         "pattern": "uint6[0-9]+(?:\\.[0-9]+)?_t\\ memory_bytes\\ =\\ uint6[0-9]+(?:\\.[0-9]+)?_t\\{[0-9]+(?:\\.[0-9]+)?\\}\\ <<\\ [0-9]+(?:\\.[0-9]+)?;"
+      }
+    ]
+  },
+  {
+    "file": "docs/reproduce.md",
+    "starts": "For any supported exponent S ≥ 2, run `sic-construct S --orders`",
+    "kind": "value",
+    "authority": [
+      {
+        "file": "cpp/src/construct/runtime/command_line.cpp",
+        "pattern": "kernel_options_\\.try_emplace\\(\"SIC_ORDER\", \"standard\"\\);"
+      },
+      {
+        "file": "cpp/src/construct/model/options.cpp",
+        "pattern": "if \\(!value\\) return Order::standard;"
       }
     ]
   },

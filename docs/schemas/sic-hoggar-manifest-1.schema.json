@@ -38,7 +38,7 @@
         }
       }
     },
-    "files": {"type": "array", "items": {"type": "string"}, "description": "file names in this folder; hashes are in data/catalogue.json"},
+    "files": {"type": "array", "items": {"type": "string"}, "description": "file names in this folder; hashes are in the generated release catalogue"},
     "npz": {
       "type": "object", "additionalProperties": false, "required": ["included"],
       "properties": {

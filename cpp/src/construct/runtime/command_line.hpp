@@ -6,6 +6,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <filesystem>
 #include <iostream>
 #include <map>
 #include <set>
@@ -36,8 +37,10 @@ class ProducerCommandLine {
 
   static sic::support::cli::Parser parser();
 
+  bool list_orders = false;
   bool log_admissions = false;
   AlignmentOptions alignment;
+  std::filesystem::path rays_out;
 
   ProducerCommandLine(int argc, char** argv, sic::construct::ProductionPolicy chosen_policy = {});
 

@@ -139,6 +139,24 @@ int main(int argc, char** argv) {
       check(::lseek(fd, 0, SEEK_CUR) == 1000, "/dev/fd offset unchanged");
       ::close(fd);
     }
+    {
+      const auto file = dir / "pinned.bin";
+      {
+        std::ofstream out(file, std::ios::binary);
+        out << "before|" << std::string(8193, 'x') << "|after";
+      }
+      const sha256::Descriptor descriptor(::open(file.c_str(), O_RDONLY));
+      check(descriptor.fd >= 0 && ::lseek(descriptor.fd, 2, SEEK_SET) == 2, "open pinned file");
+      std::filesystem::rename(file, dir / "renamed.bin");
+      std::ofstream(file, std::ios::binary) << std::string(8210, 'y');
+      std::array<unsigned char, 4096> scratch;
+      const auto expected = sha256::digest_hex(std::string(8193, 'x'));
+      check(sha256::range_hash(descriptor.fd, 7, 8193, scratch, true) == expected,
+            "read-ahead: offset, tail and pinned descriptor");
+      check(sha256::range_hash(descriptor.fd, 7, 8193, scratch) == expected,
+            "serial range matches read-ahead");
+      check(::lseek(descriptor.fd, 0, SEEK_CUR) == 2, "range hash preserves caller offset");
+    }
     {  // FIFO (short reads): digest of the streamed bytes
       const auto fifo = dir / "fixture.fifo";
       std::filesystem::remove(fifo);

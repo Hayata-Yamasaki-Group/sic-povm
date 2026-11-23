@@ -58,6 +58,7 @@
 #include "sicx/codec/rescale.hpp"
 #include "sicx/container/producer_writer.hpp"
 #include "support/resources.hpp"
+#include "support/resources/platform_snapshot.hpp"
 namespace sic::construct {
 int Construction::sic_check() {
   const slong wpd = path.wpd;
@@ -123,11 +124,7 @@ int Construction::sic_check() {
   sic::support::progressf("SIC check (deviation < 2^-100): %s\n", sic_ok ? "PASS" : "FAIL");
   struct rusage usage {};
   if (getrusage(RUSAGE_SELF, &usage) == 0) {
-#if defined(__APPLE__)
-    const double rss = usage.ru_maxrss / (1024.0 * 1024.0);
-#else
-    const double rss = usage.ru_maxrss / 1024.0;
-#endif
+    const double rss = sic::support::resources::peak_rss_bytes(usage) / (1024.0 * 1024.0);
     sic::support::progressf("resources: peak RSS %.1f MiB, user %.2fs, system %.2fs\n", rss,
                             usage.ru_utime.tv_sec + usage.ru_utime.tv_usec * 1e-6,
                             usage.ru_stime.tv_sec + usage.ru_stime.tv_usec * 1e-6);
@@ -137,6 +134,15 @@ int Construction::sic_check() {
     if (checked_reader.root() != completed_root)
       throw sic::Error(sic::ErrorKind::integrity, "completed quarantine root changed");
     sic::support::check_stop();
+    // A published exact file commits the pair. Resume can compare a ray list
+    // left by a stop before this publication against the regenerated list.
+    if (!producer_options.rays_out.empty()) {
+      selected_rays.exact_root = sic::sicx::hex(checked_reader.exact_root());
+      const auto written =
+          write_ray_list(producer_options.rays_out, selected_rays, budget, producer_options.resume);
+      quarantine->record_ray_pair(checked_reader.size(), sic::sicx::hex(checked_reader.root()),
+                                  selected_rays.exact_root, written.bytes, written.sha256);
+    }
     quarantine->publish();
     sic::support::progressf("SICX checked output published to %s\n", producer_options.out);
   }

@@ -204,7 +204,7 @@ nonfinite-input rejection. Numerical and exact recorded evidence and timing scop
 | `core/fft.hpp` | `sic::core::Dft(n)`: unscaled in-place DFT, `transform(data, sign)` with `sign = -1` (`exp(-2 pi i jk/n)`) or `+1`; radix-2 for power-of-two `n`, direct sum otherwise. |
 | `core/sic_frame.hpp` | `sic::core::SicFrame(psi)`: normalizes a copy of the fiducial. `displace(p1, p2, v, out)` applies `D_p` to any vector in O(d); `vector(p1, p2, out)`; `row_block(p1, out)` (the d vectors with fixed `p1`); `for_each_vector(fn)` and `sic::core::SicVectorStream` stream all d^2 vectors with O(d) memory; `overlap_row(p1, out)` gives `<psi|D_(p1,p2)|psi>` for all `p2` with one FFT; `cross_overlap_row(p1, phi, out)` gives `<D_(p1,p2) psi|phi>`; `overlaps()` the full d x d table. `sic::core::check_sic(frame)` returns `SicCheck{d, input_norm, norm_defect, max_overlap_error, worst_p1, worst_p2, parseval_defect}`; `passes(tol)`. |
 | `core/clifford.hpp` | `sic::core::clifford`: 2x2 matrices mod `n` (`Mat2`, `mul`, `det`, `inverse`, `canonical_lift`); `CliffordAction(d).apply(F, v, out)` applies Appleby's `U_F` (`F` in ESL(2, Z_dbar), `dbar = 2d` for even d; det -1 means `U_F = U_(FJ) K`, `J = diag(1,-1)`, `K` complex conjugation) in O(d log d) for power-of-two d (direct DFT otherwise); `factorize`; `apply_element` (element application only). |
-| `core/fiducial_io.hpp` | `sic::core::files::read_fiducial(path)`: strict readers for `.csv` (`index,real,imag`), `.npy` (`<c16`, shape `(d,)`) and the `.txt` vector format; `sic::data::read_catalogue` in `<sic/data/catalogue.hpp>` reads the release catalogue. |
+| `core/fiducial_io.hpp` | `sic::core::files::read_fiducial(path)`: strict readers for `.csv` (`index,real,imag`), `.npy` (`<c16`, shape `(d,)`) and the `.txt` vector format; `sic::data::read_catalogue` in `<sic/data/catalogue.hpp>` reads an explicitly supplied JSON or TSV catalogue. |
 
 `sic::core` owns the shared WH/FFT implementation and the binary64 reader family.
 The target `sic::search` and header `sic/search/clifford.hpp`
@@ -493,6 +493,24 @@ estimates used for admission and planning, not proved bounds.
 
 ## Ray-list selection
 
+`sic-construct --rays-out FILE` projects its completed Group in memory.
+The selector uses only the principal-base images at the identity and Smith
+axes. Selection storage scales with the class count and Smith rank. The
+producer reports start and completion timestamps with `--progress` and
+publishes the list after the exact SICX passes its checks. The output uses
+[`sic-ray-list/1.0`](schemas/sic-ray-list-1.schema.json). It contains the
+dimension, exact SICX root, SHA-256 of the Group source identity, Smith
+factors, words and their consecutive labels. The dimension-two source is `closed-form`.
+The exact SICX and the list use separate atomic publications.
+
+`sic-decode --finalize --ray-list FILE` requires the list's dimension, Smith
+factors and exact root to match its SICX. It computes the anchors from the
+same raw enclosures used for normalization. The manual form
+`--ray LABEL WORD ANCHOR` accepts an explicit coordinate or `auto` during
+finalization. Both produce the same RAYS and BALL records for the same
+anchor. The list is construction metadata. Full verification and applicable
+independent certificate checks use the finalized SICX.
+
 [`sic-ray-selector`](tools.md#sic-ray-selector) is available with FLINT and
 `SIC_BUILD_APPS=ON`. It consumes a native `SICGROUP` version 1 checkpoint from
 `sic-construct --group-cache`. The selector accepts the exact Group source
@@ -504,6 +522,7 @@ producer-written `.sha256` sidecar.
 ```sh
 sic-ray-selector derive --group group.bin --threads 8 > selection.json
 sic-ray-selector check --group group.bin --threads 8 --words selection.json
+sic-ray-selector check --group group.bin --threads 8 --words rays.json
 ```
 
 Use `--dimension-two` for dimension two. Its Smith factors are `[2]` and its
@@ -517,7 +536,10 @@ string of unsigned decimal residues, and a final LF. As in
 lexicographically by their numeric coordinates. `check` reads this entry
 shape, with a 1 MiB limit and optional `map` or `smithSource` metadata. It
 validates the Smith factors, ranks, residues, class count and distinctness,
-and writes the supplied transversal in the same sorted form.
+and writes the supplied transversal in the same sorted form. With a bound
+producer list, `check` also compares the dimension, Group source and words
+against the checkpoint selection. The decoder checks the exact-root binding
+against the SICX.
 
 The authenticated Group read streams the entire digest while keeping only
 the prefix and the principal-base images of the identity and Smith axes.

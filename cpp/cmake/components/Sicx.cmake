@@ -7,6 +7,7 @@ add_library(sic_sicx STATIC
   src/sicx/codec/ball.cpp
   src/sicx/codec/block.cpp
   src/sicx/codec/integer.cpp
+  src/sicx/codec/ray_list.cpp
   src/sicx/codec/rescale.cpp
   src/sicx/codec/rescaling_rule.cpp
   src/sicx/codec/unrescaled.cpp
@@ -73,6 +74,8 @@ set(SIC_SICX_IDENTITY_INPUTS
   "${PROJECT_SOURCE_DIR}/src/sicx/codec/block.tpp"
   "${PROJECT_SOURCE_DIR}/src/sicx/codec/integer.cpp"
   "${PROJECT_SOURCE_DIR}/src/sicx/codec/integer.hpp"
+  "${PROJECT_SOURCE_DIR}/src/sicx/codec/ray_list.cpp"
+  "${PROJECT_SOURCE_DIR}/src/sicx/codec/ray_list.hpp"
   "${PROJECT_SOURCE_DIR}/src/sicx/codec/rescale.cpp"
   "${PROJECT_SOURCE_DIR}/src/sicx/codec/rescale.hpp"
   "${PROJECT_SOURCE_DIR}/src/sicx/codec/rescaling_rule.cpp"
@@ -82,6 +85,7 @@ set(SIC_SICX_IDENTITY_INPUTS
   "${PROJECT_SOURCE_DIR}/src/sicx/container/directory.cpp"
   "${PROJECT_SOURCE_DIR}/src/sicx/container/directory.hpp"
   "${PROJECT_SOURCE_DIR}/src/sicx/container/finalize.cpp"
+  "${PROJECT_SOURCE_DIR}/src/sicx/container/finalization_builder.hpp"
   "${PROJECT_SOURCE_DIR}/src/sicx/io/io.cpp"
   "${PROJECT_SOURCE_DIR}/src/sicx/container/io.cpp"
   "${PROJECT_SOURCE_DIR}/src/sicx/io/io.hpp"

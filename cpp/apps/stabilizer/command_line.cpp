@@ -3,7 +3,6 @@
 
 #include <cmath>
 
-#include "../data_root.hpp"
 namespace sic::apps::stabilizer {
 namespace {
 using sic::support::cli::default_text;
@@ -14,13 +13,9 @@ const sic::support::cli::Parser& command_line_parser() {
   static const sic::support::cli::Parser parser{
       "sic-stabilizer FILE [OPTIONS] | sic-stabilizer --dim D [OPTIONS]",
       {
-          {"--catalogue", "JSON|TSV",
-           "Catalogue file (default REPO/" + default_text(kDefaultCatalogue) + ").", 1, 1, false},
-          {"--repo", "DIR",
-           "Data root; dimension mode searches installed data, then current directory; file mode "
-           "default \"" +
-               default_text(kDefaultFileRepository) + "\".",
-           1, 1, false},
+          {"--catalogue", "JSON|TSV", "Explicit ray catalogue; required with --dim.", 1, 1, false},
+          {"--repo", "DIR", "Base directory for relative TSV paths (default current directory).", 1,
+           1, false},
           {"--out", "FILE", "Output stabilizer file; write stdout when omitted.", 1, 1, false},
           {"--dim", "D", "Positive dimension in catalogue mode; required when FILE omitted.", 1, 1,
            false},
@@ -44,10 +39,11 @@ Options parse_command_line(int argc, char** argv) {
   o.z_tol = args.numeric<double>("--tol", kDefaults.z_tol);
   sic::support::cli::require(o.z_tol > 0, "--tol must be positive");
   o.entry_error = args.numeric<double>("--entry-error", kDefaults.entry_error);
-  const std::string root = path.empty() ? sic::apps::data_root(args.get("--repo"))
-                                        : args.get("--repo", kDefaultFileRepository);
+  const std::string catalogue = args.get("--catalogue");
+  sic::support::cli::require(!path.empty() || !catalogue.empty(),
+                             "--catalogue is required with --dim");
+  const std::string root = args.get("--repo");
   const std::string out_path = args.get("--out");
-  const std::string catalogue = args.get("--catalogue", root + "/" + kDefaultCatalogue);
 
   return {path, root, out_path, catalogue, dim, o};
 }

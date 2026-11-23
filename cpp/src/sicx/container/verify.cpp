@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "sic/sicx/verify.hpp"
 
+#include <tuple>
+
 #include "sic/support/flint_raii.hpp"
 #include "sicx/codec/ball.hpp"
 #include "sicx/codec/integer.hpp"
@@ -314,13 +316,19 @@ uint64_t bounds_memory(const Reader& reader, bool complete, ValuationPolicy poli
   scratch = checked_add(
       scratch, checked_add(checked_mul(2, table_bytes), checked_add(owner_scratch, cache_growth)));
   if (complete) {
+    uint64_t ball_work = 0;
     for (const auto& e : reader.index()) {
-      if (e.type_name() == "BALL")
-        scratch = checked_add(scratch, checked_add(checked_mul(4, e.length),
-                                                   checked_mul(2 * meta.d, sizeof(BallPart) + 16)));
-      else if (e.type_name() == "PROV" || e.type_name() == "PREC")
+      if (e.type_name() == "BALL") {
+        const auto work =
+            checked_add(checked_mul(4, e.length), checked_mul(4 * meta.d, sizeof(BallPart) + 16));
+        ball_work = std::max(ball_work, work);
+      } else if (e.type_name() == "PROV" || e.type_name() == "PREC") {
         scratch = checked_add(scratch, checked_mul(64, e.length));
+      }
     }
+    const auto report_bytes = checked_mul(
+        meta.rays.size(), checked_add(sizeof(BallCheck) + 128, meta.ball_working_bits / 2));
+    scratch = checked_add(scratch, checked_add(ball_work, report_bytes));
   }
   return scratch;
 }

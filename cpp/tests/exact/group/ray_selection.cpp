@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "exact/group/ray_selection.hpp"
 
+#include <algorithm>
+#include <filesystem>
+#include <vector>
+
 #include "assertions.hpp"
+#include "sic/error.hpp"
+#include "sicx/model/metadata.hpp"
 #include "temporary_directory.hpp"
 
 namespace {
@@ -32,12 +38,16 @@ void check_d64_coset(const std::filesystem::path& path) {
   GroupCheckpoint::save(group, path);
 
   const auto native = GroupCheckpoint::project(path, {}, false);
+  const auto live = GroupCheckpoint::project(group);
+  SIC_CHECK(live.smith == native.smith && live.stride == native.stride &&
+            live.axis_classes == native.axis_classes);
   const RaySelection selection(native, 1);
   // The last Smith axis translates a two-element prefix along a second
   // independent axis. Require the representatives of both elements in that coset.
   const std::vector<SmithWord> expected{
       {0, 0, 0, 0, 0}, {0, 0, 0, 0, 1}, {0, 1, 0, 0, 0}, {0, 1, 0, 0, 1}};
   const auto words = selection.derive();
+  SIC_CHECK(RaySelection(live, 2).derive() == words);
   const auto scanned = scan_principal_column(group);
   SIC_CHECK(scanned == expected);
   SIC_CHECK(words == scanned);
@@ -46,6 +56,11 @@ void check_d64_coset(const std::filesystem::path& path) {
 }  // namespace
 
 int main() {
+  std::vector<SmithWord> digits{{10, 0}, {2, 1}, {2, 0}};
+  sort_ray_words(digits);
+  const std::vector<SmithWord> ordered{{2, 0}, {2, 1}, {10, 0}};
+  SIC_CHECK(digits == ordered);
+  SIC_CHECK(sic::sicx::ray_label(10) == "c10");
   const sic_test::TemporaryDirectory scratch("sic-ray-selection");
   const auto path = scratch.path / "group.bin";
   Arithmetic arithmetic(4);
@@ -55,11 +70,13 @@ int main() {
   GroupCheckpoint::save(group, path);
 
   const auto native = GroupCheckpoint::project(path, {}, false);
+  const auto live = GroupCheckpoint::project(group);
   SIC_CHECK(native.smith == group.invf);
   SIC_CHECK(native.stride == group.stride);
   SIC_CHECK(native.digest == checkpoint_digest(path));
   const RaySelection selection(native, 1);
   const auto words = selection.derive();
+  SIC_CHECK(RaySelection(live, 2).derive() == words);
   const std::vector<SmithWord> expected{{0, 0, 0, 0}, {0, 0, 0, 1}};
   SIC_CHECK(words == expected);
   SIC_CHECK(words == scan_principal_column(group));

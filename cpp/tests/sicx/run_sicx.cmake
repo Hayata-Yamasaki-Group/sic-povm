@@ -40,18 +40,20 @@ macro(roundtrip file)
   run("${BIN}/sic-inspect" "${file}" --block 1)
   run("${BIN}/sic-inspect" "${file}" --entry 1)
   if(GOLDEN_TEXT)
-    same("${WORK}/${NAME}.jsonl" "${GOLDEN_TEXT}")
+    run("${NODE}" "${CMAKE_CURRENT_LIST_DIR}/fixtures/check_oracles.mjs" text
+      "${WORK}/${NAME}.jsonl" "${GOLDEN_TEXT}")
   endif()
   if(GOLDEN_JSON)
-    same("${WORK}/${NAME}-rays/c0.json" "${GOLDEN_JSON}")
+    run("${NODE}" "${CMAKE_CURRENT_LIST_DIR}/fixtures/check_oracles.mjs" ray
+      "${WORK}/${NAME}-rays/c0.json" "${GOLDEN_JSON}")
   endif()
 endmacro()
 
 if(MODE STREQUAL "roundtrip")
   roundtrip("${FIXTURE}")
 elseif(MODE STREQUAL "release")
-  # Release data tree for two d = 8 multiplets: m1 (FIXTURE, conductor 1) and m2 (FIXTURE2, conductor 3), N from provenance
-  # conductors; no SICX, no conductor, parts reassemble to the fixtures; catalogue golden.
+  # Conductor order gives m1 (maximal) and m2 (standard). Parts must reassemble
+  # to the supplied containers, and the catalogue is checked against both oracles.
   set(root "${WORK}/data")
   set(assets "${WORK}/assets")
   run("${BIN}/sic-inspect" "${FIXTURE}" --release-layout "${root}" --provenance-conductors 1,3 --provenance-conductor 1 --assets-dir "${assets}" --part-size 1900000000)
@@ -83,7 +85,8 @@ elseif(MODE STREQUAL "release")
     same("${WORK}/${m}.sicx" "${fixture}")
   endforeach()
   if(GOLDEN_JSON)
-    same("${root}/catalogue.json" "${GOLDEN_JSON}")
+    run("${NODE}" "${CMAKE_CURRENT_LIST_DIR}/fixtures/check_oracles.mjs" catalogue
+      "${root}/catalogue.json" "${GOLDEN_JSON}" "${GOLDEN_TEXT}")
   endif()
 else()
   message(FATAL_ERROR "unknown MODE ${MODE}")

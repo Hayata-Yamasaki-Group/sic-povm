@@ -46,48 +46,38 @@ void matches(const cli::Parser& parser, const std::string& option, T actual) {
 }
 }  // namespace
 int main(int argc, char** argv) {
-  check(argc == 3, "expected repository root and work directory");
-  const std::string repo = argv[1], work = argv[2];
+  check(argc == 3, "expected work directory and SICX input");
+  const std::string work = argv[1];
   std::filesystem::remove_all(work);
   std::filesystem::create_directories(work);
   const auto overlaps = invoke(apps::overlaps::parse_command_line, {"tool", "missing"});
   matches(apps::overlaps::command_line_parser(), "--tol", overlaps.tol);
-  const auto identify =
-      invoke(apps::identify::parse_command_line, {"tool", "missing", "--repo", repo});
+  const auto identify = invoke(apps::identify::parse_command_line,
+                               {"tool", "missing", "--catalogue", "catalogue.tsv"});
   matches(apps::identify::command_line_parser(), "--tol", identify.z_tol);
   matches(apps::identify::command_line_parser(), "--entry-error", identify.entry_error);
   matches(apps::identify::command_line_parser(), "--moments", identify.moments);
-  const auto catalogue = help_default(apps::identify::command_line_parser(), "--catalogue");
-  check(catalogue.starts_with("REPO/"), "catalogue default is relative to repository");
-  check(identify.catalogue == identify.root + "/" + catalogue.substr(5),
-        "identify catalogue default");
+  check(identify.catalogue == "catalogue.tsv", "explicit identify catalogue");
   for (const auto& value : {"1", "64"}) {
-    const auto boundary = invoke(apps::identify::parse_command_line,
-                                 {"tool", "missing", "--repo", repo, "--moments", value});
+    const auto boundary =
+        invoke(apps::identify::parse_command_line,
+               {"tool", "missing", "--catalogue", "catalogue.tsv", "--moments", value});
     check(boundary.moments == std::stoi(value), "moment boundary changed");
   }
   for (const auto& value : {"0", "65"}) {
     bool refused = false;
     try {
       (void)invoke(apps::identify::parse_command_line,
-                   {"tool", "missing", "--repo", repo, "--moments", value});
+                   {"tool", "missing", "--catalogue", "catalogue.tsv", "--moments", value});
     } catch (const cli::UsageError&) {
       refused = true;
     }
     check(refused, "moment boundary refusal changed");
   }
-  const auto stabilizer =
-      invoke(apps::stabilizer::parse_command_line, {"tool", "missing", "--repo", repo});
+  const auto stabilizer = invoke(apps::stabilizer::parse_command_line, {"tool", "missing"});
   matches(apps::stabilizer::command_line_parser(), "--tol", stabilizer.o.z_tol);
   matches(apps::stabilizer::command_line_parser(), "--entry-error", stabilizer.o.entry_error);
-  check(stabilizer.catalogue == stabilizer.root + "/" + catalogue.substr(5),
-        "stabilizer catalogue default");
-  const auto file_stabilizer = invoke(apps::stabilizer::parse_command_line, {"tool", "missing"});
-  check(apps::stabilizer::command_line_parser().help().find(
-            "file mode default \"" + file_stabilizer.root + "\".") != std::string::npos,
-        "stabilizer file-mode repository default");
-  check(help_default(apps::stabilizer::command_line_parser(), "--catalogue") == catalogue,
-        "catalogue help defaults disagree");
+  check(stabilizer.catalogue.empty() && stabilizer.root.empty(), "stabilizer file inputs");
 #ifdef SIC_HAVE_FLINT
   const auto verify = invoke(apps::verify::parse_command_line, {"tool", "missing"});
   matches(apps::verify::command_line_parser(), "--threads", verify.threads);
@@ -172,27 +162,22 @@ int main(int argc, char** argv) {
   const auto transfer_work = std::filesystem::absolute(work) / "transfer";
   std::filesystem::create_directories(transfer_work);
   sic::transport::SplitOptions split;
-  split.file = repo + "/cpp/tests/fixtures/sicx/d4.sicx";
-  auto parts_default = help_default(transfer_help, "--parts");
-  check(parts_default.starts_with("DATA_ROOT/SPEC/"), "parts default root/spec policy");
-  parts_default.replace(0, std::string("DATA_ROOT").size(),
-                        help_default(transfer_help, "--data-root"));
-  parts_default.replace(parts_default.find("SPEC"), std::string("SPEC").size(), "d4/m1");
-  split.parts_path = transfer_work / parts_default;
+  split.file = argv[2];
+  split.parts_path = transfer_work / "d4/m1/multiplet.sicx.parts.json";
   split.prefix = "d4-m1";
   std::filesystem::create_directories(split.parts_path.parent_path());
   (void)sic::transport::split(split);
   std::filesystem::current_path(transfer_work);
   for (const std::string command : {"fetch", "repair"}) {
-    auto transfer =
-        invoke(apps::container::parse_command_line, {"tool", command, "d4/m1", "--out", "output"});
+    auto transfer = invoke(apps::container::parse_command_line,
+                           {"tool", command, "d4/m1", "--data-root", ".", "--out", "output"});
     const auto job = command == "fetch" ? transfer.fetch_options().job : transfer.repair_job();
     matches(transfer_help, "--threads", job.jobs);
     check(help_default(transfer_help, "--name") == job.name, "transfer name default");
   }
   for (const std::string command : {"fetch", "repair"}) {
-    auto transfer =
-        invoke(apps::container::parse_command_line, {"tool", command, "d4/m1", "--threads", "1"});
+    auto transfer = invoke(apps::container::parse_command_line,
+                           {"tool", command, "d4/m1", "--data-root", ".", "--threads", "1"});
     const auto job = command == "fetch" ? transfer.fetch_options().job : transfer.repair_job();
     const auto usage = transfer_help.help();
     check(usage.find("default " + job.out_dir.parent_path().parent_path().string() + "/SPEC") !=

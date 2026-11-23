@@ -133,5 +133,10 @@
     "test": "sic_test_policy_failure_boundaries",
     "reason": "uncategorized direct library throw",
     "embedded": "failure-boundaries"
+  },
+  "sic_test_policy_explicit_data_inputs": {
+    "test": "sic_test_policy_explicit_data_inputs",
+    "reason": "Reject both direct and assembled source data paths, CLI defaults and commands that use the bundled tree.",
+    "embedded": "explicit-data-inputs"
   }
 }

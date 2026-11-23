@@ -8,6 +8,11 @@
 #include "sic/support/durable_file.hpp"
 
 namespace sic::support {
+// Link the checked descriptor on Linux; remove the private name only if it
+// still names that inode. Other platforms retain the checked-path fallback.
+void publish_pinned_no_replace(int fd, const std::filesystem::path& from,
+                               const std::filesystem::path& to);
+
 // Stream into the durable-file owner's private-file publication path with
 // bounded buffering. The callback borrows the stream only for this call.
 // Its exceptions propagate, with the unpublished temporary removed. Stream I/O

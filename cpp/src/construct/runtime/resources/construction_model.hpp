@@ -20,6 +20,8 @@ using sic::support::resources::modular_selection_bytes;
 using sic::support::resources::mul;
 using sic::support::resources::newton_matrix_bits;
 using sic::support::resources::real_bytes;
+sic::support::resources::Count construction_points(sic::support::resources::Count dimension,
+                                                   sic::support::resources::Count classes);
 struct Model {
   sic::support::resources::Count d, classes, degree, points, max_cycle, states, representatives;
   sic::support::resources::Count bases =

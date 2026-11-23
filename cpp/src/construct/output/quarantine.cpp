@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "construct/output/quarantine.hpp"
 
+#include "sic/support/json.hpp"
+#include "support/io/durable_output.hpp"
+#include "support/io/write_all.hpp"
+
 namespace sic::construct {
 struct stat QuarantineOutput::regular(const std::filesystem::path& path) {
   struct stat value {};
@@ -80,24 +84,38 @@ void QuarantineOutput::prepare_replay(bool authenticated) {
   completed_fd_ = -1;
 }
 
+void QuarantineOutput::record_ray_pair(uint64_t file_bytes, std::string_view file_root,
+                                       std::string_view exact_root, uint64_t ray_bytes,
+                                       std::string_view ray_sha256) {
+  const auto sealed = regular(private_);
+  if (!owned_completed_ || !same_inode(sealed, completed_) || sealed.st_size < 0 ||
+      static_cast<uint64_t>(sealed.st_size) != file_bytes)
+    throw sic::Error(sic::ErrorKind::integrity, "quarantine changed before recording ray pair");
+  struct stat lock {};
+  if (::fstat(lock_, &lock) || !S_ISREG(lock.st_mode) || lock.st_nlink != 1 || (lock.st_mode & 077))
+    throw sic::Error(sic::ErrorKind::io, "producer lock is not a private regular file");
+  using sic::support::Json;
+  Json pin;
+  pin["schema"] = Json::string_value("sic-producer-ray-pair/1.0");
+  pin["device"] = Json::string_value(std::to_string(sealed.st_dev));
+  pin["inode"] = Json::string_value(std::to_string(sealed.st_ino));
+  pin["file_bytes"] = Json::string_value(std::to_string(file_bytes));
+  pin["file_root"] = Json::string_value(std::string(file_root));
+  pin["exact_root"] = Json::string_value(std::string(exact_root));
+  pin["ray_bytes"] = Json::string_value(std::to_string(ray_bytes));
+  pin["ray_sha256"] = Json::string_value(std::string(ray_sha256));
+  const auto text = sic::support::dump_json(pin) + '\n';
+  sic::support::write_all(lock_, {reinterpret_cast<const uint8_t*>(text.data()), text.size()}, 0);
+  if (::ftruncate(lock_, static_cast<off_t>(text.size())))
+    throw sic::Error(sic::ErrorKind::io, "cannot set producer pair record length");
+  sic::support::sync_file(lock_);
+  sic::support::sync_parent(lock_path_);
+}
+
 void QuarantineOutput::publish() try {
   if (!owned_completed_ || !same_inode(regular(private_), completed_))
     throw sic::Error(sic::ErrorKind::integrity, "quarantine changed before publication");
-#if defined(__linux__)
-  // Link the pinned checked inode; replacing its private name cannot substitute another file.
-  const auto pinned = "/proc/self/fd/" + std::to_string(completed_fd_);
-  if (::linkat(AT_FDCWD, pinned.c_str(), AT_FDCWD, target_.c_str(), AT_SYMLINK_FOLLOW))
-    throw sic::Error(sic::ErrorKind::io, "cannot publish checked producer output: " +
-                                             std::string(std::strerror(errno)));
-  struct stat now {};
-  if (::lstat(private_.c_str(), &now) == 0 && same_inode(now, completed_))
-    if (::unlink(private_.c_str()))
-      throw sic::Error(sic::ErrorKind::io, "cannot remove published quarantine name");
-#else
-  if (!same_inode(regular(private_), completed_))
-    throw sic::Error(sic::ErrorKind::integrity, "quarantine changed before publication");
-  sic::support::publish_no_replace(private_, target_);
-#endif
+  sic::support::publish_pinned_no_replace(completed_fd_, private_, target_);
   owned_completed_ = false;
   for (const auto* suffix : {".spool.partial", ".spool.partial.journal"})
     std::filesystem::remove(private_.string() + suffix);

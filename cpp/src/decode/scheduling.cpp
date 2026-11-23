@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+#include <algorithm>
+#include <numeric>
+
 #include "decode/contraction.hpp"
 #include "decode/decoder.hpp"
 #include "decode/input/element_source.hpp"
 #include "sic/error.hpp"
 #include "sicx/codec/integer.hpp"
+#include "sicx/io/io.hpp"
 
 namespace sic::decode {
 Decoder::Impl::Options Decoder::Impl::validate_options(Options o, const Reader& reader) {
@@ -39,6 +43,9 @@ Decoder::Impl::Options Decoder::Impl::validate_options(Options o, const Reader& 
 }
 
 Decoder::Impl::Impl(const Reader& reader, Options options)
+    : Impl(reader, std::move(options), size_t{0}) {}
+
+Decoder::Impl::Impl(const Reader& reader, Options options, size_t planned_requests)
     : reader_(reader),
       meta_(reader.meta()),
       options_(validate_options(std::move(options), reader)),
@@ -47,13 +54,24 @@ Decoder::Impl::Impl(const Reader& reader, Options options)
   sic::support::StopScope stop(options_.cancellation.get());
   sic::support::check_stop();
   reader_.bind_cancellation(options_.cancellation);
+  std::unique_ptr<ReserveGuard> staging;
+  if (planned_requests) {
+    // Keep room for the admitted requests when the decoder chooses between
+    // resident towers and per-level streaming. decode() takes over and raises
+    // this allowance only when a replay actually needs more precision.
+    rebase();
+    const slong bits = options_.target + options_.delta;
+    const auto bytes = checked_add(request_metadata_bytes(planned_requests, meta_.smith.size()),
+                                   request_numeric_bytes(planned_requests, bits));
+    staging = std::make_unique<ReserveGuard>(budget_, bytes, "planned request/output staging");
+  }
   if (reader_.remote()) plan_input({});
   pool_ = std::make_unique<Pool>(options_.threads, place_);
   load_tower();
 }
 
 std::vector<size_t> Decoder::Impl::input_chunks(const Reader& reader,
-                                                const std::vector<Request>& requests) {
+                                                std::span<const Request> requests) {
   std::set<size_t> elements, chunks;
   const auto& meta = reader.meta();
   for (size_t id = 0; id < meta.elements.size(); ++id)
@@ -74,7 +92,7 @@ std::vector<size_t> Decoder::Impl::input_chunks(const Reader& reader,
   return {chunks.begin(), chunks.end()};
 }
 
-void Decoder::Impl::plan_input(const std::vector<Request>& requests) {
+void Decoder::Impl::plan_input(std::span<const Request> requests) {
   auto chunks = input_chunks(reader_, requests);
   reader_.plan_chunks(chunks);
   reader_.schedule_chunks(chunks);
@@ -88,15 +106,15 @@ Decoder::Impl::Impl(const Reader& reader, Options options, const std::vector<Req
             if (reader.remote()) reader.plan_chunks(input_chunks(reader, requests));
             return reader;
           }(),
-          options) {
+          options, requests.size()) {
   if (reader_.remote()) plan_input(requests);
 }
 
-ComplexBallVector Decoder::Impl::decode(const std::vector<Request>& requests) {
+ComplexBallVector Decoder::Impl::decode(std::span<const Request> requests, size_t ray_size,
+                                        [[maybe_unused]] bool test_replay_first) {
   check_owner();
   sic::support::StopScope stop(options_.cancellation.get());
-  const auto metadata_bytes =
-      checked_mul(requests.size(), checked_add(256, checked_mul(meta_.smith.size(), 32)));
+  const auto metadata_bytes = request_metadata_bytes(requests.size(), meta_.smith.size());
   ReserveGuard metadata_guard(budget_, metadata_bytes, "request metadata");
   // A precision ceiling does not allocate values at that precision. Keep the
   // existing three-array allowance at the largest precision actually attempted,
@@ -104,7 +122,7 @@ ComplexBallVector Decoder::Impl::decode(const std::vector<Request>& requests) {
   std::vector<std::unique_ptr<ReserveGuard>> numeric_guards;
   uint64_t numeric_reserved = 0;
   auto reserve_numeric = [&](slong bits) {
-    const auto bytes = checked_mul(requests.size(), checked_mul(3, acb_bytes(bits)));
+    const auto bytes = request_numeric_bytes(requests.size(), bits);
     if (bytes > numeric_reserved) {
       auto guard = std::make_unique<ReserveGuard>(budget_, bytes - numeric_reserved,
                                                   "request/output staging");
@@ -112,56 +130,93 @@ ComplexBallVector Decoder::Impl::decode(const std::vector<Request>& requests) {
       numeric_reserved = bytes;
     }
   };
-  slong wp = options_.target + options_.delta;
-  reserve_numeric(wp);
+  const slong initial_bits = options_.target + options_.delta;
+  reserve_numeric(initial_bits);
   (void)input_chunks(reader_, requests);  // validate before numerical work
   if (reader_.remote() && std::any_of(requests.begin(), requests.end(), [&](const auto& r) {
         return !planned_representatives_.contains(r.representative);
       }))
     plan_input(requests);
-  base_path();
+  base_path(options_.base_bits);
   ComplexBallVector out(requests.size());
   std::vector<size_t> pending(requests.size());
   std::iota(pending.begin(), pending.end(), 0);
-  for (unsigned attempt = 0; !pending.empty();) {
-    sic::support::check_stop();
-    if (attempt == options_.attempts || wp > options_.maximum_precision)
-      throw sic::Error(ErrorKind::precision, "decoder precision/attempt ceiling reached");
-    reserve_numeric(wp);
-    ++attempt;
-    std::vector<Request> batch;
-    for (auto q : pending) batch.push_back(requests[q]);
-    progress() << "SICX-DECODE pass " << attempt << " precision=" << wp
-               << " outputs=" << batch.size() << std::endl;
-    try {
-      ++stats_.passes;
-      const ComplexBallVector values = decode_pass(batch, wp);
-      std::vector<size_t> failing;
-      for (size_t i = 0; i < pending.size(); ++i) {
-        if (accurate(values[i]))
-          acb_set(out[pending[i]], values[i]);
-        else
-          failing.push_back(pending[i]);
-      }
-      if (!failing.empty())
-        progress() << "SICX-DECODE radius check: " << failing.size() << " outputs replayed"
+  slong wp = initial_bits;
+  unsigned attempt = 0;
+  // Pending indices stay in request order. Compact each group in place so a
+  // refusal can split just the pending outputs by ray without copying balls.
+  const auto replay = [&](std::span<size_t>& group, bool split_on_refusal) {
+    while (!group.empty()) {
+      sic::support::check_stop();
+      if (attempt == options_.attempts || wp > options_.maximum_precision)
+        throw sic::Error(ErrorKind::precision, "decoder precision/attempt ceiling reached");
+      reserve_numeric(wp);
+      working_precision_ = std::max(working_precision_, wp);
+      std::vector<Request> batch;
+      batch.reserve(group.size());
+      for (auto q : group) batch.push_back(requests[q]);
+      progress() << "SICX-DECODE pass " << attempt + 1 << " precision=" << wp
+                 << " outputs=" << batch.size() << std::endl;
+      try {
+        ++stats_.passes;
+        bool test_refuse = false;
+#ifdef SIC_ENABLE_TEST_HOOKS
+        test_refuse = split_on_refusal && group.size() > ray_size && stats_.passes == 1 &&
+                      sic::sicx::env_u64("SIC_TEST_FINALIZATION_REFUSE_FIRST_BATCH");
+#endif
+        const ComplexBallVector values = decode_pass(batch, wp, test_refuse);
+        size_t failed = 0;
+        for (size_t i = 0; i < group.size(); ++i) {
+          const size_t q = group[i];
+          bool accepted = accurate(values[i]);
+#ifdef SIC_ENABLE_TEST_HOOKS
+          if (test_replay_first && wp == initial_bits && q == 0) accepted = false;
+#endif
+          if (accepted)
+            acb_set(out[q], values[i]);
+          else
+            group[failed++] = q;
+        }
+        if (failed)
+          progress() << "SICX-DECODE radius check: " << failed << " outputs replayed" << std::endl;
+        group = group.first(failed);
+      } catch (const PrecisionRefusal& refusal) {
+        progress() << "SICX-DECODE precision refusal at " << wp << ": " << refusal.what()
                    << std::endl;
-      pending = std::move(failing);
-    } catch (const PrecisionRefusal& refusal) {
-      progress() << "SICX-DECODE precision refusal at " << wp << ": " << refusal.what()
-                 << std::endl;
-    }
-    if (!pending.empty()) {
+        if (split_on_refusal && group.front() / ray_size != group.back() / ray_size) return;
+      }
+      ++attempt;
+      if (group.empty()) break;
       ++stats_.replays;
       if (wp > options_.maximum_precision / 2)
         throw sic::Error(ErrorKind::precision, "decoder precision ceiling reached");
       wp *= 2;
-      if (wp > base_prec_) {
-        base_roots_.clear();
-        options_.base_bits =
+      if (wp > base_->precision) {
+        const slong bits =
             wp > options_.maximum_precision / 2 ? options_.maximum_precision : 2 * wp;
-        base_path();
+        base_path(bits);
       }
+    }
+  };
+  std::span<size_t> group(pending);
+  replay(group, ray_size != 0);
+  if (!group.empty()) {
+    const auto* split_base = base_;
+    const auto split_bits = wp;
+    const auto split_attempt = attempt;
+    progress() << "SICX-DECODE retrying pending rays independently at " << split_bits << " bits"
+               << std::endl;
+    while (!group.empty()) {
+      const size_t ray = group.front() / ray_size;
+      const auto end =
+          std::find_if(group.begin(), group.end(), [&](size_t q) { return q / ray_size != ray; });
+      auto ray_pending = group.first(end - group.begin());
+      group = group.subspan(ray_pending.size());
+      base_ = split_base;
+      wp = split_bits;
+      attempt = split_attempt;
+      rebase();
+      replay(ray_pending, false);
     }
   }
   reader_.quiesce();
@@ -183,7 +238,8 @@ ComplexBallVector Decoder::Impl::decode(const std::vector<Request>& requests) {
 }  // namespace sic::decode
 
 namespace sic::decode {
-ComplexBallVector Decoder::Impl::decode_pass(const std::vector<Request>& requests, slong wp) {
+ComplexBallVector Decoder::Impl::decode_pass(const std::vector<Request>& requests, slong wp,
+                                             [[maybe_unused]] bool test_refuse) {
   const auto plan_start = std::chrono::steady_clock::now();
   const Graph graph = plan(requests);
   stats_.seconds_plan += seconds(plan_start);
@@ -191,6 +247,9 @@ ComplexBallVector Decoder::Impl::decode_pass(const std::vector<Request>& request
   std::vector<uint64_t> endpoint_class;
   Tree out_tree = [&] {
     Tree full = prepare(graph, wp, false, &node_classes);
+#ifdef SIC_ENABLE_TEST_HOOKS
+    if (test_refuse) throw PrecisionRefusal("test finalization batch refusal");
+#endif
     const auto prune_start = std::chrono::steady_clock::now();
     Tree pruned = prune(full, node_classes, graph, endpoint_class);
     release_tree(full);

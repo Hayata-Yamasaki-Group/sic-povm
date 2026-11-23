@@ -14,7 +14,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <exception>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -46,8 +45,9 @@ int run_command(int argc, char** argv) {
   }
   const std::string help =
       "usage: sic-certify-stabilizer STABILIZER_FILE [options]\n"
-      "  --catalogue JSON|TSV    ray catalogue (default REPO/data/catalogue.json)\n"
-      "  --repo DIR              data root (default installed data, then current directory)\n"
+      "  --catalogue JSON|TSV    explicit ray catalogue (required)\n"
+      "  --dim D                 require the complete catalogue table for dimension D\n"
+      "  --repo DIR              base for relative TSV paths (default current directory)\n"
       "  --prec BITS             ball precision, 64..100000 (default " +
       std::to_string(kDefaultPrecision) +
       ")\n"
@@ -59,6 +59,7 @@ int run_command(int argc, char** argv) {
       "  --help                  print help to stdout and exit 0\n";
   std::string stab_path, root, catalogue, d2_exact;
   slong prec = kDefaultPrecision;
+  long dimension = 0;
   double threshold = std::ldexp(1.0, kDefaultThresholdExponent);
   bool usage = false;
   for (int i = 1; i < argc && !usage; ++i) {
@@ -72,7 +73,12 @@ int run_command(int argc, char** argv) {
       catalogue = argv[++i];
     else if (a == "--repo" && more)
       root = argv[++i];
-    else if (a == "--prec" && more) {
+    else if (a == "--dim" && more) {
+      const std::string value = argv[++i];
+      const auto parsed = std::from_chars(value.data(), value.data() + value.size(), dimension);
+      usage = parsed.ec != std::errc{} || parsed.ptr != value.data() + value.size() ||
+              dimension < 2 || dimension > (1L << 24);
+    } else if (a == "--prec" && more) {
       const std::string value = argv[++i];
       auto parsed = std::from_chars(value.data(), value.data() + value.size(), prec, 10);
       usage = value.empty() || value[0] == '-' || parsed.ec != std::errc{} ||
@@ -91,29 +97,17 @@ int run_command(int argc, char** argv) {
     else
       usage = true;
   }
-  if (usage || stab_path.empty() || prec < 64 || prec > 100000 || !(threshold > 0)) {
+  if (usage || stab_path.empty() || catalogue.empty() || prec < 64 || prec > 100000 ||
+      !(threshold > 0)) {
     std::cerr << "usage: " << argv[0]
-              << " STABILIZER_FILE [--catalogue JSON|TSV] [--repo DIR] [--prec BITS="
+              << " STABILIZER_FILE --catalogue JSON|TSV [--dim D] [--repo DIR] [--prec BITS="
               << kDefaultPrecision << "] [--threshold T=2^" << kDefaultThresholdExponent
               << "]"
                  " [--d2-exact SICRAD]\n";
     return 2;
   }
   try {
-    if (root.empty()) {
-      namespace fs = std::filesystem;
-      std::error_code ec;
-      const auto exe = fs::read_symlink("/proc/self/exe", ec);
-      if (!ec) {
-        const auto installed = (exe.parent_path() / SIC_DATA_ROOT_FROM_BINDIR).lexically_normal();
-        if (fs::is_regular_file(installed / "data/catalogue.json", ec)) root = installed.string();
-      }
-      ec.clear();
-      if (root.empty() && fs::is_regular_file("data/catalogue.json", ec)) root = ".";
-      if (root.empty()) throw std::runtime_error("cannot find data catalogue; specify --repo DIR");
-    }
-    if (catalogue.empty()) catalogue = root + "/data/catalogue.json";
-    return certify(stab_path, root, catalogue, d2_exact, prec, threshold);
+    return certify(stab_path, root, catalogue, d2_exact, prec, threshold, dimension);
   } catch (const std::exception& ex) {
     std::cerr << "error: " << ex.what() << "\n";
     return 2;

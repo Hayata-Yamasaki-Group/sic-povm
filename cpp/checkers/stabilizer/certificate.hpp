@@ -5,5 +5,5 @@
 #include <string>
 namespace sic_check::stabilizer {
 int certify(const std::string& stab_path, const std::string& root, const std::string& catalogue,
-            const std::string& d2_exact, slong prec, double threshold);
+            const std::string& d2_exact, slong prec, double threshold, long dimension);
 }

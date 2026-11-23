@@ -71,16 +71,16 @@ Tree Decoder::Impl::prepare(const Graph& graph, slong bits, bool authoritative,
                             std::vector<std::vector<uint64_t>>* node_classes_out) {
   Tree tree{meta_.degrees, meta_.width, bits, {}, ++tree_serial_};
   const uint64_t nodes = graph.nodes.size();
+  std::vector<std::vector<uint64_t>> generations;  // graph nodes by depth (depth >= 1)
   {
     std::vector<uint64_t> depth(nodes, 0);
-    generations_.clear();
     for (uint64_t node = 1; node < nodes; ++node) {
       if (graph.nodes[node].source >= node) throw std::logic_error("graph is not parent-first");
       depth[node] = next_graph_depth(depth[graph.nodes[node].source]);
-      if (generations_.size() < depth[node]) generations_.resize(depth[node]);
-      generations_[depth[node] - 1].push_back(node);
+      if (generations.size() < depth[node]) generations.resize(depth[node]);
+      generations[depth[node] - 1].push_back(node);
     }
-    stats_.generations += generations_.size();
+    stats_.generations += generations.size();
   }
   const unsigned axes = static_cast<unsigned>(meta_.smith.size());
   std::vector<uint64_t> previous(nodes, 0), next;
@@ -172,7 +172,7 @@ Tree Decoder::Impl::prepare(const Graph& graph, slong bits, bool authoritative,
         index[0] =
             member(families[previous[0]], branch[0], true, bits, scratch[0][1], scratch[0][2]);
       } else
-        index[0] = member(families[previous[0]], base_roots_.at(i)[0], false, bits, scratch[0][1],
+        index[0] = member(families[previous[0]], base_->roots.at(i)[0], false, bits, scratch[0][1],
                           scratch[0][2]);
     }
     auto node_root = [&](uint64_t node) -> acb_srcptr {
@@ -206,7 +206,7 @@ Tree Decoder::Impl::prepare(const Graph& graph, slong bits, bool authoritative,
     if (memo) owner.assign(slots, UINT64_MAX);
     std::vector<uint64_t> todo;
     std::vector<std::pair<uint64_t, uint64_t>> follow;  // (node, owner)
-    for (const auto& generation : generations_) {
+    for (const auto& generation : generations) {
       if (!memo) {
         pool_->run_grouped(
             generation.size(), [&](size_t q) { compute(generation[q]); }, 16);
@@ -250,7 +250,7 @@ Tree Decoder::Impl::prepare(const Graph& graph, slong bits, bool authoritative,
         next[node] = class_of[key];
       };
       label(0);
-      for (const auto& generation : generations_)
+      for (const auto& generation : generations)
         for (auto node : generation) label(node);
       classes.resize(keys.size());
       pool_->run(
@@ -302,14 +302,17 @@ Tree Decoder::Impl::prepare(const Graph& graph, slong bits, bool authoritative,
   return tree;
 }
 
-void Decoder::Impl::base_path() {
-  if (!base_roots_.empty()) return;
+void Decoder::Impl::base_path(slong bits) {
+  if (const auto it = base_paths_.find(bits); it != base_paths_.end()) {
+    base_ = &it->second;
+    return;
+  }
   const auto start = std::chrono::steady_clock::now();
   // Canonical rectangles can have singleton components. General numerical root
   // isolation need not prove their exact zero parts, even at higher precision.
   // Reuse the exact-axis/absolute-grid proof, then label the main DAG by overlap
   // with these certified base roots. Never clip an uncertain ball to a singleton.
-  const auto canonical = canonical_branches(
+  auto canonical = canonical_branches(
       meta_,
       [&](size_t id, auto visit) {
         for (auto li : reader_.element_blocks(id)) {
@@ -320,13 +323,15 @@ void Decoder::Impl::base_path() {
                             });
         }
       },
-      options_.maximum_precision, options_.base_bits);
+      options_.maximum_precision, bits);
   if (canonical.bits != meta_.branch_bits || canonical.rectangles != meta_.branches)
     fail(sic::ErrorKind::invalid_format, "noncanonical base branch rectangles");
-  base_roots_ = canonical.selected_roots;
-  base_prec_ = canonical.precision;
+  maximum_base_precision_ = std::max(maximum_base_precision_, canonical.precision);
+  base_ =
+      &base_paths_.emplace(bits, BasePath{canonical.precision, std::move(canonical.selected_roots)})
+           .first->second;
   stats_.seconds_base += seconds(start);
-  progress() << "SICX-DECODE base path certified at " << base_prec_ << " bits" << std::endl;
+  progress() << "SICX-DECODE base path certified at " << base_->precision << " bits" << std::endl;
 }
 
 Tree Decoder::Impl::prune(Tree& full, const std::vector<std::vector<uint64_t>>& node_classes,

@@ -58,18 +58,30 @@ add_test(NAME sic_test_policy_data_layout_controls COMMAND "${SIC_NODE_EXECUTABL
   "${_policy}/data_layout_controls.mjs" "${SIC_REPO_ROOT}" "${PROJECT_BINARY_DIR}/policy-data-controls")
 set_tests_properties(sic_test_policy_data_layout sic_test_policy_data_layout_controls
   PROPERTIES LABELS "unit;policy" TIMEOUT 2)
+add_test(NAME sic_test_policy_explicit_data_inputs COMMAND "${SIC_NODE_EXECUTABLE}"
+  "${_policy}/contracts/explicit_data_inputs.mjs" "${SIC_REPO_ROOT}")
+set_tests_properties(sic_test_policy_explicit_data_inputs PROPERTIES LABELS "unit;policy" TIMEOUT 10)
 
 add_test(NAME sic_test_policy_format_identities COMMAND "${SIC_NODE_EXECUTABLE}"
   "${_policy}/format_identities.mjs" "${SIC_REPO_ROOT}")
 set_tests_properties(sic_test_policy_format_identities PROPERTIES LABELS "unit;policy" TIMEOUT 10)
 
 if(TARGET sic-data AND TARGET sic-inspect)
+  set(_policy_release "${PROJECT_BINARY_DIR}/policy-generated-release")
+  add_test(NAME sic_test_data_generate_release COMMAND "${CMAKE_COMMAND}"
+    "-DBIN=$<TARGET_FILE_DIR:sic-inspect>" "-DWORK=${_policy_release}"
+    -P "${PROJECT_SOURCE_DIR}/tests/data/generate_release.cmake")
+  set_tests_properties(sic_test_data_generate_release PROPERTIES
+    LABELS "integration;data;policy" FIXTURES_SETUP policy_generated_release TIMEOUT 30)
   add_test(NAME sic_test_policy_data_formats COMMAND "${SIC_NODE_EXECUTABLE}"
-    "${_policy}/data_formats.mjs" "${SIC_REPO_ROOT}" "$<TARGET_FILE:sic-data>")
+    "${_policy}/data_formats.mjs" "${_policy_release}" "$<TARGET_FILE:sic-data>")
   add_test(NAME sic_test_policy_catalogue_freshness COMMAND "${SIC_NODE_EXECUTABLE}"
-    "${_policy}/catalogue_freshness.mjs" "${SIC_REPO_ROOT}" "$<TARGET_FILE:sic-inspect>")
+    "${_policy}/catalogue_freshness.mjs" "${_policy_release}" "$<TARGET_FILE:sic-inspect>")
   set_tests_properties(sic_test_policy_data_formats sic_test_policy_catalogue_freshness
-    PROPERTIES LABELS "integration;policy" TIMEOUT 30)
+    PROPERTIES LABELS "integration;policy" FIXTURES_REQUIRED policy_generated_release TIMEOUT 30)
+  set_property(TEST sic_test_policy_claim_registry APPEND PROPERTY FIXTURES_REQUIRED policy_generated_release)
+  set_tests_properties(sic_test_data_numeric_formats
+    PROPERTIES FIXTURES_REQUIRED policy_generated_release)
 endif()
 
 add_test(NAME sic_test_policy_newton_workers COMMAND "${SIC_NODE_EXECUTABLE}"

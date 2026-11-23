@@ -47,7 +47,7 @@ function registeredExamples(rows,tests) {
     const test=tests.find(t=>t.name===row.test);
     assert(test,'examples: absent CTest');
     assert.equal(path.basename(test.command[0]),row.target,'examples: wrong executable');
-    const arg=row.arg.replace('${PROJECT_SOURCE_DIR}',path.resolve(source,'..'));
+    const arg=row.arg.replace('${PROJECT_SOURCE_DIR}',path.resolve(source,'..')).replace('${PROJECT_BINARY_DIR}',path.resolve(build));
     assert.equal(test.command[1],arg,'examples: wrong fixture argument');
     assert(fs.existsSync(arg),'examples: missing fixture argument');
   }

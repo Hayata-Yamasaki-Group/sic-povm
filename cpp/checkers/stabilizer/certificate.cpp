@@ -18,7 +18,9 @@
 #include <flint/qqbar.h>
 #include <flint/ulong_extras.h>
 
+#include <algorithm>
 #include <charconv>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -31,6 +33,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -145,8 +148,8 @@ std::vector<CatalogueEntry> read_release_catalogue(const std::string& path) {
           if (!destination.empty()) throw std::runtime_error(path + ": duplicate ray file");
           destination = (data_root / name).string();
         }
-        if (entry.csv.empty()) continue;
-        if (entry.json.empty()) throw std::runtime_error(path + ": CSV ray lacks listed JSON");
+        if (entry.csv.empty() || entry.json.empty())
+          throw std::runtime_error(path + ": catalogue ray lacks listed CSV or JSON");
         rays.push_back(std::move(entry));
       }
     }
@@ -509,9 +512,14 @@ bool exact_d2(const std::string& sicrad, const std::vector<Element>& elems) {
 
 namespace sic_check::stabilizer {
 int certify(const std::string& stab_path, const std::string& root, const std::string& catalogue,
-            const std::string& d2_exact, slong prec, double threshold) {
-  std::map<std::string, sic_check::stabilizer::CatalogueEntry> by_label;
-  for (const auto& e : sic_check::stabilizer::read_catalogue(catalogue)) by_label[e.label] = e;
+            const std::string& d2_exact, slong prec, double threshold, long dimension) {
+  std::map<std::string, CatalogueEntry> by_label;
+  for (const auto& entry : read_catalogue(catalogue)) {
+    if (dimension && entry.d != dimension) continue;
+    if (!by_label.emplace(entry.label, entry).second)
+      throw std::runtime_error("duplicate catalogue ray " + entry.label);
+  }
+  if (by_label.empty()) throw std::runtime_error("catalogue has no rays for the requested table");
   std::map<std::string, std::vector<Element>> elems;
   std::vector<std::string> order;
   std::ifstream in(stab_path);
@@ -519,23 +527,73 @@ int certify(const std::string& stab_path, const std::string& root, const std::st
   std::string line;
   if (!std::getline(in, line) || line != std::string("# ") + kStabilizersIdentity)
     throw std::runtime_error(stab_path + ": bad header");
+  std::string current;
+  size_t declared = 0, declared_unitary = 0, unitary = 0;
+  bool footer = false;
+  const auto complete_ray = [&] {
+    if (!current.empty() && (elems.at(current).size() != declared || unitary != declared_unitary))
+      throw std::runtime_error(stab_path + ": declared element counts differ for " + current);
+  };
   while (std::getline(in, line)) {
-    if (line.rfind("elem ", 0) != 0) continue;
+    if (line.empty() || line.starts_with('#')) continue;
     std::istringstream ls(line);
     std::string tag, label, kdet, kf, kchi;
+    ls >> tag;
+    if (footer) throw std::runtime_error(stab_path + ": record after footer");
+    if (tag == "end") {
+      complete_ray();
+      std::string count, tail;
+      if (!(ls >> count) || (ls >> tail) ||
+          static_cast<size_t>(unsigned_decimal(count, INT64_MAX, stab_path)) != order.size())
+        throw std::runtime_error(stab_path + ": invalid footer count");
+      footer = true;
+      continue;
+    }
+    if (tag == "ray") {
+      complete_ray();
+      std::string kd, d, ko, o, ks, status, kg, group_count, ku, unitary_count;
+      if (!(ls >> label >> kd >> d >> ko >> o >> ks >> status >> kg >> group_count >> ku >>
+            unitary_count) ||
+          kd != "d" || ko != "order" || ks != "status" || kg != "group_order" ||
+          ku != "unitary_order" || !by_label.contains(label) ||
+          unsigned_decimal(d, 1L << 24, stab_path) != by_label.at(label).d ||
+          !elems.try_emplace(label).second)
+        throw std::runtime_error(stab_path + ": invalid or duplicate ray declaration: " + line);
+      declared = unsigned_decimal(group_count, INT_MAX, stab_path);
+      declared_unitary = unsigned_decimal(unitary_count, INT_MAX, stab_path);
+      if (!declared_unitary || declared_unitary > declared)
+        throw std::runtime_error(stab_path + ": invalid declared element counts");
+      current = label;
+      order.push_back(label);
+      unitary = 0;
+      continue;
+    }
+    if (tag != "elem" || current.empty())
+      throw std::runtime_error(stab_path + ": unexpected table record: " + line);
     Element el;
     long long s = 0, a = 0, b = 0, c = 0, e = 0, x = 0, y = 0;
-    if (!(ls >> tag >> label >> el.index >> kdet >> s >> kf >> a >> b >> c >> e >> kchi >> x >>
-          y) ||
-        kdet != "det" || kf != "F" || kchi != "chi")
+    if (!(ls >> label >> el.index >> kdet >> s >> kf >> a >> b >> c >> e >> kchi >> x >> y) ||
+        kdet != "det" || kf != "F" || kchi != "chi" || label != current ||
+        elems.at(label).size() >= declared || el.index != static_cast<int>(elems.at(label).size()))
       throw std::runtime_error(stab_path + ": bad element line: " + line);
     el.sign = s;
     el.F = {a, b, c, e};
     el.chi1 = x;
     el.chi2 = y;
-    if (!elems.count(label)) order.push_back(label);
-    elems[label].push_back(el);
+    unitary += el.sign == 1;
+    elems.at(label).push_back(el);
   }
+  if (in.bad() || !footer) throw std::runtime_error(stab_path + ": missing or unreadable footer");
+  if (order.empty())
+    throw std::runtime_error(stab_path + ": table does not cover the catalogue rays");
+  if (!dimension) dimension = by_label.at(order.front()).d;
+  const auto expected =
+      std::count_if(by_label.begin(), by_label.end(),
+                    [dimension](const auto& ray) { return ray.second.d == dimension; });
+  if (order.size() != static_cast<size_t>(expected) ||
+      std::any_of(order.begin(), order.end(),
+                  [&](const auto& label) { return by_label.at(label).d != dimension; }))
+    throw std::runtime_error(stab_path + ": table does not cover the catalogue rays");
   bool all = true;
   double worst = 0;
   std::size_t checked = 0;
@@ -544,6 +602,7 @@ int certify(const std::string& stab_path, const std::string& root, const std::st
     if (it == by_label.end()) throw std::runtime_error("ray " + label + " is not in the catalogue");
     const Int d = it->second.d;
     const Int modulus = stabilizer::dbar_of(d);
+    std::set<std::tuple<Int, Int, Int, Int, Int, Int, Int>> seen;
     for (auto& element : elems[label]) {
       element.F = stabilizer::reduce(element.F, modulus);
       const auto& f = element.F;
@@ -552,7 +611,11 @@ int certify(const std::string& stab_path, const std::string& root, const std::st
         throw std::runtime_error("element determinant differs from its sign");
       element.chi1 = stabilizer::mod(element.chi1, 2 * d);
       element.chi2 = stabilizer::mod(element.chi2, 2 * d);
+      if (!seen.emplace(element.sign, f.a, f.b, f.c, f.e, element.chi1, element.chi2).second)
+        throw std::runtime_error("duplicate stabilizer element");
     }
+    if (!seen.contains({1, 1, 0, 0, 1, 0, 0}))
+      throw std::runtime_error("stabilizer ray lacks the identity");
     AcbVec phi(d), u(d);
     if (it->second.json.empty()) {
       const auto balls =

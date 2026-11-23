@@ -74,6 +74,8 @@
     "${PROJECT_SOURCE_DIR}/src/exact/group/maximal_order_orbits.hpp"
     "${PROJECT_SOURCE_DIR}/src/exact/group/orbit_table.cpp"
     "${PROJECT_SOURCE_DIR}/src/exact/group/orbit_table.hpp"
+    "${PROJECT_SOURCE_DIR}/src/exact/group/ray_selection.cpp"
+    "${PROJECT_SOURCE_DIR}/src/exact/group/ray_selection.hpp"
     "${PROJECT_SOURCE_DIR}/src/exact/runtime/disk_budget.cpp"
     "${PROJECT_SOURCE_DIR}/src/exact/runtime/disk_budget.hpp"
     "${PROJECT_SOURCE_DIR}/src/exact/runtime/memory/ball_storage.cpp"

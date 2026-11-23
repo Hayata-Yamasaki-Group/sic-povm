@@ -17,6 +17,7 @@
 #include "exact/arithmetic/maximal_order.hpp"
 #include "exact/certification/reconstruction/ghost.hpp"
 #include "exact/group/group.hpp"
+#include "sicx/codec/ray_list.hpp"
 #include "exact/storage/completed_class_cache.hpp"
 #include "exact/storage/ghost_class_backing.hpp"
 #include "exact/storage/leaf_source.hpp"
@@ -368,6 +369,7 @@ class Construction {
   std::unique_ptr<QuarantineOutput> quarantine;
   std::string quarantine_name;
   sic::sicx::Digest completed_root{};
+  sic::sicx::RayList selected_rays;
   std::unique_ptr<sic::sicx::ProducerWriter> open_writer(const sic::sicx::Meta&,
                                                          const sic::sicx::StreamOptions&);
   const std::vector<GeneratorChoice>* evaluation_choices = nullptr;

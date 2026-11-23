@@ -77,35 +77,32 @@ export function checkExampleCoverage(documents=load,sources=load) {
   assert(documents('docs/data.md').includes('example is compiled and run on a CSV fixture in CTest.'),
     'prose: example coverage scope');
   assert(sources('cpp/cmake/checks/Docs.cmake').includes(
-    'sic_register_standalone_example(SOURCE read_fiducial.cpp TARGET read-fiducial\n  TEST sic_test_core_read_fiducial_csv_d16\n  ARGS "${PROJECT_SOURCE_DIR}/tests/fixtures/numeric/d16/m1/c1/fiducial-fp64.csv")'),
+    'sic_register_standalone_example(SOURCE read_fiducial.cpp TARGET read-fiducial\n  TEST sic_test_core_read_fiducial_csv\n  ARGS "${PROJECT_BINARY_DIR}/test-vectors/d2/fiducial-fp64.csv")'),
     'prose: example coverage registration');
 }
 export function checkRecipeParameters(documents=load,sources=load) {
   const section=between(documents('docs/reproduce.md'),'## Per-multiplet commands','## Dimension-two checks');
   const options=sources('cpp/src/construct/model/alignment_options.hpp');
-  const constants={
-    '--alignment-train':'kAlignmentTrain', '--alignment-candidates':'kAlignmentCandidates',
-    '--alignment-sweeps':'kAlignmentSweeps', '--alignment-seed':'kAlignmentSeed',
-  };
+  for (const [field, constant] of Object.entries({
+    selector:'kAlignmentSelector', train:'kAlignmentTrain', candidates:'kAlignmentCandidates',
+    sweeps:'kAlignmentSweeps', seed:'kAlignmentSeed',
+  })) {
+    assert(new RegExp('\\b'+field+' = '+constant+'\\b').test(options),
+      'prose: recipe default owner changed for '+field);
+  }
   const expected=['d2/m1','d4/m1','d8/m1','d8/m2','d16/m1','d32/m1','d64/m1',
     'd128/m1','d128/m2','d256/m1','d512/m1','d512/m2','d1024/m1','d1024/m2','d2048/m1'];
-  const recipes=[...section.matchAll(/^### (d[0-9]+\/m[0-9]+):[^\n]*\n([\s\S]*?)(?=^### |$(?![\s\S]))/gm)];
+  const recipes=[...section.matchAll(/^### (d[0-9]+\/m[0-9]+): (standard|maximal) order\n([\s\S]*?)(?=^### |$(?![\s\S]))/gm)];
   assert.deepEqual(recipes.map(match=>match[1]),expected,'prose: recipe identity coverage changed');
   const commands=recipes.map(match=>{
-    const found=[...match[2].replace(/\\\n/g,' ').matchAll(/^[ \t]*sic-construct [^\n]+/gm)];
+    const found=[...match[3].replace(/\\\n/g,' ').matchAll(/^[ \t]*sic-construct [^\n]+/gm)];
     assert.equal(found.length,1,'prose: missing/duplicate construction recipe '+match[1]);
-    return found[0];
+    const command = found[0][0].trim();
+    const exponent = Math.log2(Number(/^d([0-9]+)/.exec(match[1])[1]));
+    assert.equal(command, 'sic-construct '+exponent+' --out "$FILE" --rays-out "$FILE.rays.json" --order ' +
+      match[2]+' --threads "$T" --memory-mib "$M"', 'prose: recipe arguments differ '+match[1]);
+    return command;
   });
-  for(const [command] of commands) {
-    assert(command.includes('--generator-selector conjugate-alignment'),
-      'prose: recipe selector changed');
-    for(const [flag,name] of Object.entries(constants)) {
-      const value=options.match(new RegExp(name+' = ([0-9]+);'));
-      const actual=command.match(new RegExp(flag+' ([0-9]+)(?: |$)'));
-      assert(value&&actual,'prose: missing recipe parameter '+flag);
-      assert.equal(actual[1],value[1],'prose: recipe parameter differs '+flag);
-    }
-  }
   return commands.length;
 }
 export function checkSmallCertificateBinding(documents=load) {
@@ -131,17 +128,16 @@ export function checkProseContracts(){
   refuses(()=>checkWorkedFixture(doc.replace('Fixture SHA-256: '+digest(fixture),'Fixture SHA-256: '+'0'.repeat(64)),fixture),/prose:/);
   refuses(()=>checkWorkedFixture(doc.replace('Footer bytes:\n```text\n','Footer bytes:\n```text\n00'),fixture),/prose:/);
   refuses(()=>checkExampleCoverage(p=>load(p).replace('on a CSV fixture','on CSV, NPY and text fixtures')),/prose:/);
-  refuses(()=>checkExampleCoverage(load,p=>load(p).replace('TEST sic_test_core_read_fiducial_csv_d16','TEST sic_test_core_example_removed')),/prose:/);
+  refuses(()=>checkExampleCoverage(load,p=>load(p).replace('TEST sic_test_core_read_fiducial_csv','TEST sic_test_core_example_removed')),/prose:/);
   refuses(()=>checkExampleCoverage(load,p=>load(p).replace('TARGET read-fiducial','TARGET missing-example')),/prose:/);
   refuses(()=>checkSmallCertificateBinding(p=>p.endsWith('shell_bindings.json')?load(p).replace('\"count\": 2','\"count\": 1'):load(p)),/prose: certificate binding count/);
-  refuses(()=>checkRecipeParameters(p=>load(p).replace('--alignment-train 64','--alignment-train 65')),/prose: recipe parameter differs/);
-  refuses(()=>checkRecipeParameters(load,p=>load(p).replace('kAlignmentTrain = 64;','kAlignmentTrain = 65;')),/prose: recipe parameter differs/);
+  refuses(()=>checkRecipeParameters(p=>load(p).replace('sic-construct 11 --out','sic-construct 11 --alignment-train 65 --out')),/prose: recipe arguments differ/);
+  refuses(()=>checkRecipeParameters(load,p=>load(p).replace('train = kAlignmentTrain','train = 65')),/prose: recipe default owner changed/);
   assert.equal(checkRecipeParameters(p=>load(p).replace('sic-construct 11 --out',
     ' sic-construct 11 --out')),15,'prose: indented recipe coverage');
   refuses(()=>checkRecipeParameters(p=>load(p).replace(
-    /sic-construct 11 --out[\s\S]*?--alignment-train 64/,
-    command=>' '+command.replace('--alignment-train 64','--alignment-train 65'))),
-    /prose: recipe parameter differs/);
+    'sic-construct 11 --out', ' sic-construct 10 --out')),
+    /prose: recipe arguments differ/);
   refuses(()=>checkRecipeParameters(p=>load(p).replace('sic-construct 11 --out','omitted-command 11 --out')),/prose: missing\/duplicate construction recipe/);
   console.log('PASS schema vocabulary, decoder precision, fixture bytes and example scope; negative controls rejected');
 }

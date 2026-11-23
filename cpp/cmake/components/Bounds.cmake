@@ -21,7 +21,8 @@ function(sic_add_bounds_tests)
   set_tests_properties(sic_test_bounds_ball_bounds PROPERTIES TIMEOUT 120)
   add_test(NAME sic_test_bounds_check_balls_inputs COMMAND "${SIC_NODE_EXECUTABLE}"
     "${PROJECT_SOURCE_DIR}/tests/bounds/check_balls.mjs" "$<TARGET_FILE:sic-check-balls>"
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/numeric/d8/m2/c0/normalized-gauged.balls"
+    "${PROJECT_BINARY_DIR}/sicx-generated/d8/decoded/c0.normalized.balls"
     "${PROJECT_BINARY_DIR}/check-balls-inputs")
-  set_tests_properties(sic_test_bounds_check_balls_inputs PROPERTIES LABELS "bounds;integration" TIMEOUT 120)
+  set_tests_properties(sic_test_bounds_check_balls_inputs PROPERTIES LABELS "bounds;integration"
+    FIXTURES_REQUIRED sicx_generated_d8 TIMEOUT 120)
 endfunction()

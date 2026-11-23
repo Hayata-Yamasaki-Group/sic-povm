@@ -254,11 +254,27 @@
         ],
         "repeat": false
       },
+      "--rays-out": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
       "--order": {
         "values": "standard|maximal",
         "operands": [
           1,
           1
+        ],
+        "repeat": false
+      },
+      "--orders": {
+        "values": "",
+        "operands": [
+          0,
+          0
         ],
         "repeat": false
       },
@@ -585,6 +601,14 @@
         ],
         "repeat": false
       },
+      "--ray-list": {
+        "values": "FILE",
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": false
+      },
       "--coordinates": {
         "values": "all|A-B|A,...",
         "operands": [
@@ -694,6 +718,14 @@
         "operands": [
           0,
           0
+        ],
+        "repeat": false
+      },
+      "--rays-sha256": {
+        "values": "HEX",
+        "operands": [
+          1,
+          1
         ],
         "repeat": false
       },
@@ -2454,6 +2486,14 @@
         ],
         "repeat": true,
         "values": "JSON|TSV"
+      },
+      "--dim": {
+        "operands": [
+          1,
+          1
+        ],
+        "repeat": true,
+        "values": "D"
       },
       "--repo": {
         "operands": [

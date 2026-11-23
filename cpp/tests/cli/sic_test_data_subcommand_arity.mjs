@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
-const [bin, repo, work] = process.argv.slice(2);
+const [bin, repo, work, fixture] = process.argv.slice(2);
 fs.rmSync(work, {recursive: true, force: true});
 fs.mkdirSync(work, {recursive: true});
 const data = path.join(bin, 'sic-data');
@@ -36,7 +36,6 @@ for (const [command, usage] of Object.entries(grammar)) {
   run(data, [command, '--unknown-option'], 2);
 }
 // One real successful call for every subcommand, including both exceptional grammars.
-const fixture = path.join(repo, 'cpp/tests/fixtures/sicx/d4.sicx');
 const rays = path.join(work, 'rays');
 run(inspect, [fixture, '--json-rays', rays, '--multiplet', 'm1']);
 const ray = path.join(rays, 'c0.json');

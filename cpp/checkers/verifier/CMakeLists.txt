@@ -105,18 +105,20 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR OR SIC_BUILD_TESTS)
   set_tests_properties(sic_test_verifier_selftest sic_test_verifier_final_fixtures PROPERTIES LABELS "verifier;integration" TIMEOUT 120)
 endif()
 if(TARGET sic-test-verifier-fixtures)
+  set(_verifier_fixture "${CMAKE_CURRENT_BINARY_DIR}/fixtures/d4-valid-final.sicx")
   add_test(NAME sic_test_verifier_option_extra_bits COMMAND ${CMAKE_COMMAND}
     -DCHECKER=$<TARGET_FILE:sic-verify-independent>
-    -DFIXTURE=${CMAKE_CURRENT_SOURCE_DIR}/../../tests/fixtures/sicx/d4.sicx
+    -DFIXTURE=${_verifier_fixture}
     -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/extra_bits_cli.cmake)
-  set_tests_properties(sic_test_verifier_option_extra_bits PROPERTIES LABELS integration TIMEOUT 120)
+  set_tests_properties(sic_test_verifier_option_extra_bits PROPERTIES LABELS integration TIMEOUT 120
+    FIXTURES_REQUIRED verifier_fixtures)
   add_test(NAME sic_test_verifier_positional_arity COMMAND ${CMAKE_COMMAND}
     -DCHECKER=$<TARGET_FILE:sic-verify-independent>
-    -DFIXTURE=${CMAKE_CURRENT_SOURCE_DIR}/../../tests/fixtures/sicx/d4.sicx
+    -DFIXTURE=${_verifier_fixture}
     -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/positional_arity.cmake)
-  set_tests_properties(sic_test_verifier_positional_arity PROPERTIES LABELS "integration;verifier" TIMEOUT 20)
+  set_tests_properties(sic_test_verifier_positional_arity PROPERTIES LABELS "integration;verifier" TIMEOUT 20
+    FIXTURES_REQUIRED verifier_fixtures)
   set_tests_properties(sic_test_verifier_final_fixtures PROPERTIES FIXTURES_SETUP verifier_fixtures)
-  set(_verifier_fixture "${CMAKE_CURRENT_BINARY_DIR}/fixtures/d4-valid-final.sicx")
   set(_verifier_exact "e4915c9c32912b1f0ecd4fe2af5c001fedbe0a3299f4161e251d25684088d7e1")
   sic_add_verdict_test(NAME sic_test_support_cli_full EXIT 0 COMMAND sic-verify-independent "${_verifier_fixture}"
     --decode full --release --expect-exact-root "${_verifier_exact}"
@@ -167,16 +169,19 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   endforeach()
 endif()
 
-if(TARGET sic-test-verifier-fixtures AND
-   EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/fixtures/sicx/d4.sicx" AND
-   EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/fixtures/sicx/canonical/d64.sicx")
+if(TARGET sic-test-verifier-fixtures AND DEFINED _generated_d64)
   foreach(_case full_low full_sufficient full_mixed auto_low auto_release ratio_low)
     add_test(NAME sic_test_verifier_budget_${_case} COMMAND ${CMAKE_COMMAND}
       -DVERIFY=$<TARGET_FILE:sic-verify-independent>
-      -DFIXTURE_D4=${CMAKE_CURRENT_SOURCE_DIR}/../../tests/fixtures/sicx/d4.sicx
-      -DFIXTURE_D64=${CMAKE_CURRENT_SOURCE_DIR}/../../tests/fixtures/sicx/canonical/d64.sicx
+      -DFIXTURE_D4=${_generated_d4}
+      -DFIXTURE_D64=${PROJECT_BINARY_DIR}/sicx-generated/d64/verifier-budget.sicx
       -DCASE=${_case} -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/decode_budget.cmake)
-    set_tests_properties(sic_test_verifier_budget_${_case} PROPERTIES LABELS "verifier;integration" TIMEOUT 120)
+    set(fixture sicx_generated_d4)
+    if(_case MATCHES "^(full_mixed|auto_release|ratio_low)$")
+      set(fixture sicx_generated_d64)
+    endif()
+    set_tests_properties(sic_test_verifier_budget_${_case} PROPERTIES LABELS "verifier;integration"
+      FIXTURES_REQUIRED "${fixture}" TIMEOUT 120)
   endforeach()
 endif()
 

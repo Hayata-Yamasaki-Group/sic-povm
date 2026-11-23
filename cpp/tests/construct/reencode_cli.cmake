@@ -2,7 +2,7 @@
 file(REMOVE_RECURSE "${WORK}")
 file(MAKE_DIRECTORY "${WORK}")
 foreach(name d2 d4 d8 d8-maximal d16 d32)
-  set(input "${FIXTURES}/${name}.sicx")
+  set(input "${FIXTURES}/${name}/${name}.sicx")
   set(output "${WORK}/${name}.sicx")
   execute_process(COMMAND "${PROGRAM}" reencode "${input}" "${output}" --threads 2
     RESULT_VARIABLE status OUTPUT_VARIABLE out ERROR_VARIABLE err)
@@ -15,17 +15,17 @@ foreach(name d2 d4 d8 d8-maximal d16 d32)
     message(FATAL_ERROR "reencode changed ${name} bytes")
   endif()
 endforeach()
-execute_process(COMMAND "${PROGRAM}" reencode "${FIXTURES}/d4.sicx" "${WORK}/policy.sicx"
+execute_process(COMMAND "${PROGRAM}" reencode "${FIXTURES}/d4/d4.sicx" "${WORK}/policy.sicx"
   --maximum-precision 131072 RESULT_VARIABLE status OUTPUT_VARIABLE out ERROR_VARIABLE err)
 if(NOT status EQUAL 0)
   message(FATAL_ERROR "reencode raised precision policy failed: ${out}\n${err}")
 endif()
-file(SHA256 "${FIXTURES}/d4.sicx" before)
+file(SHA256 "${FIXTURES}/d4/d4.sicx" before)
 file(SHA256 "${WORK}/policy.sicx" after)
 if(NOT before STREQUAL after)
   message(FATAL_ERROR "raised precision policy changed bytes")
 endif()
-execute_process(COMMAND "${PROGRAM}" reencode "${FIXTURES}/d4.sicx" "${WORK}/bad-policy.sicx"
+execute_process(COMMAND "${PROGRAM}" reencode "${FIXTURES}/d4/d4.sicx" "${WORK}/bad-policy.sicx"
   --maximum-precision 128 RESULT_VARIABLE status)
 if(NOT status EQUAL 2 OR EXISTS "${WORK}/bad-policy.sicx")
   message(FATAL_ERROR "invalid precision ceiling was not refused before publication")

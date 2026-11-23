@@ -32,9 +32,9 @@ function(sic_register_standalone_example)
   set_tests_properties(${EXAMPLE_TEST} PROPERTIES LABELS docs)
 endfunction()
 sic_register_standalone_example(SOURCE read_fiducial.cpp TARGET read-fiducial
-  TEST sic_test_core_read_fiducial_csv_d16
-  ARGS "${PROJECT_SOURCE_DIR}/tests/fixtures/numeric/d16/m1/c1/fiducial-fp64.csv")
-set_tests_properties(sic_test_core_read_fiducial_csv_d16 PROPERTIES LABELS docs)
+  TEST sic_test_core_read_fiducial_csv
+  ARGS "${PROJECT_BINARY_DIR}/test-vectors/d2/fiducial-fp64.csv")
+set_tests_properties(sic_test_core_read_fiducial_csv PROPERTIES LABELS docs)
 file(GLOB _doc_files CONFIGURE_DEPENDS "${_docs_root}/docs/*.md")
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${_doc_files})
 execute_process(COMMAND "${SIC_NODE_EXECUTABLE}" "${_docs_root}/scripts/docs/extract_examples.mjs" "${_docs_root}/docs" "${PROJECT_BINARY_DIR}/doc-examples" RESULT_VARIABLE _examples_result)
@@ -124,6 +124,11 @@ foreach(check help_contract source_claims documented_defaults claim_registry sym
     "${_docs_root}/scripts/docs/${script}" ${args})
   set_tests_properties(sic_test_policy_${check} PROPERTIES LABELS "unit;policy" TIMEOUT 120)
 endforeach()
+if(TARGET sic-construct AND TARGET sic-decode)
+  set_tests_properties(sic_test_policy_help_contract PROPERTIES FIXTURES_REQUIRED sicx_generated_d4)
+  set_tests_properties(sic_test_policy_documented_defaults sic_test_policy_claim_registry
+    PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4;sicx_generated_d8")
+endif()
 set_tests_properties(sic_test_support_docs_links sic_test_support_docs_fixture_inventory
   PROPERTIES LABELS "unit;policy;docs" TIMEOUT 30)
 if(TARGET sic-construct AND TARGET sic-decode)

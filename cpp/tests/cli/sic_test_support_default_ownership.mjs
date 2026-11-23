@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {discover, inspect} from './ownership_policy.mjs';
-const [repo, bin] = process.argv.slice(2);
+const [repo, bin, balls] = process.argv.slice(2);
 const files = discover(repo);
 const audit = inspect(files);
 const failures = [...audit.violations];
@@ -159,8 +159,8 @@ const h = spawnSync(checkTool, ['--help'], {encoding: 'utf8', timeout: 10000});
 assert.ifError(h.error);
 assert.equal(h.status, 0, h.stderr);
 const tolerance = Number(h.stdout.match(/TOL=([^\]]+)/)[1]);
-const result = spawnSync(checkTool, [path.join(repo, 'cpp/tests/fixtures/core/d4_sic_from_ghost.txt')],
-  {encoding: 'utf8', timeout: 10000});
+const result = spawnSync(checkTool, ['-'],
+  {input: '3\n0 0\n1 0\n-1 0\n', encoding: 'utf8', timeout: 10000});
 assert.ifError(result.error);
 assert.equal(result.status, 0, result.stderr);
 check(Number(result.stdout.match(/tol = ([^)]+)/)[1]) === tolerance, 'sic-check positional tolerance default');
@@ -170,7 +170,7 @@ if (fs.existsSync(ballTool)) {
   assert.ifError(help.error);
   assert.equal(help.status, 0, help.stderr);
   const value = option => Number(help.stdout.split('\n').find(line => line.startsWith(`  --${option} `)).match(/\(default (\d+)(?:[;)])/)[1]);
-  const checked = spawnSync(ballTool, [path.join(repo, 'cpp/tests/fixtures/numeric/d8/m2/c0/normalized-gauged.balls')],
+  const checked = spawnSync(ballTool, [balls],
     {encoding: 'utf8', timeout: 10000});
   assert.ifError(checked.error);
   assert.equal(checked.status, 0, checked.stderr);

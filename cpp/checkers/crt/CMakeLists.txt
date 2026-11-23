@@ -83,33 +83,38 @@ if(SIC_BUILD_TESTS)
     -DCERTIFICATE=$<TARGET_FILE:sic-certify-crt> -DOUTPUT=${CMAKE_CURRENT_BINARY_DIR}/input-cli
     -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_cli.cmake)
   set_tests_properties(sic_test_crt_input_cli PROPERTIES LABELS "crt;crt-input" TIMEOUT 60)
-  set(_fx ${SIC_TEST_FIXTURES_DIR})
   foreach(_case primes seed prec integral_max_dim partial_metadata)
     set(_checker sic-certify-crt)
     if(_case STREQUAL "partial_metadata")
       set(_checker sic-check-crt-input)
     endif()
     add_test(NAME sic_test_crt_option_${_case} COMMAND ${CMAKE_COMMAND}
-      -DCHECKER=$<TARGET_FILE:${_checker}> -DFIXTURE=${_fx}/d4.sicx -DCASE=${_case}
+      -DCHECKER=$<TARGET_FILE:${_checker}> -DFIXTURE=${_generated_d4} -DCASE=${_case}
       -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/options_cli.cmake)
-    set_tests_properties(sic_test_crt_option_${_case} PROPERTIES LABELS "crt;integration" TIMEOUT 120)
+    set_tests_properties(sic_test_crt_option_${_case} PROPERTIES LABELS "crt;integration" TIMEOUT 120
+      FIXTURES_REQUIRED sicx_generated_d4)
   endforeach()
-  sic_add_verdict_test(NAME sic_test_crt_d4_bound_only EXIT 0 COMMAND sic-certify-crt ${_fx}/d4.sicx --threads 2 --bound-only)
+  sic_add_verdict_test(NAME sic_test_crt_d4_bound_only EXIT 0 COMMAND sic-certify-crt ${_generated_d4} --threads 2 --bound-only)
   set_tests_properties(sic_test_crt_d4_bound_only PROPERTIES LABELS "crt;integration" TIMEOUT 120
+    FIXTURES_REQUIRED sicx_generated_d4
     PASS_REGULAR_EXPRESSION "split-prime structure checks and bound reconstruction completed[^\n]*residual certificate primes skipped"
     FAIL_REGULAR_EXPRESSION "no modular checks run|RESULT: EXACT SIC")
   foreach(_case d4 d8 d8-maximal d16 d32)
+    string(REPLACE "-" "_" _fixture "${_case}")
     string(REPLACE "-" "_" _sic_test_case_2 "sic_test_crt_${_case}")
-  sic_add_verdict_test(NAME ${_sic_test_case_2} EXIT 0 COMMAND sic-certify-crt ${_fx}/${_case}.sicx --threads 2)
-    set_tests_properties(${_sic_test_case_2} PROPERTIES LABELS "crt;integration" PASS_REGULAR_EXPRESSION "RESULT: EXACT SIC[^\n]*\\[PROVED\\]")
+  sic_add_verdict_test(NAME ${_sic_test_case_2} EXIT 0 COMMAND sic-certify-crt ${_generated_${_case}} --threads 2)
+    set_tests_properties(${_sic_test_case_2} PROPERTIES LABELS "crt;integration"
+      FIXTURES_REQUIRED "sicx_generated_${_fixture}" PASS_REGULAR_EXPRESSION "RESULT: EXACT SIC[^\n]*\\[PROVED\\]")
   endforeach()
   foreach(_fault rep act conj)  # negative controls: a perturbed rep / action record / conjugation word must fail
-  sic_add_verdict_test(NAME sic_test_crt_d16_inject_${_fault} EXIT 1 COMMAND sic-certify-crt ${_fx}/d16.sicx --threads 2 --inject ${_fault})
+  sic_add_verdict_test(NAME sic_test_crt_d16_inject_${_fault} EXIT 1 COMMAND sic-certify-crt ${_generated_d16} --threads 2 --inject ${_fault})
     set_tests_properties(sic_test_crt_d16_inject_${_fault} PROPERTIES LABELS "crt;integration"
+      FIXTURES_REQUIRED sicx_generated_d16
       PASS_REGULAR_EXPRESSION "RESULT: FAILED|REFUSED:" FAIL_REGULAR_EXPRESSION "NEGATIVE-CONTROL|\\[PROVED\\]")
   endforeach()
-  sic_add_verdict_test(NAME sic_test_crt_d16_shift_retry EXIT 0 COMMAND sic-certify-crt ${_fx}/d16.sicx --threads 2 --no-shift-hints)
+  sic_add_verdict_test(NAME sic_test_crt_d16_shift_retry EXIT 0 COMMAND sic-certify-crt ${_generated_d16} --threads 2 --no-shift-hints)
   set_tests_properties(sic_test_crt_d16_shift_retry PROPERTIES LABELS "crt;integration"
+    FIXTURES_REQUIRED sicx_generated_d16
     PASS_REGULAR_EXPRESSION "level 1: G_1 = 2\\^[1-4] g_1 PROVED[^\n]*J=0 not integral.*RESULT: EXACT SIC[^\n]*\\[PROVED\\]")
   sic_add_verdict_test(NAME sic_test_crt_help EXIT 0 COMMAND sic-certify-crt --help)
   set_tests_properties(sic_test_crt_help PROPERTIES LABELS crt PASS_REGULAR_EXPRESSION "exit codes: 0 proved")

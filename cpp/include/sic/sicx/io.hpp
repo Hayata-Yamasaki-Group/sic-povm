@@ -74,6 +74,8 @@ struct ParsedLeaf {
 //    merge_parts(); the merged file equals a single-writer run byte for byte.
 //  * Fault injection (tests): SIC_FAULT_KILL_AT_BYTE=N raises SIGKILL once the data file
 //    reaches N bytes (mid-chunk), SIC_FAULT_KILL_AFTER_CHUNKS=K after K durable chunks.
+using WorkspaceAdmission = std::function<void(const char*, uint64_t)>;
+
 struct StreamOptions {
   bool durable = true;
   bool resume = false;
@@ -81,6 +83,9 @@ struct StreamOptions {
   Digest plan{};      // identifies the producer input and options; must match on resume
   bool part = false;  // private bare-chunk spool
   std::function<void(const std::filesystem::path&)> before_publish;
+  WorkspaceAdmission admit_workspace;
+  // The descriptor is borrowed for this call and refers to the synced output.
+  std::function<void(const std::filesystem::path&, int, const Digest&)> verify_output;
   StreamOptions(bool d = true, bool r = false, Digest p = {}, bool bare_part = false,
                 std::function<void(const std::filesystem::path&)> validate = {});
 };
@@ -112,7 +117,8 @@ class StreamWriter {
   void put_note(const std::string& key, const ByteBuffer& value);
   void adopt(size_t n);
   static std::vector<IndexEntry> peek_journal(const std::filesystem::path& journal,
-                                              Digest* plan = nullptr);
+                                              Digest* plan = nullptr,
+                                              const WorkspaceAdmission& admit = {});
   static ByteBuffer read_chunk_at(const std::filesystem::path& file, const IndexEntry& e,
                                   const ResourceLimits& limits = {});
   void abandon();

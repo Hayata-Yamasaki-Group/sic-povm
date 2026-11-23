@@ -7,6 +7,7 @@ import {createHash} from 'node:crypto';
 import {startServer} from './server.mjs';
 
 const [which, bin, fixtures, work, enabled] = process.argv.slice(2);
+const generated = name => path.join(fixtures, name, name + '.sicx');
 const httpEnabled = enabled === 'ON';
 await fs.rm(work, {recursive: true, force: true}); await fs.mkdir(work, {recursive: true});
 let checks = 0;
@@ -70,7 +71,7 @@ async function entries(dir) {
 function remote(manifest, source, cache = path.join(work, 'cache')) {
   return ['--remote', manifest, '--source', source, '--cache', cache, '--remote-max-fraction', '1'];
 }
-const file = path.join(fixtures, 'd4.sicx');
+const file = generated('d4');
 const data = await fs.readFile(file);
 const parts = await split(file);
 const server = httpEnabled ? await startServer(parts.dir) : null;
@@ -302,7 +303,7 @@ try {
     const mismatch = await run('sic-verify', [...remote(bad, parts.dir, path.join(work, 'wrong-size-cache')), '--quick'], {ok: false});
     check(/size|end/.test(mismatch.stderr), 'manifest size mismatch rejected');
   } else if (which === 'schedule') {
-    const fixture = path.join(fixtures, 'd16.sicx'), bytes = await fs.readFile(fixture);
+    const fixture = generated('d16'), bytes = await fs.readFile(fixture);
     const dir = path.join(work, 'one-part');
     await run('sic-container', ['split', fixture, '--out', dir, '--asset-prefix', 'd16-m1']);
     const manifest = path.join(dir, 'multiplet.sicx.parts.json');
@@ -394,7 +395,7 @@ try {
   } else if (which === 'decode') {
     const cases = ['d2', 'd4', 'd8', 'd8-maximal', 'd16', 'd32', 'd64'];
     for (const name of cases) {
-      let fixture = path.join(fixtures, name + '.sicx');
+      let fixture = generated(name);
       let extra = [];
       if (name === 'd64') {
         fixture = path.join(work, 'd64.sicx');

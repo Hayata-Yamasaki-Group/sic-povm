@@ -5,6 +5,7 @@
 #include <sys/resource.h>
 #include <sys/statvfs.h>
 
+#include <numeric>
 #include <atomic>
 #include <bit>
 #include <chrono>
@@ -40,6 +41,7 @@
 #include "exact/group/group_checkpoint.hpp"
 #include "exact/group/group_fourier.hpp"
 #include "exact/group/maximal_order_orbits.hpp"
+#include "exact/group/ray_selection.hpp"
 #include "exact/runtime/newton_class_memory.hpp"
 #include "exact/runtime/parallel.hpp"
 #include "exact/storage/analytic_generator.hpp"
@@ -113,6 +115,12 @@ int Construction::group_stage() try {  // Construct the group G'.
       sic::support::progressf("validated exact group checkpoint saved: %s [%.1fs]\n", group_cache,
                               stamp());
     }
+  }
+  if (!producer_options.rays_out.empty()) {
+    sic::support::progressf("ray selection started [%.6fs]\n", stamp());
+    selected_rays = select_rays(*group_, unit_power ? cycle_unit.k : 1, nth, budget);
+    sic::support::progressf("ray selection complete: %zu rays [%.6fs]\n",
+                            selected_rays.words.size(), stamp());
   }
   // sigma_(a) for odd a mod 2d (Artin symbols of positive rational integers): (Z/2d)^* = <-1> x
   // <5>, so sigma_(a) = sigma_(5)^k sigma_(-1)^e.

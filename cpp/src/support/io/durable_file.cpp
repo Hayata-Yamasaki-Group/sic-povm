@@ -2,6 +2,7 @@
 #include "sic/support/durable_file.hpp"
 
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include <algorithm>
@@ -104,6 +105,29 @@ void publish_no_replace(const std::filesystem::path& from, const std::filesystem
 #endif
   if (::link(from.c_str(), to.c_str())) file_detail::error("cannot publish " + to.string());
   if (::unlink(from.c_str())) file_detail::error("cannot remove private output " + from.string());
+}
+
+void publish_pinned_no_replace(int fd, const std::filesystem::path& from,
+                               const std::filesystem::path& to) {
+  struct stat checked;
+  struct stat named;
+  if (::fstat(fd, &checked) || !S_ISREG(checked.st_mode))
+    throw sic::Error(sic::ErrorKind::io, "cannot stat pinned output " + from.string());
+  const auto still_named = [&] {
+    return !::lstat(from.c_str(), &named) && S_ISREG(named.st_mode) &&
+           named.st_dev == checked.st_dev && named.st_ino == checked.st_ino;
+  };
+#if defined(__linux__)
+  const auto pinned = "/proc/self/fd/" + std::to_string(fd);
+  if (::linkat(AT_FDCWD, pinned.c_str(), AT_FDCWD, to.c_str(), AT_SYMLINK_FOLLOW))
+    file_detail::error("cannot publish pinned output " + to.string());
+  if (still_named() && ::unlink(from.c_str()))
+    file_detail::error("cannot remove private output " + from.string());
+#else
+  if (!still_named())
+    throw sic::Error(sic::ErrorKind::integrity, "pinned output changed: " + from.string());
+  publish_no_replace(from, to);
+#endif
 }
 }  // namespace sic::support
 

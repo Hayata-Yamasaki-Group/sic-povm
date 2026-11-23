@@ -176,6 +176,7 @@ isolation, compiler and install policy checks run in their applicable modes.
 
 <!-- test-heavy -->
 - `^sic_test_search_clifford_fiducials_d(128|256)$`: Large Clifford collections
+- `^sic_test_search_produce_d256$`: Exact production for the d256 Clifford collection
 - `^sic_test_construct_native_s6_phased_(default_t(1|4)(_repeat_2)?|standard_t4)$`: d64 construction
   controls
 - `^sic_test_construct_native_s7_(phased_default_t4(_repeat_2)?|auto_standard_t4)$`: d128

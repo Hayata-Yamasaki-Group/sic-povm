@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Kill/resume of the streaming writer through the tools (sic-construct, sic-decode --finalize).
-# Variables: BIN (tool directory), PRODUCER (sic-construct), WORK, S (d = 2^S), FARGS (--ray LABEL WORD ANCHOR ... for --finalize).
+# Variables: BIN (tool directory), PRODUCER (sic-construct), WORK and S (d = 2^S).
 # 1. reference: one uninterrupted producer run (release option set, clean environment);
 # 2. producer killed after K durable chunks, and killed mid-chunk at byte B; a rerun without --resume must
 #    refuse the partial file; a rerun with --resume must give identical bytes;
@@ -34,19 +34,18 @@ function(produce out)  # produce OUT [fault hook or --resume] -> status and capt
     endif()
   endforeach()
   execute_process(COMMAND "${ENV_PROGRAM}" -i "PATH=$ENV{PATH}" LC_ALL=C "ASAN_OPTIONS=$ENV{ASAN_OPTIONS}" "UBSAN_OPTIONS=$ENV{UBSAN_OPTIONS}" ${extra_env}
-    "${PRODUCER}" ${S} ${producer_flags} --out "${out}" ${extra_flags}
+    "${PRODUCER}" ${S} ${producer_flags} --out "${out}" --rays-out "${out}.rays.json" ${extra_flags}
     RESULT_VARIABLE status OUTPUT_VARIABLE out_text ERROR_VARIABLE err_text)
   set(PRODUCE_STATUS ${status} PARENT_SCOPE)
   set(PRODUCE_OUTPUT "${out_text}${err_text}" PARENT_SCOPE)
 endfunction()
 file(REMOVE_RECURSE "${WORK}")
 file(MAKE_DIRECTORY "${WORK}")
-separate_arguments(fin_args UNIX_COMMAND "${FARGS}")
-
 produce("${WORK}/ref.sicx")
 if(NOT PRODUCE_STATUS EQUAL 0)
   message(FATAL_ERROR "reference producer run failed (${PRODUCE_STATUS})\n${PRODUCE_OUTPUT}")
 endif()
+set(fin_args --ray-list "${WORK}/ref.sicx.rays.json")
 # Byte fault: the middle of the middle BODY chunk, so a torn data block and a partial adoption are exercised.
 execute_process(COMMAND "${BIN}/sic-inspect" "${WORK}/ref.sicx" --info OUTPUT_VARIABLE info RESULT_VARIABLE status)
 string(REGEX MATCHALL "chunk [0-9]+ BODY flags=[01] offset=[0-9]+ length=[0-9]+" bodies "${info}")
@@ -94,7 +93,7 @@ if(PRODUCE_STATUS EQUAL 0 OR NOT PRODUCE_OUTPUT MATCHES "plan")
   message(FATAL_ERROR "changed producer setting was not refused for its plan: ${PRODUCE_OUTPUT}")
 endif()
 foreach(fault "SIC_FAULT_KILL_AFTER_CHUNKS=7" "SIC_FAULT_KILL_AT_BYTE=${mid}" "SIC_TEST_KILL_AFTER_WRITE=1")
-  file(REMOVE "${WORK}/k.sicx" "${WORK}/k.sicx.sicx-quarantine.partial" "${WORK}/k.sicx.sicx-quarantine.partial.journal" "${WORK}/k.sicx.sicx-quarantine.spool.partial" "${WORK}/k.sicx.sicx-quarantine.spool.partial.journal")
+  file(REMOVE "${WORK}/k.sicx" "${WORK}/k.sicx.rays.json" "${WORK}/k.sicx.sicx-quarantine.partial" "${WORK}/k.sicx.sicx-quarantine.partial.journal" "${WORK}/k.sicx.sicx-quarantine.spool.partial" "${WORK}/k.sicx.sicx-quarantine.spool.partial.journal")
   produce("${WORK}/k.sicx" "${fault}")
   if(fault STREQUAL "SIC_TEST_KILL_AFTER_WRITE=1" AND NOT PRODUCE_STATUS EQUAL 86)
     message(FATAL_ERROR "completed-write hook did not exit 86: ${PRODUCE_OUTPUT}")
@@ -109,6 +108,11 @@ foreach(fault "SIC_FAULT_KILL_AFTER_CHUNKS=7" "SIC_FAULT_KILL_AT_BYTE=${mid}" "S
   if(PRODUCE_STATUS EQUAL 0 OR NOT PRODUCE_OUTPUT MATCHES "partial output exists")
     message(FATAL_ERROR "a rerun without --resume must refuse the existing partial file\n${PRODUCE_OUTPUT}")
   endif()
+  if(fault STREQUAL "SIC_TEST_KILL_AFTER_WRITE=1")
+    # Recreate the disk state after the ray list was written and before the
+    # exact SICX was published. Resume must preserve the bound list.
+    file(COPY_FILE "${WORK}/ref.sicx.rays.json" "${WORK}/k.sicx.rays.json")
+  endif()
   produce("${WORK}/k.sicx" --resume)
   if(NOT PRODUCE_STATUS EQUAL 0)
     message(FATAL_ERROR "resume after ${fault} failed (${PRODUCE_STATUS})\n${PRODUCE_OUTPUT}")
@@ -119,6 +123,7 @@ foreach(fault "SIC_FAULT_KILL_AFTER_CHUNKS=7" "SIC_FAULT_KILL_AT_BYTE=${mid}" "S
   endif()
   message(STATUS "${adopted}")
   same("${WORK}/ref.sicx" "${WORK}/k.sicx" "producer ${fault} + --resume")
+  same("${WORK}/ref.sicx.rays.json" "${WORK}/k.sicx.rays.json" "ray list after ${fault} + --resume")
 endforeach()
 # A completed quarantine without its authenticated durable journal is preserved, never discarded.
 produce("${WORK}/missing.sicx" "SIC_TEST_KILL_AFTER_WRITE=1")

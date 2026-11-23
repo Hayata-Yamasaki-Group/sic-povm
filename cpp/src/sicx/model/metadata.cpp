@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "sicx/model/metadata.hpp"
 
+#include <tuple>
+
 #include "sic/support/parse_number.hpp"
 #include "sicx/model/unit_group.hpp"
 
 namespace sic::sicx {
+std::string ray_label(std::size_t index) { return "c" + std::to_string(index); }
+
 std::vector<uint64_t> words_add(const std::vector<uint64_t>& a, const std::vector<uint64_t>& b,
                                 const std::vector<uint64_t>& smith) {
   std::vector<uint64_t> out(smith.size());
@@ -352,11 +356,8 @@ void rays_from_json(const sic::support::Json& j, Meta& m) {
   m.ball_working_bits = balls.at("working_bits").as_uint();
   if (!m.ball_working_bits || m.ball_working_bits > kMaximumWorkingBits)
     fail(sic::ErrorKind::invalid_format, "ball working_bits out of range");
-  std::map<std::string, bool> labels;
   if (j.at("rays").as_array().empty())
     fail(sic::ErrorKind::invalid_format, "RAYS must list at least one ray");
-  uint64_t previous_label = 0;
-  bool have_label = false;
   for (const auto& x : j.at("rays").as_array()) {
     x.keys({"label", "word", "anchor", "accuracy_bits"});
     Ray r;
@@ -366,25 +367,8 @@ void rays_from_json(const sic::support::Json& j, Meta& m) {
     r.accuracy_bits = x.at("accuracy_bits").as_int();
     if (r.accuracy_bits < -(1 << 20) || r.accuracy_bits > (1 << 20))
       fail(sic::ErrorKind::invalid_format, "ray accuracy_bits out of range");
-    if (r.label.size() < 2 || r.label[0] != 'c' || r.label.size() > 19 ||
-        (r.label.size() > 2 && r.label[1] == '0') ||
-        r.label.find_first_not_of("0123456789", 1) != std::string::npos)
-      fail(sic::ErrorKind::invalid_format, "invalid ray label");
-    const uint64_t label_number =
-        support::parse_number<uint64_t>(r.label.substr(1), "ray label", ErrorKind::invalid_format);
-    if (have_label && label_number <= previous_label)
-      fail(sic::ErrorKind::invalid_format, "ray labels not in numeric order");
-    previous_label = label_number;
-    have_label = true;
-    if (label_number != m.rays.size())
-      fail(sic::ErrorKind::invalid_format, "ray labels must be consecutive from c0");
-    labels[r.label] = true;
-    if (r.word.size() != m.smith.size()) fail(sic::ErrorKind::invalid_format, "ray word width");
-    for (size_t l = 0; l < m.smith.size(); ++l)
-      if (r.word[l] >= m.smith[l])
-        fail(sic::ErrorKind::invalid_format, "ray word digit out of range");
-    if (!m.rays.empty() && !(m.rays.back().word < r.word))
-      fail(sic::ErrorKind::invalid_format, "ray words must be in increasing lexicographic order");
+    validate_ray_identity(m.rays.size(), r.label, r.word, m.smith,
+                          m.rays.empty() ? nullptr : &m.rays.back().word);
     if (r.anchor >= m.d) fail(sic::ErrorKind::invalid_format, "ray anchor out of range");
     m.rays.push_back(std::move(r));
   }

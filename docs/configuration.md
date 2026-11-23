@@ -28,7 +28,7 @@ and [command help](tools.md) for the public options and precedence.
 | CMake | `SIC_DATA_EXACT_JSON_FACTOR` | Exact JSON disk forecast multiplier | 2 | data target | `cpp/cmake/components/Data.cmake` |
 | CMake | `SIC_DATA_JOBS` | Concurrent data downloads | 4 | data target | `cpp/cmake/components/Data.cmake` |
 | CMake | `SIC_DATA_MULTIPLETS` | Multiplets requested by explicit data targets | empty; no target workload | data target | `cpp/cmake/components/Data.cmake` |
-| CMake | `SIC_DATA_ROOT` | Manifest/data tree | source data directory | data target | `cpp/cmake/components/Data.cmake` |
+| CMake | `SIC_DATA_ROOT` | Manifest/data tree | empty; required when selecting multiplets | data target | `cpp/cmake/components/Data.cmake` |
 | CMake | `SIC_DATA_SOURCE` | Local mirror or release base URL | manifest release | data target | `cpp/cmake/components/Data.cmake` |
 | CMake | `SIC_DECODER_SOURCE_COMMIT` | Decoder provenance identity override | configured source identity | configure | `cpp/cmake/components/Decode.cmake` |
 | CMake | `SIC_ENABLE_FLINT` | Enable exact arithmetic components | OFF | configure | `cpp/CMakeLists.txt` |
@@ -72,7 +72,7 @@ and [command help](tools.md) for the public options and precedence.
 | environment | `SIC_NEWTON_MEMORY_AUDIT` | Print Newton memory audit | disabled | diagnostics | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_NEWTON_MEMORY_OWNERS` | Audit per-owner Newton memory | disabled | diagnostics | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_NEWTON_PHASE_MEMORY` | Trace phase memory use | disabled | diagnostics | `cpp/src/construct/model/options.cpp` |
-| environment | `SIC_ORDER` | Producer base order | automatic | producer library | `cpp/src/construct/model/options.cpp` |
+| environment | `SIC_ORDER` | Producer base order | standard | producer library | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_PARALLEL_GRAIN` | Dynamic parallel-loop chunk size override | max(1, min(1024, (work / workers) / 16)) | exact library | `cpp/src/exact/runtime/parallel.tpp` |
 | environment | `SIC_OUT` | Producer output path | unset; output path required | producer library | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_FIRST_PASS_BITS` | Initial pass precision | 128 bits | producer library | `cpp/src/construct/model/options.cpp` |
@@ -97,6 +97,10 @@ and [command help](tools.md) for the public options and precedence.
 | environment | `SIC_TDEBUG` | Trace tower calculations | disabled | diagnostics | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_TEST_CEIL1_FORCE_PRECISION_REFUSAL` | Force precision admission refusal | unset; inactive | hook build only | `cpp/src/exact/arithmetic/qk.cpp` |
 | environment | `SIC_TEST_FAIL_SIC_CHECK` | Force final SIC check failure | unset; inactive | hook build only | `cpp/src/construct/stages/sic_check.cpp` |
+| environment | `SIC_TEST_FINALIZATION_BATCH_RAYS` | Inject a resource refusal above this finalization batch size | unset; inactive | hook build only | `cpp/apps/decode/command.cpp` |
+| environment | `SIC_TEST_FINALIZATION_PACK_RAYS` | Limit simultaneously packed finalization rays | unset; inactive | hook build only | `cpp/apps/decode/command.cpp` |
+| environment | `SIC_TEST_FINALIZATION_REFUSE_FIRST_BATCH` | Inject a precision refusal on the first shared finalization pass | unset; inactive | hook build only | `cpp/src/decode/scheduling.cpp` |
+| environment | `SIC_TEST_FINALIZATION_REPLAY_FIRST_OUTPUT` | Replay the first finalization coordinate at the next precision | unset; inactive | hook build only | `cpp/apps/decode/command.cpp` |
 | environment | `SIC_TEST_INSPECT_EXACT_RENAME_FAIL` | Inject exact-JSON rename failure | unset; inactive | hook build only | `cpp/apps/inspect/command.cpp` |
 | environment | `SIC_TEST_KILL_AFTER_WRITE` | Abort after output writes | unset; inactive | hook build only | `cpp/src/construct/output/output.cpp` |
 | environment | `SIC_TEST_NEWTON_DEFER_CLASS` | Force class deferral | unset; inactive | hook build only | `cpp/src/construct/stages/table/newton_table.cpp` |

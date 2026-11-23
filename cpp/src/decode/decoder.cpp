@@ -39,6 +39,40 @@ unsigned Decoder::pool_groups() const { return state().pool_groups(); }
 ComplexBallVector Decoder::decode(const std::vector<Request>& requests) {
   return state().decode(requests);
 }
+
+ComplexBallVector DecoderAccess::decode_rays(Decoder& decoder,
+                                             const std::vector<Decoder::Request>& requests,
+                                             size_t ray_size, slong& working_bits,
+                                             bool test_replay_first) {
+  auto& state = decoder.state();
+  state.check_owner();
+  state.rebase();
+  state.working_precision_ = 0;
+  auto out = state.decode(requests, ray_size, test_replay_first);
+  working_bits = state.working_precision_;
+  return out;
+}
+
+uint64_t DecoderAccess::request_headroom(Decoder& decoder) {
+  auto& state = decoder.state();
+  state.check_owner();
+  state.rebase();
+  return state.budget_.available();
+}
+
+Pool& DecoderAccess::workers(Decoder& decoder) {
+  auto& state = decoder.state();
+  state.check_owner();
+  return *state.pool_;
+}
+
+std::unique_ptr<Pool> DecoderAccess::take_workers(Decoder&& decoder) {
+  auto& state = decoder.state();
+  state.check_owner();
+  auto workers = std::move(state.pool_);
+  decoder.impl_.reset();
+  return workers;
+}
 }  // namespace sic::decode
 
 namespace sic::decode {}  // namespace sic::decode

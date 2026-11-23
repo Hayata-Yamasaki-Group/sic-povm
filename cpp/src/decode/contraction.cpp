@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-#include "support/resources/platform_snapshot.hpp"
 #include "decode/contraction.hpp"
 
 #include "decode/decoder.hpp"
 #include "decode/input/element_source.hpp"
 #include "sic/error.hpp"
+#include "support/resources/platform_snapshot.hpp"
 
 namespace sic::decode {
 void Carry::feed(uint64_t position, unsigned first, acb_srcptr lower, bool zero) {
@@ -235,6 +235,16 @@ std::vector<ComplexBallVector> Decoder::Impl::contract_many(const Tree& tree,
     // occupancy; a plan that does not fit releases the group and halves it.
     std::unique_ptr<ReserveGuard> stream_guard;
     std::vector<size_t> group_ids;
+    struct StreamedGroup {
+      std::vector<ElementLeaves>& tower;
+      const std::vector<size_t>& ids;
+      const std::unique_ptr<ReserveGuard>& reservation;
+      void clear() const {
+        if (reservation)
+          for (size_t id : ids) tower[id].clear();
+      }
+      ~StreamedGroup() { clear(); }
+    } streamed_group{tower_, group_ids, stream_guard};
     for (;;) {
       group_ids.assign(ids.begin() + static_cast<long>(first),
                        ids.begin() + static_cast<long>(first + group));
@@ -293,7 +303,7 @@ std::vector<ComplexBallVector> Decoder::Impl::contract_many(const Tree& tree,
       }
       if (need(L, 1) <= room || group == 1) break;
       if (!stats_.tower_resident) {
-        for (auto id : group_ids) tower_[id].clear();
+        streamed_group.clear();
         stream_guard.reset();
       }
       group = std::max<size_t>(1, group / 2);
@@ -362,7 +372,7 @@ std::vector<ComplexBallVector> Decoder::Impl::contract_many(const Tree& tree,
     v.clear();
     guard.reset();  // the arrays are gone; only the results remain
     if (!stats_.tower_resident) {
-      for (auto id : group_ids) tower_[id].clear();
+      streamed_group.clear();
       stream_guard.reset();
       sic::support::resources::release_free_heap();
     }

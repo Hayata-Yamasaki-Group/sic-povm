@@ -141,7 +141,7 @@ LeafConverter::LeafConverter(int64_t D0, slong prec, uint64_t max_bits)
   }
 }
 
-sic::support::ComplexBallVector normalize(const sic::support::ComplexBallVector& v, uint64_t anchor,
+sic::support::ComplexBallVector normalize(std::span<const acb_struct> v, uint64_t anchor,
                                           slong prec) {
   const size_t d = v.size();
   sic::support::ComplexBallVector out(d), work(2);
@@ -151,11 +151,11 @@ sic::support::ComplexBallVector normalize(const sic::support::ComplexBallVector&
   arb_init(magnitude);
   arb_init(t);
   for (size_t j = 0; j < d; ++j) {
-    acb_abs(t, v[j], prec);
+    acb_abs(t, &v[j], prec);
     arb_addmul(norm2, t, t, prec);
   }
   arb_sqrt(norm, norm2, prec);
-  acb_abs(magnitude, v[anchor], prec);
+  acb_abs(magnitude, &v[anchor], prec);
   if (!arb_is_positive(norm) || !arb_is_positive(magnitude)) {
     arb_clear(norm2);
     arb_clear(norm);
@@ -163,14 +163,14 @@ sic::support::ComplexBallVector normalize(const sic::support::ComplexBallVector&
     arb_clear(t);
     fail(sic::ErrorKind::precision, "zero-containing norm or anchor");
   }
-  acb_conj(work[0], v[anchor]);
+  acb_conj(work[0], &v[anchor]);
   acb_div_arb(work[0], work[0], magnitude, prec);
   for (size_t j = 0; j < d; ++j) {
     if (j == anchor) {
       arb_div(acb_realref(out[j]), magnitude, norm, prec);
       arb_zero(acb_imagref(out[j]));
     } else {
-      acb_mul(out[j], v[j], work[0], prec);
+      acb_mul(out[j], &v[j], work[0], prec);
       acb_div_arb(out[j], out[j], norm, prec);
     }
   }

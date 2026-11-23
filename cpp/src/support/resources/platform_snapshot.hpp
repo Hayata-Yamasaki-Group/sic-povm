@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
+#include <sys/resource.h>
+
 #include <filesystem>
 #include <map>
 #include <optional>
@@ -45,6 +47,8 @@ Count process_cpu_allowance(const std::filesystem::path& proc_root = "/proc");
 int requested_threads(const char* configured);
 // Process CPU allowance capped by the caller's default worker ceiling.
 int default_threads(int ceiling);
+Bytes peak_rss_bytes(const rusage& usage);
+Bytes process_peak_rss_bytes();
 Snapshot inspect();
 bool release_free_heap();
 }  // namespace sic::support::resources

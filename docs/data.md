@@ -6,18 +6,16 @@ download and storage. See [verification](verification.md) for claim scope and
 [reproduction](reproduce.md) for construction recipes.
 
 <a id="data-1-the-data-tree-and-cataloguejson"></a>
-The source tree contains one generated d2 WH ray, shared numerical
-stabilizer tables through d1024, and the exceptional Hoggar object. The layout
-below also specifies release records; it does not assert their presence.
-The d2 transport manifest uses placeholder release coordinates; its local
-radical input and numerical records are complete, while download assets await
-publication.
+The source tree includes two data exceptions: the d2 closed form
+(`data/d2/d2.sicrad`) and the Hoggar lines (`data/d8/hoggar/`). A release run
+constructs and decodes the WH multiplets, writes their numerical files and
+manifests, computes their stabilizers, and builds the catalogue and checksums
+from those outputs. The layout below describes that generated release tree.
 Names use lowercase letters, digits and underscores, with dots only for file
 extensions. Dimension appears once as a non-padded `d<N>` directory; the sole
 exception is `d2/d2.sicrad`, whose basename is canonical SICX provenance.
 Multiplets use stable `m<M>` numbers ordered by increasing construction conductor,
-with standard/maximal order described in metadata. This accommodates both orders
-in a single dimension and future d1024 standard/d2048 tables without renaming.
+with standard/maximal order described in metadata. Run `sic-construct S --orders` to obtain the distinct orders and their conductors.
 Shared dimension data are `stabilizers.txt` and optional `all.npz`; `d8/hoggar`
 is the explicitly named non-WH object. An optional root checksum sidecar uses
 `sha256sums.txt` and covers every other data file, including the catalogue. It is
@@ -162,10 +160,10 @@ Snippets are minimal. Paths follow the release tree; replace `d8`, `m1`, `c0` as
 
 ```python
 import numpy as np
-bundle = np.load("data/d8/all.npz", allow_pickle=False)   # one member per ray
+bundle = np.load("release/d8/all.npz", allow_pickle=False)   # one member per ray
 print(bundle.files)                                          # ray ids
 psi = bundle[bundle.files[0]]                                # complex128, shape (d,)
-psi = np.load("data/d8/m1/c0.npy", allow_pickle=False)        # a single ray
+psi = np.load("release/d8/m1/c0.npy", allow_pickle=False)        # a single ray
 ```
 
 
@@ -175,7 +173,7 @@ From the JSON file (bit-exact, no binary file needed):
 ```python
 import json, struct
 import numpy as np
-r = json.load(open("data/d8/m1/c0.json"))
+r = json.load(open("release/d8/m1/c0.json"))
 f64 = lambda h: struct.unpack(">d", bytes.fromhex(h))[0]
 psi = np.array([complex(f64(re), f64(im)) for re, im in r["fp64"]["values"]])
 anchor = int(r["labels"]["anchor"])
@@ -186,14 +184,14 @@ anchor = int(r["labels"]["anchor"])
 
 ```python
 from scipy.io import loadmat
-S = loadmat("data/d8/m1/c0.mat"); psi = S["psi"].ravel(); anchor = int(S["anchor"][0, 0])
+S = loadmat("release/d8/m1/c0.mat"); psi = S["psi"].ravel(); anchor = int(S["anchor"][0, 0])
 ```
 
 <a id="data-43-matlab-and-gnu-octave"></a>
 ### 4.3 MATLAB and GNU Octave
 
 ```matlab
-S = load('data/d8/m1/c0.mat');  psi = S.psi;  d = S.d;   % psi is d x 1 complex double
+S = load('release/d8/m1/c0.mat');  psi = S.psi;  d = S.d;   % psi is d x 1 complex double
 a = S.anchor_index_1based;                              % psi(a) is real positive
 ```
 
@@ -202,18 +200,18 @@ a = S.anchor_index_1based;                              % psi(a) is real positiv
 
 ```python
 import h5py
-with h5py.File("data/d8/m1/c0.h5", "r") as f:
+with h5py.File("release/d8/m1/c0.h5", "r") as f:
     psi = f["psi"][()]                 # h5py reads compound {r, i} as complex128
     # The sic-data HDF5 writer does not store the anchor; read labels.anchor from c0.json.
 ```
 
 ```julia
 using HDF5
-psi = h5read("data/d8/m1/c0.h5", "psi")   # Vector{ComplexF64} with complex support enabled (default)
+psi = h5read("release/d8/m1/c0.h5", "psi")   # Vector{ComplexF64} with complex support enabled (default)
 ```
 
 ```matlab
-s = h5read('data/d8/m1/c0.h5', '/psi');  psi = s.r + 1i * s.i;
+s = h5read('release/d8/m1/c0.h5', '/psi');  psi = s.r + 1i * s.i;
 ```
 
 <a id="data-45-julia-npy-mat--planned"></a>
@@ -221,8 +219,8 @@ s = h5read('data/d8/m1/c0.h5', '/psi');  psi = s.r + 1i * s.i;
 
 ```julia
 using NPZ, MAT
-psi = npzread("data/d8/m1/c0.npy")
-psi = vec(matread("data/d8/m1/c0.mat")["psi"])
+psi = npzread("release/d8/m1/c0.npy")
+psi = vec(matread("release/d8/m1/c0.mat")["psi"])
 ```
 
 
@@ -358,8 +356,7 @@ and are listed separately as an exceptional entry.
 <a id="transport-getting-the-exact-data"></a>
 ## Getting the exact data
 
-Numerical data (JSON, NumPy, MATLAB, HDF5, CSV and manifests) is in git under
-`data/`. Each canonical exact object is one complete `.sicx` file. GitHub
+Numerical data (JSON, NumPy, MATLAB, HDF5, CSV and manifests) accompany a release. Each canonical exact object is one complete `.sicx` file. GitHub
 Release assets carry contiguous transport parts, each **at most 1,900,000,000
 bytes**, cut at physical chunk boundaries. Part offsets are explicit; part
 sizes vary. A small file has one part. The last part holds all finalization
@@ -376,14 +373,14 @@ flags; extensions require `required_features` bits in a later version.
 
 Needs a FLINT build. Off by default; a normal build and CTest never touch the network.
 
-    cmake -S cpp -B build -DSIC_ENABLE_FLINT=ON -DSIC_DATA_MULTIPLETS="d1024/m1;d2048/m1"
+    cmake -S cpp -B build -DSIC_ENABLE_FLINT=ON -DSIC_DATA_ROOT="$RELEASE_TREE" -DSIC_DATA_MULTIPLETS="d1024/m1;d2048/m1"
     cmake --build build --target exact-data
 
 For each multiplet this fetches a verified SICX into `build/data/d<d>/m<N>/`
 and generates `exact.json` on demand with `sic-inspect --exact-json` where
 power-basis conversion is practical (measured through d16, not large d).
 Options: `SIC_DATA_SOURCE` (base URL/local parts directory, default the release
-in the manifest), `SIC_DATA_ROOT` (default `data/`), `SIC_DATA_JOBS` (parallel
+in the manifest), `SIC_DATA_ROOT` (explicit release tree), `SIC_DATA_JOBS` (parallel
 downloads, default 4), `SIC_DATA_EXACT_JSON_FACTOR` (disk forecast multiplier,
 default 2). Disk admission covers the SICX, parts in flight and the JSON
 forecast; that multiplier is not a proved size bound for large power bases.
@@ -393,14 +390,14 @@ forecast; that multiplier is not a proved size bound for large power bases.
 
 <!-- shell:template -->
 ```sh
-sic-container fetch d8/m1 --data-root data
-sic-container repair d8/m1 --data-root data
+sic-container fetch d8/m1 --data-root "$RELEASE_TREE"
+sic-container repair d8/m1 --data-root "$RELEASE_TREE"
 sic-container split multiplet.sicx --out parts --asset-prefix d8-m1
 ```
 
 All tools support `--help` (stdout, exit 0). See the [complete CLI
 reference](library.md#command-argument-contract) for option scopes and exit codes. Fetch and repair
-default to `--data-root data`, `--out build/data/d<d>/m<N>`, `--name multiplet.sicx` and `--threads
+require `--data-root DIR` or `--parts FILE` and default to `--out build/data/d<d>/m<N>`, `--name multiplet.sicx` and `--threads
 4` (range 1..64). Only fetch accepts `--force` and `--extra-bytes`. Split uses the fixed
 1,900,000,000-byte ceiling; `--part-size` accepts only that value.
 
@@ -538,8 +535,8 @@ unload races.
 
 <!-- shell:template -->
 ```sh
-sic-verify --remote data/d256/m1/multiplet.sicx.parts.json --quick
-sic-decode --remote data/d256/m1/multiplet.sicx.parts.json decoded \
+sic-verify --remote release/d256/m1/multiplet.sicx.parts.json --quick
+sic-decode --remote release/d256/m1/multiplet.sicx.parts.json decoded \
   --rays c0 --coordinates 0,128 --threads 2
 sic-decode --remote PARTS.json decoded --source /path/to/mirror --cache /path/to/cache
 sic-verify --remote PARTS.json --source file:///absolute/path/to/mirror --quick
@@ -582,8 +579,13 @@ fetching again. The decoder reserves source staging and metadata headroom inside
 `2*jobs*(range_bytes+56) + 2*8 MiB + 512*cache_max_ranges + 8 MiB`, in addition to its measured
 resident baseline and admitted numerical work. This is conservative (about 160 MiB at the defaults),
 so tiny remote budgets require smaller range/job/metadata caps or are refused before decoding.
-RSS remains subject to allocator/library overhead and is checked with `--check-budget`; the admission
-estimate is not a proof of whole-process RSS. `--cache-max-ranges` bounds cache and read-plan metadata
+RSS remains subject to allocator and library overhead. `--check-budget` uses the operating
+system's process high-water RSS. For finalization it checks again after private validation
+and whole-file SHA-256, before publishing, and reports the peak through publication.
+This measure covers the process rather than filesystem cache or cgroup-wide memory.
+Linux publication links the checked file descriptor without replacing an output.
+Other platforms use the private pathname, with inode checks on either side of publication.
+`--cache-max-ranges` bounds cache and read-plan metadata
 (default 262144, maximum 1048576); exceeding it recommends a full download.
 
 `--prefetch-mib` (default 8, 0 disables, maximum 256) controls physical-order lookahead to the disk
@@ -737,7 +739,7 @@ by two form the POVM. Arb independently checks consistency with the same
 positive branches; its small residual is supplementary to the exact proof.
 
 `sic-construct 1 --out d2.sicx --radicals data/d2/d2.sicrad` reads this record (the default uses the
-embedded pinned record). `sic-certify-stabilizer --d2-exact data/d2/d2.sicrad STABFILE` checks the
+embedded pinned record). `sic-certify-stabilizer STABFILE --catalogue FILE --d2-exact data/d2/d2.sicrad` checks the
 d2 symmetries exactly. The optional exact-JSON GP check also exercises the d2 SICX; its embedding
 limitations remain as stated in verification. The parsed polynomial identities above are the
 mathematical basis of the radical proof, distinct from the supplementary Arb residual.
@@ -829,7 +831,7 @@ sidecar:
 
 <!-- shell:template -->
 ```sh
-cd data
+cd "$RELEASE_TREE"
 sha256sum -c sha256sums.txt
 ```
 
@@ -873,7 +875,7 @@ For a current `c0.csv`, the binary64 diagnostic is:
 
 <!-- shell:template -->
 ```sh
-{ echo 8; awk -F, 'NR>1 {print $2, $3}' data/d8/m1/c0.csv; } | sic-check - 1e-10
+{ echo 8; awk -F, 'NR>1 {print $2, $3}' release/d8/m1/c0.csv; } | sic-check - 1e-10
 ```
 
 This checks the approximation only. `sic-decode` obtains certified enclosures from exact SICX;
@@ -998,7 +1000,7 @@ complex128, index `p1*d + p2`. Exit 0 within tolerance, 1 for failed checks or i
 
 ```
 sic-stabilizer FILE [--tol T] [--entry-error E]
-sic-stabilizer --dim D [--catalogue FILE] [--repo DIR] [--out FILE]
+sic-stabilizer --dim D --catalogue FILE [--repo DIR] [--out FILE]
 ```
 Computes `S(phi) = {[U] in PEC(d) : |<phi|U phi>| = 1}` (Scott2010symmetric eq. (4.4)) with
 `clifford_maps(phi, phi, find_all)`. `S` embeds into ESL(2, Z_d) x {+-1} via `(F mod d, det)`: if
@@ -1008,7 +1010,7 @@ displacement `D_chi` (Appleby2005symmetric), which fixes no SIC fiducial unless 
 group order, element orders and the closure check are exact integer computations on `(F mod d,
 det)`.
 
-File format `data/d<D>/stabilizers.txt` (`sic-stabilizers/1.0`), `#` comments, then per ray
+Release table `d<D>/stabilizers.txt` (`sic-stabilizers/1.0`), `#` comments, then per ray
 
 ```
 ray LABEL d D order ORDER status STATUS group_order N unitary_order Nu closed yes|NO exhaustive yes|NO
@@ -1021,45 +1023,18 @@ elem LABEL INDEX det +1|-1 F a b c e chi x y order K trace t [zauner] z_dev Z re
 `U = D_chi U_F`; `order` is the order in the group; `trace` is `tr F mod dbar`; `zauner` marks
 order-3 unitary elements with `tr F = -1 mod d` (Appleby's canonical order-3 elements,
 Scott2010symmetric section 4). `exhaustive yes` means `2 * z_error_bound <= z_tol`;
-`min_rejected_*` are -1 when no candidate was rejected. Files exist for d = 2 .. 1024 (70 rays).
+`min_rejected_*` are -1 when no candidate was rejected.
 
-Certification `sic-certify-stabilizer STABFILE [--d2-exact data/d2/d2.sicrad]`
+Certification `sic-certify-stabilizer STABFILE --catalogue FILE --dim D [--d2-exact data/d2/d2.sicrad]`
 (FLINT): for each non-identity element, a ball enclosure (384 bits, Appleby's formula as a direct
 sum) of `1 - |<phi|U phi>|^2/<phi|phi>^2`; pass if the bound is below 2^-100.
-The default release catalogue lists `c<N>.json`; the checker independently reads
-its HP decimal midpoints/radii as exact rationals and encloses them outward in Arb.
-Explicit TSV catalogues instead select adjacent `normalized-gauged.balls` inputs.
-The retained shared tables keep their original ray labels and use those explicit
-TSV associations in tests. Generate a table with `sic-stabilizer --dim 2` to check
-the default release ray with its canonical `d2-m1-c0` label.
+The table must declare every catalogue ray at the requested dimension, with consecutive
+element indices, matching total and unitary counts and a closing `end` record.
+A JSON catalogue lists the generated `c<N>.json` records. The checker reads their
+HP decimal midpoints and radii as exact rationals and encloses them outward in Arb.
+Explicit TSV catalogues select adjacent `normalized-gauged.balls` inputs.
 With `--d2-exact` the d = 2 elements are also verified exactly in FLINT `qqbar`
 from the radical artifact (`U psi` proportional to `psi`).
-
-<a id="clifford-findings"></a>
-### Recorded stabilizer orders
-
-| d | rays | stabilizer order (unitary part) |
-| --- | --- | --- |
-| 2 | d2 | 6 (3), S_3 |
-| 4 | d4 | 6 (3), cyclic |
-| 8 | d8 / d8-maximal | 3 (3) / 12 (6), cyclic |
-| 16 | 2 rays | 3 (3) each |
-| 32 | 2 rays | 3 (3) each |
-| 64 | 4 rays | 3 (3) each |
-| 128, 256, 512, 1024 | 12, 12, 24, 10 | 3 (3) each, Zauner type |
-
-Apart from the d2 stabilizer S_3, the recorded stabilizers are cyclic of order a multiple of 3 with
-a Zauner-type canonical order-3 element, and the orbit counts and |S| at d <= 64 agree with the
-published tables. For d = 2^s >= 16, the extra symmetries listed there (`F_a`: d = 9k+3; `F_b`: d =
-k^2-1; `F_c`: d = (3k+-1)^2+3) cannot occur, so |S| = 3 is the expected value. Margins: accepted
-elements have z deviation <= 5.0e-12 and residual <= 1.6e-15; rejected candidates (d = 4, 8 only)
-fail by z deviation >= 0.9; at d = 2 one z-preserving `G` is rejected on the vectors (best residual
-0.18). Ball certification of all 155 non-identity elements of the 70 rays (384 bits): every bound
-`|1 - |<phi|U phi>|^2| <= 3.5e-73` (certified numerical bound for every vector in the balls, not an
-exact identity; 15 s in total, d = 1024 9 s). Exact: the six elements of the d = 2 stabilizer are
-verified in `qqbar`. No exact verification was attempted for d >= 4 (the tower exports would need an
-exact Clifford action in the tower field). Which of our d = 16..64 rays corresponds to which
-Scott-Grassl label has not been determined.
 
 The production tools use the [shared CLI conventions and full option
 reference](library.md#command-argument-contract).
@@ -1084,11 +1059,3 @@ validity is separate from numerical containment and exact SIC proof.
 
 The following concrete example paths are produced by the export or download
 recipes on this page; they need not be present in a source checkout.
-
-<!-- generated-path: data/d8/all.npz -->
-<!-- generated-path: data/d8/m1/c0.npy -->
-<!-- generated-path: data/d8/m1/c0.json -->
-<!-- generated-path: data/d8/m1/c0.mat -->
-<!-- generated-path: data/d8/m1/c0.h5 -->
-<!-- generated-path: data/d256/m1/multiplet.sicx.parts.json -->
-<!-- generated-path: data/d8/m1/c0.csv -->

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+#include <numeric>
 #include <limits>
 #include <map>
 #include <tuple>
@@ -167,12 +168,7 @@ int main() {
   }
   SIC_CHECK(d2048_states == 5462);
   SIC_CHECK(d2048_min_cycle == 1 && d2048_max_cycle == 2045);
-  bool rejected = false;
-  try {
-    Arithmetic unsupported(3, true);
-  } catch (const std::runtime_error&) {
-    rejected = true;
-  }
-  SIC_CHECK(rejected);
+  Arithmetic d8(3, true);
+  SIC_CHECK(d8.Delta == 5 && d8.order_index == 3);
   return sic_test::report();
 }

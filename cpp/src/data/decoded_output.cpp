@@ -25,14 +25,14 @@ std::string dump_ball(const acb_t z) {
   return s;
 }
 
-void write_balls(const std::filesystem::path& path, const sic::support::ComplexBallVector& v) try {
+void write_balls(const std::filesystem::path& path, std::span<const acb_struct> v) try {
   require_new_output(path);
   try {
     support::atomic_write_stream(
         path,
         [&](std::ostream& out) {
           out << sic::data::kVectorBallsIdentity << "\nd " << v.size() << '\n';
-          for (size_t j = 0; j < v.size(); ++j) out << dump_ball(v[j]) << '\n';
+          for (size_t j = 0; j < v.size(); ++j) out << dump_ball(&v[j]) << '\n';
           out << "end\n";
         },
         false, 0666);

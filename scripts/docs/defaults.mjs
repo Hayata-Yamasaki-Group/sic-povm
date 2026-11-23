@@ -90,7 +90,9 @@ for(const tool of [...new Set(contracts.map(r=>r.tool))]) {
   const bin=locations.map(d=>path.join(build,d,tool)).find(p=>fs.existsSync(p));
   if(bin)run(process.execPath,[path.join(root,'scripts/docs/help.mjs'),'--check-tool',tool,bin]);
 }
-run(process.execPath,[path.join(root,'cpp/tests/cli/sic_test_support_default_ownership.mjs'),root,build]);
+const fixtures=path.join(build,'sicx-generated');
+run(process.execPath,[path.join(root,'cpp/tests/cli/sic_test_support_default_ownership.mjs'),root,build,
+  path.join(fixtures,'d8/decoded/c0.normalized.balls')]);
 for(const [role,tool,parser,script]of [
   ['crt','sic-certify-crt','checkers/crt/sic-test-crt-command-line','cli/defaults.cmake'],
   ['norm','sic-certify-norm','checkers/norm/sic-test-norm-command-line','defaults_cli.cmake'],
@@ -99,7 +101,8 @@ for(const [role,tool,parser,script]of [
   '-DCHECKER='+toolPath(build,tool),'-DPARSER='+path.join(build,parser),'-P',path.join(root,'cpp/checkers',role,'tests',script)]);
 const defaultWork=fs.mkdtempSync(path.join(build,'documented-defaults-'));
 try {
-  run(path.join(build,'sic-test-support-help-defaults'),[root,path.join(defaultWork,'work')]);
+  run(path.join(build,'sic-test-support-help-defaults'),[path.join(defaultWork,'work'),
+    path.join(fixtures,'d4/d4.sicx')]);
 } finally {
   fs.rmSync(defaultWork,{recursive:true,force:true});
 }

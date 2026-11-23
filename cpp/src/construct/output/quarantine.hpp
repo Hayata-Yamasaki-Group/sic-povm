@@ -33,6 +33,9 @@ class QuarantineOutput {
   // Only after the spool journal, plan and component note authenticate successfully.
   void prepare_replay(bool authenticated);
   void completed();
+  // The existing private lock retains the producer-time identity for recovery.
+  void record_ray_pair(uint64_t file_bytes, std::string_view file_root, std::string_view exact_root,
+                       uint64_t ray_bytes, std::string_view ray_sha256);
   void publish();
 };
 }  // namespace sic::construct

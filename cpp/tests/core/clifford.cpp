@@ -235,8 +235,33 @@ int main(int argc, char** argv) {
   test_frame_against_direct();
   test_clifford_action();
   std::vector<Record> records;
-  for (int i = 1; i < argc; ++i)
-    records.push_back({argv[i], sic::core::files::read_fiducial(argv[i])});
+  std::vector<Record> oracles;
+  bool compare = false;
+  for (int i = 1; i < argc; ++i) {
+    if (std::string_view(argv[i]) == "--oracles") {
+      compare = true;
+      continue;
+    }
+    auto& destination = compare ? oracles : records;
+    destination.push_back({argv[i], sic::core::files::read_fiducial(argv[i])});
+  }
   test_fiducials(records);
+  if (compare) {
+    SIC_CHECK(records.size() == oracles.size());
+    std::vector<bool> matched(oracles.size());
+    for (const auto& record : records) {
+      // The archival release used other coordinate gauges and ray labels.
+      // Find a one-to-one correspondence in the extended Clifford group.
+      size_t i = 0;
+      for (; i < oracles.size(); ++i) {
+        if (!matched[i] && record.psi.size() == oracles[i].psi.size() &&
+            !sic::search::clifford_maps(record.psi, oracles[i].psi).empty()) {
+          matched[i] = true;
+          break;
+        }
+      }
+      SIC_CHECK(i != oracles.size());
+    }
+  }
   return sic_test::report();
 }

@@ -8,7 +8,9 @@ Read [installation](docs/install.md) for dependencies and a first run,
 [tools](docs/tools.md) for command syntax, [library](docs/library.md) for C++
 embedding, [data](docs/data.md) and [SICX](docs/sicx.md) for formats,
 [verification](docs/verification.md) for claim scope, and
-[reproduction](docs/reproduce.md) for per-multiplet recipes.
+[reproduction](docs/reproduce.md) for the from-scratch workflow and per-multiplet recipes.
+The source data exceptions are the d2 closed form and the d8 Hoggar lines.
+Each release run builds its WH catalogue and stabilizer tables from the rays it computes.
 
 With the exact tools installed:
 

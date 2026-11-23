@@ -46,12 +46,7 @@ CycleUnit cycle_unit(const Arithmetic& ar) {
 CycleUnit configure_arith(Arithmetic& ar) {
   contract(ar.order_index == 1 && ar.Delta == ar.original_Delta,
            "expected the standard-order arithmetic");
-  long fundamental = ar.original_Delta, index = 1;
-  for (long p = 3; p * p <= fundamental; p += 2)
-    while (fundamental % (p * p) == 0) {
-      fundamental /= p * p;
-      index *= p;
-    }
+  const auto [fundamental, index] = maximal_quadratic_order(ar.original_Delta);
   if (index != 1) {
     ar.Delta = fundamental;
     ar.order_index = index;

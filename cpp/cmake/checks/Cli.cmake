@@ -17,8 +17,11 @@ foreach(_tool sic-construct sic-check read-fiducial sic-overlaps sic-identify si
 endforeach()
 add_test(NAME sic_test_support_cli_refusals COMMAND ${CMAKE_COMMAND} -DBIN=$<TARGET_FILE_DIR:sic-check>
   -DFLINT=${SIC_ENABLE_FLINT}
-  -DREPO=${SIC_REPO_ROOT} -DWORK=${PROJECT_BINARY_DIR}/cli-refusals -DFIXTURE=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx -P ${PROJECT_SOURCE_DIR}/tests/cli/refusals.cmake)
+  -DREPO=${SIC_REPO_ROOT} -DWORK=${PROJECT_BINARY_DIR}/cli-refusals -DFIXTURE=${_generated_d4} -P ${PROJECT_SOURCE_DIR}/tests/cli/refusals.cmake)
 set_tests_properties(sic_test_support_cli_refusals PROPERTIES LABELS cli)
+if(SIC_ENABLE_FLINT)
+  set_tests_properties(sic_test_support_cli_refusals PROPERTIES FIXTURES_REQUIRED sicx_generated_d4)
+endif()
 
 if(TARGET sic-ray-selector)
   add_test(NAME sic_test_exact_ray_selector_cli COMMAND ${CMAKE_COMMAND}
@@ -26,6 +29,41 @@ if(TARGET sic-ray-selector)
     -DWORK=${PROJECT_BINARY_DIR}/ray-selector-test
     -P ${PROJECT_SOURCE_DIR}/tests/exact/group/ray_selector_cli.cmake)
   set_tests_properties(sic_test_exact_ray_selector_cli PROPERTIES LABELS "integration;exact" TIMEOUT 120)
+  foreach(_case "1;standard;1" "2;standard;1" "3;standard;1" "3;maximal;1"
+                "4;standard;2" "5;standard;2" "6;standard;4")
+    list(GET _case 0 _s)
+    list(GET _case 1 _order)
+    list(GET _case 2 _count)
+    set(_test sic_test_construct_ray_path_s${_s}_${_order})
+    add_test(NAME ${_test} COMMAND ${CMAKE_COMMAND}
+      -DBIN=$<TARGET_FILE_DIR:sic-construct> -DWORK=${PROJECT_BINARY_DIR}/${_test}
+      -DS=${_s} -DORDER=${_order} -DCOUNT=${_count} -DHOOKS=${SIC_ENABLE_TEST_HOOKS}
+      -P ${PROJECT_SOURCE_DIR}/tests/construct/canonical/ray_path.cmake)
+    set(workers 2)
+    if(_s EQUAL 6)
+      set(workers 4)
+    endif()
+    set_tests_properties(${_test} PROPERTIES LABELS "e2e;construct" PROCESSORS ${workers} TIMEOUT 120)
+  endforeach()
+  sic_add_executable(sic-test-decode-anchor tests/decode/anchor.cpp)
+  target_link_libraries(sic-test-decode-anchor PRIVATE sic_decode)
+  add_test(NAME sic_test_decode_anchor COMMAND sic-test-decode-anchor)
+  set_tests_properties(sic_test_decode_anchor PROPERTIES LABELS "unit;decode" TIMEOUT 120)
+  set(_anchor_inputs)
+  set(_anchor_fixtures)
+  foreach(_case d2 d4 d8 d8-maximal d16 d32 d64)
+    list(APPEND _anchor_inputs "${PROJECT_BINARY_DIR}/sicx-generated/${_case}/${_case}.sicx")
+    set(_archive "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx")
+    if(_case MATCHES "^d(16|32|64)$")
+      string(APPEND _archive "/canonical")
+    endif()
+    list(APPEND _anchor_inputs "${_archive}/${_case}.sicx")
+    string(REPLACE "-" "_" _key "${_case}")
+    list(APPEND _anchor_fixtures "sicx_generated_${_key}")
+  endforeach()
+  add_test(NAME sic_test_decode_anchor_fixtures COMMAND sic-test-decode-anchor ${_anchor_inputs})
+  set_tests_properties(sic_test_decode_anchor_fixtures PROPERTIES LABELS "integration;decode"
+    FIXTURES_REQUIRED "${_anchor_fixtures}" TIMEOUT 120)
 endif()
 
 foreach(_tool sic-check sic-overlaps sic-identify sic-stabilizer sic-construct sic-decode
@@ -45,13 +83,12 @@ target_sources(sic-test-support-help-defaults PRIVATE
   "${PROJECT_SOURCE_DIR}/apps/overlaps/command_line.cpp"
   "${PROJECT_SOURCE_DIR}/apps/identify/command_line.cpp"
   "${PROJECT_SOURCE_DIR}/apps/stabilizer/command_line.cpp")
-target_compile_definitions(sic-test-support-help-defaults PRIVATE
-  SIC_DATA_ROOT_FROM_BINDIR="${SIC_DATA_ROOT_FROM_BINDIR}")
 target_link_libraries(sic-test-support-help-defaults PRIVATE sic_data sic_search)
 add_test(NAME sic_test_support_help_defaults COMMAND sic-test-support-help-defaults
-  "${SIC_REPO_ROOT}" "${PROJECT_BINARY_DIR}/help-defaults")
+  "${PROJECT_BINARY_DIR}/help-defaults" "${_generated_d4}")
 set_tests_properties(sic_test_support_help_defaults PROPERTIES LABELS "unit;policy")
 if(SIC_ENABLE_FLINT AND SIC_BUILD_APPS)
+  set_tests_properties(sic_test_support_help_defaults PROPERTIES FIXTURES_REQUIRED sicx_generated_d4)
   target_compile_definitions(sic-test-support-help-defaults PRIVATE SIC_HAVE_FLINT=1)
   target_sources(sic-test-support-help-defaults PRIVATE
     "${PROJECT_SOURCE_DIR}/apps/verify/command_line.cpp"
@@ -62,61 +99,76 @@ if(SIC_ENABLE_FLINT AND SIC_BUILD_APPS)
   target_link_libraries(sic-test-support-help-defaults PRIVATE sic_access sic_decode sic_construct sic_transport)
   add_test(NAME sic_test_data_subcommand_arity COMMAND "${SIC_NODE_EXECUTABLE}"
     "${PROJECT_SOURCE_DIR}/tests/cli/sic_test_data_subcommand_arity.mjs"
-    "$<TARGET_FILE_DIR:sic-data>" "${SIC_REPO_ROOT}" "${PROJECT_BINARY_DIR}/data-subcommand-arity")
-  set_tests_properties(sic_test_data_subcommand_arity PROPERTIES LABELS "integration;policy")
+    "$<TARGET_FILE_DIR:sic-data>" "${SIC_REPO_ROOT}" "${PROJECT_BINARY_DIR}/data-subcommand-arity"
+    "${_generated_d4}")
+  set_tests_properties(sic_test_data_subcommand_arity PROPERTIES LABELS "integration;policy"
+    FIXTURES_REQUIRED sicx_generated_d4)
   add_test(NAME sic_test_inspect_json_multiplet COMMAND "${SIC_NODE_EXECUTABLE}"
     "${PROJECT_SOURCE_DIR}/tests/cli/sic_test_inspect_json_multiplet.mjs"
-    "$<TARGET_FILE:sic-inspect>" "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx"
+    "$<TARGET_FILE:sic-inspect>" "${_generated_d4}"
     "${PROJECT_BINARY_DIR}/inspect-json-multiplet")
-  set_tests_properties(sic_test_inspect_json_multiplet PROPERTIES LABELS "integration;policy")
+  set_tests_properties(sic_test_inspect_json_multiplet PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "integration;policy")
   add_test(NAME sic_test_access_stop_file COMMAND "${SIC_NODE_EXECUTABLE}"
     "${PROJECT_SOURCE_DIR}/tests/cli/sic_test_access_stop_file.mjs"
-    "$<TARGET_FILE_DIR:sic-decode>" "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx"
+    "$<TARGET_FILE_DIR:sic-decode>" "${_generated_d4}"
     "${PROJECT_BINARY_DIR}/access-stop-file" "${SIC_ENABLE_REMOTE}")
-  set_tests_properties(sic_test_access_stop_file PROPERTIES LABELS "integration;policy")
+  set_tests_properties(sic_test_access_stop_file PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "integration;policy")
 endif()
 add_test(NAME sic_test_support_default_ownership COMMAND "${SIC_NODE_EXECUTABLE}"
-  "${PROJECT_SOURCE_DIR}/tests/cli/sic_test_support_default_ownership.mjs" "${SIC_REPO_ROOT}" "$<TARGET_FILE_DIR:sic-check>")
+  "${PROJECT_SOURCE_DIR}/tests/cli/sic_test_support_default_ownership.mjs" "${SIC_REPO_ROOT}"
+  "$<TARGET_FILE_DIR:sic-check>" "${PROJECT_BINARY_DIR}/sicx-generated/d8/decoded/c0.normalized.balls")
 set_tests_properties(sic_test_support_default_ownership PROPERTIES LABELS "unit;policy")
+if(TARGET sic-check-balls)
+  set_tests_properties(sic_test_support_default_ownership PROPERTIES FIXTURES_REQUIRED sicx_generated_d8)
+endif()
 
 add_test(NAME sic_test_support_cli_failure_categories COMMAND ${CMAKE_COMMAND}
   -DBIN=$<TARGET_FILE_DIR:sic-check> -DFLINT=${SIC_ENABLE_FLINT}
   -DHOOKS=${SIC_ENABLE_TEST_HOOKS} -DREPO=${SIC_REPO_ROOT}
+  -DSYNTHETIC=${SIC_TEST_NUMERIC_DIR} -DFIXTURE=${PROJECT_BINARY_DIR}/sicx-generated/d4/d4.sicx
   -DWORK=${PROJECT_BINARY_DIR}/cli-failure-categories
   -P ${PROJECT_SOURCE_DIR}/tests/cli/failure_categories.cmake)
 set_tests_properties(sic_test_support_cli_failure_categories PROPERTIES LABELS "integration;cli")
+if(TARGET sic-inspect)
+  set_tests_properties(sic_test_support_cli_failure_categories PROPERTIES FIXTURES_REQUIRED sicx_generated_d4)
+endif()
 if(SIC_ENABLE_FLINT AND SIC_ENABLE_TEST_HOOKS)
   list(APPEND SIC_HOOK_CONTROL_TESTS sic_test_support_cli_failure_categories)
 endif()
 
 if(SIC_ENABLE_FLINT AND SIC_BUILD_APPS)
   add_test(NAME sic_test_support_cli_observation_options COMMAND ${CMAKE_COMMAND}
-    -DBIN=$<TARGET_FILE_DIR:sic-decode> -DFIXTURE=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx
+    -DBIN=$<TARGET_FILE_DIR:sic-decode> -DFIXTURE=${_generated_d4}
     -DWORK=${PROJECT_BINARY_DIR}/cli-observation-options
     -P ${PROJECT_SOURCE_DIR}/tests/cli/observation_options.cmake)
-  set_tests_properties(sic_test_support_cli_observation_options PROPERTIES LABELS "integration" TIMEOUT 120)
+  set_tests_properties(sic_test_support_cli_observation_options PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "integration" TIMEOUT 120)
 endif()
 
 if(SIC_ENABLE_FLINT AND SIC_BUILD_APPS)
   add_test(NAME sic_test_support_cli_transport_options COMMAND ${CMAKE_COMMAND}
-    -DBIN=$<TARGET_FILE_DIR:sic-container> -DFIXTURE=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx
+    -DBIN=$<TARGET_FILE_DIR:sic-container> -DFIXTURE=${_generated_d4}
     -DWORK=${PROJECT_BINARY_DIR}/cli-transport-options
     -P ${PROJECT_SOURCE_DIR}/tests/cli/transport_options.cmake)
-  set_tests_properties(sic_test_support_cli_transport_options PROPERTIES LABELS "integration" TIMEOUT 120)
+  set_tests_properties(sic_test_support_cli_transport_options PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "integration" TIMEOUT 120)
 endif()
 
 if(SIC_ENABLE_FLINT AND SIC_BUILD_APPS)
   add_test(NAME sic_test_support_cli_inspect_options COMMAND ${CMAKE_COMMAND}
-    -DBIN=$<TARGET_FILE_DIR:sic-inspect> -DFIXTURE=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx
-    -DFIXTURE8=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d8.sicx
+    -DBIN=$<TARGET_FILE_DIR:sic-inspect> -DFIXTURE=${_generated_d4}
+    -DFIXTURE8=${_generated_d8}
     -DWORK=${PROJECT_BINARY_DIR}/cli-inspect-options
     -P ${PROJECT_SOURCE_DIR}/tests/cli/inspect_options.cmake)
-  set_tests_properties(sic_test_support_cli_inspect_options PROPERTIES LABELS "integration" TIMEOUT 120)
+  set_tests_properties(sic_test_support_cli_inspect_options PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4;sicx_generated_d8" LABELS "integration" TIMEOUT 120)
 endif()
 
 add_test(NAME sic_test_support_cli_clifford_options COMMAND ${CMAKE_COMMAND}
-  -DBIN=$<TARGET_FILE_DIR:sic-identify> -DDATA=${PROJECT_SOURCE_DIR}/tests/data
-  -DFIDUCIAL=${PROJECT_SOURCE_DIR}/tests/fixtures/numeric/d4/m1/c0/fiducial-fp64.csv
-  -DD8=${PROJECT_SOURCE_DIR}/tests/fixtures/numeric/d8/m2/c0/fiducial-fp64.csv -DWORK=${PROJECT_BINARY_DIR}/cli-clifford-options
+  -DBIN=$<TARGET_FILE_DIR:sic-identify> -DSYNTHETIC=${SIC_TEST_NUMERIC_DIR}
+  -DD4=${PROJECT_BINARY_DIR}/sicx-generated/d4/d4.sicx
+  -DD8=${PROJECT_BINARY_DIR}/sicx-generated/d8/d8.sicx -DFLINT=${SIC_ENABLE_FLINT}
+  -DWORK=${PROJECT_BINARY_DIR}/cli-clifford-options
   -P ${PROJECT_SOURCE_DIR}/tests/cli/clifford_options.cmake)
 set_tests_properties(sic_test_support_cli_clifford_options PROPERTIES LABELS "integration" TIMEOUT 120)
+if(TARGET sic-inspect)
+  set_tests_properties(sic_test_support_cli_clifford_options PROPERTIES
+    FIXTURES_REQUIRED "sicx_generated_d4;sicx_generated_d8")
+endif()

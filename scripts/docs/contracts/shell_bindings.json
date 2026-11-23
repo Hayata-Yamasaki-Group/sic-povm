@@ -8,10 +8,6 @@
     ]
   },
   "d4-recipe": {
-    "substitute": {
-      "WORD_C0": "0,0,0",
-      "ANCHOR_C0": "1"
-    },
     "expect": [
       {
         "pattern": "FINALIZED",
@@ -20,10 +16,6 @@
     ]
   },
   "d8-recipe": {
-    "substitute": {
-      "WORD_C0": "0,0,0",
-      "ANCHOR_C0": "1"
-    },
     "expect": [
       {
         "pattern": "FINALIZED",

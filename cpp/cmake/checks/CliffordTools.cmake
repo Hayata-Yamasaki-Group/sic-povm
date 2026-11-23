@@ -7,32 +7,44 @@ if(SIC_BUILD_TESTS)
   target_link_libraries(sic-test-search-clifford PRIVATE sic_search)
   target_link_libraries(sic-test-search-clifford PRIVATE sic::search)
   add_test(NAME sic_test_search_clifford_synthetic COMMAND sic-test-search-clifford)
-  set(_pub "${PROJECT_SOURCE_DIR}/tests/fixtures/numeric")
-  set(_catalogue "${PROJECT_SOURCE_DIR}/tests/data/catalogue.tsv")
-  set(_catalogue_args --catalogue "${_catalogue}" --repo "${PROJECT_SOURCE_DIR}/tests/data")
-  set(_small)
-  foreach(_r d2/m1/c0 d4/m1/c0 d8/m2/c0 d8/m1/c0 d16/m1/c1 d16/m1/c0 d32/m1/c1 d32/m1/c0 d64/m1/c2 d64/m1/c0 d64/m1/c3 d64/m1/c1)
-    list(APPEND _small "${_pub}/${_r}/fiducial-fp64.csv")
-  endforeach()
-  set(_d128)
-  set(_d256)
-  file(STRINGS "${_catalogue}" _entries REGEX "^(128|256)[\t ]")
-  foreach(_entry IN LISTS _entries)
-    string(REGEX REPLACE "[\t ]+" ";" _fields "${_entry}")
-    list(GET _fields 0 _d)
-    list(GET _fields 4 _csv)
-    list(APPEND _d${_d} "${PROJECT_SOURCE_DIR}/tests/data/${_csv}")
-  endforeach()
-  add_test(NAME sic_test_search_clifford_fiducials_d2_d64 COMMAND sic-test-search-clifford ${_small})
-  add_test(NAME sic_test_search_clifford_fiducials_d128 COMMAND sic-test-search-clifford ${_d128})
-  add_test(NAME sic_test_search_clifford_fiducials_d256 COMMAND sic-test-search-clifford ${_d256})
-  # App-level checks. A pass regex makes CTest ignore the exit code, so the regexes below match
-  # the success lines themselves; tests without a regex rely on exit code 0.
-  add_test(NAME sic_test_search_overlaps_d64 COMMAND sic-overlaps "${_pub}/d64/m1/c2/fiducial-fp64.csv" --vectors)
-  sic_add_verdict_test(NAME sic_test_search_identify_d16_ordinary_1 EXIT 0 COMMAND sic-identify "${_pub}/d16/m1/c0/fiducial-fp64.csv" ${_catalogue_args})
-  set_tests_properties(sic_test_search_identify_d16_ordinary_1 PROPERTIES PASS_REGULAR_EXPRESSION "\nMATCH d16-ordinary-1 ")
-  add_test(NAME sic_test_search_stabilizer_d8 COMMAND sic-stabilizer --dim 8 ${_catalogue_args})  # exit 0 only if every check passes
-  sic_add_verdict_test(NAME sic_test_search_identify_d3_no_match EXIT 1 COMMAND sic-identify "${SIC_REPO_ROOT}/cpp/tests/fixtures/core/d3_simple.txt" --repo "${SIC_REPO_ROOT}")
+  if(TARGET sic-inspect AND TARGET sic-construct)
+    set(_search_workers 4)
+    if(SIC_TEST_WORKERS AND SIC_TEST_WORKERS LESS 4)
+      set(_search_workers "${SIC_TEST_WORKERS}")
+    endif()
+    set(_cases_d2_d64 "2:1:1:standard;4:2:1:standard;8:3:1:maximal;8:3:2:standard;16:4:1:standard;32:5:1:standard;64:6:1:standard")
+    set(_cases_d128 "128:7:1:maximal;128:7:2:standard")
+    # The release gate supplies the generated d256 input for the same checks.
+    foreach(group d2_d64 d128)
+      add_test(NAME sic_test_search_clifford_fiducials_${group} COMMAND ${CMAKE_COMMAND}
+        -DBIN=$<TARGET_FILE_DIR:sic-construct> -DTEST=$<TARGET_FILE:sic-test-search-clifford>
+        -DFRESH=${PROJECT_BINARY_DIR}/sicx-generated
+        -DWORK=${PROJECT_BINARY_DIR}/search-${group}
+        -DORACLES=${PROJECT_SOURCE_DIR}/tests/fixtures/numeric
+        "-DCASES=${_cases_${group}}" -DTHREADS=${_search_workers}
+        -P "${PROJECT_SOURCE_DIR}/tests/data/search_fiducials.cmake")
+      set_tests_properties(sic_test_search_clifford_fiducials_${group} PROPERTIES
+        LABELS "integration;search" PROCESSORS "${_search_workers}" TIMEOUT 120)
+    endforeach()
+    set_tests_properties(sic_test_search_clifford_fiducials_d2_d64 PROPERTIES FIXTURES_REQUIRED
+      "sicx_generated_d4;sicx_generated_d8;sicx_generated_d8_maximal;sicx_generated_d16;sicx_generated_d32;sicx_generated_d64")
+    add_test(NAME sic_test_search_overlaps_d64 COMMAND ${CMAKE_COMMAND}
+      -DBIN=$<TARGET_FILE_DIR:sic-construct> -DINPUT=${PROJECT_BINARY_DIR}/sicx-generated/d64/d64.sicx
+      -DWORK=${PROJECT_BINARY_DIR}/search-overlaps -DOVERLAPS=ON
+      -P "${PROJECT_SOURCE_DIR}/tests/data/search_generated.cmake")
+    set_tests_properties(sic_test_search_overlaps_d64 PROPERTIES FIXTURES_REQUIRED sicx_generated_d64)
+    add_test(NAME sic_test_search_generated_catalogue COMMAND ${CMAKE_COMMAND}
+      -DBIN=$<TARGET_FILE_DIR:sic-construct> -DWORK=${PROJECT_BINARY_DIR}/search-generated-catalogue
+      -P "${PROJECT_SOURCE_DIR}/tests/data/search_generated.cmake")
+    set_tests_properties(sic_test_search_generated_catalogue PROPERTIES LABELS "integration;data" TIMEOUT 120)
+  endif()
+  set(_synthetic_catalogue --catalogue "${SIC_TEST_NUMERIC_DIR}/catalogue.tsv" --repo "${SIC_TEST_NUMERIC_DIR}")
+  sic_add_verdict_test(NAME sic_test_search_identify_d2 EXIT 0 COMMAND sic-identify
+    "${SIC_TEST_NUMERIC_DIR}/d2/fiducial-fp64.csv" ${_synthetic_catalogue})
+  set_tests_properties(sic_test_search_identify_d2 PROPERTIES PASS_REGULAR_EXPRESSION "\nMATCH synthetic-d2 ")
+  add_test(NAME sic_test_search_stabilizer_d2 COMMAND sic-stabilizer --dim 2 ${_synthetic_catalogue})
+  file(WRITE "${PROJECT_BINARY_DIR}/search-empty-catalogue.tsv" "")
+  sic_add_verdict_test(NAME sic_test_search_identify_d3_no_match EXIT 1 COMMAND sic-identify "${SIC_TEST_NUMERIC_DIR}/d3/fiducial-fp64.csv" --catalogue "${PROJECT_BINARY_DIR}/search-empty-catalogue.tsv")
   set_tests_properties(sic_test_search_identify_d3_no_match PROPERTIES PASS_REGULAR_EXPRESSION "\nNO_MATCH among 0 ")
   sic_add_verdict_test(NAME sic_test_search_identify_usage_refused EXIT 2 COMMAND sic-identify)
   sic_add_verdict_test(NAME sic_test_search_stabilizer_usage_refused EXIT 2 COMMAND sic-stabilizer)

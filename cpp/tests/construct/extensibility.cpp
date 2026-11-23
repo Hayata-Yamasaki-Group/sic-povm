@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+#include <limits>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -38,9 +39,8 @@ int main(int argc, char** argv) {
   refuses(sic::ErrorKind::invalid_argument, [&] { (void)dimension.checked(13); });
   dimension.maximum_exponent = 20;
   require(dimension.checked(13) == 8192, "raised dimension policy");
-  require(sic::exact::CanonicalProfile::maximal_order(7) &&
-              !sic::exact::CanonicalProfile::maximal_order(6),
-          "canonical profile changed");
+  const auto maximal = sic::exact::maximal_quadratic_order((128 + 1) * (128 - 3));
+  require(maximal.discriminant == 645 && maximal.conductor == 5, "quadratic order arithmetic");
   sic::sicx::Meta general;
   general.d = 6;
   general.smith = {2};

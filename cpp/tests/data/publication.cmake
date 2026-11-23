@@ -2,6 +2,9 @@
 cmake_minimum_required(VERSION 3.20)
 file(REMOVE_RECURSE "${WORK}")
 file(MAKE_DIRECTORY "${WORK}")
+include("${CMAKE_CURRENT_LIST_DIR}/generate.cmake")
+sic_generate_wh("${BIN}" "${WORK}/input" 2 standard)
+set(input "${WORK}/input/multiplet.sicx")
 function(run expected tool)
   execute_process(COMMAND "${BIN}/${tool}" ${ARGN} RESULT_VARIABLE status
     OUTPUT_VARIABLE out ERROR_VARIABLE err TIMEOUT 25)
@@ -26,12 +29,12 @@ function(refuse path message tool)
   endif()
 endfunction()
 # JSON ray and all-in-one publication paths.
-run(0 sic-inspect "${FIXTURE}" --json-rays "${WORK}/rays" --multiplet m1)
+run(0 sic-inspect "${input}" --json-rays "${WORK}/rays" --multiplet m1)
 refuse("${WORK}/rays/c0.json" "output exists:" sic-inspect
-  "${FIXTURE}" --json-rays "${WORK}/rays" --multiplet m1)
-run(0 sic-inspect "${FIXTURE}" --json-all "${WORK}/all.json" --multiplet m1)
+  "${input}" --json-rays "${WORK}/rays" --multiplet m1)
+run(0 sic-inspect "${input}" --json-all "${WORK}/all.json" --multiplet m1)
 refuse("${WORK}/all.json" "output exists:" sic-inspect
-  "${FIXTURE}" --json-all "${WORK}/all.json" --multiplet m1)
+  "${input}" --json-all "${WORK}/all.json" --multiplet m1)
 file(READ "${WORK}/all.json" all)
 if(NOT all MATCHES "sic-fiducial-json")
   message(FATAL_ERROR "all-in-one JSON omitted the ray document")
@@ -42,9 +45,9 @@ run(0 sic-data check-bundle "${WORK}/bundle.npz" "${WORK}/rays/c0.json")
 refuse("${WORK}/bundle.npz" "output exists:" sic-data bundle
   "${WORK}/bundle.npz" 4 "${WORK}/rays/c0.json")
 # Exact export's recoverable staging path must publish the full document and refuse replacement.
-run(0 sic-inspect "${FIXTURE}" --exact-json "${WORK}/exact.json" --multiplet m1)
+run(0 sic-inspect "${input}" --exact-json "${WORK}/exact.json" --multiplet m1)
 refuse("${WORK}/exact.json" "output exists" sic-inspect
-  "${FIXTURE}" --exact-json "${WORK}/exact.json" --multiplet m1)
+  "${input}" --exact-json "${WORK}/exact.json" --multiplet m1)
 file(READ "${WORK}/exact.json" exact)
 if(NOT exact MATCHES "sic-exact-json/1.0" OR EXISTS "${WORK}/exact.json.partial")
   message(FATAL_ERROR "incomplete exact publication")
@@ -53,9 +56,9 @@ endif()
 file(MAKE_DIRECTORY "${WORK}/decode")
 file(WRITE "${WORK}/decode/decode.provenance.json" "preserved provenance\n")
 refuse("${WORK}/decode/decode.provenance.json" "output directory must be absent or empty:" sic-decode
-  "${FIXTURE}" "${WORK}/decode" --threads 1 --no-pin)
+  "${input}" "${WORK}/decode" --threads 1 --no-pin)
 file(REMOVE_RECURSE "${WORK}/decode")
-run(0 sic-decode "${FIXTURE}" "${WORK}/decode" --threads 1 --no-pin)
+run(0 sic-decode "${input}" "${WORK}/decode" --threads 1 --no-pin)
 file(READ "${WORK}/decode/decode.provenance.json" provenance)
 string(JSON decoder GET "${provenance}" decoder)
 string(JSON dimension GET "${provenance}" d)
@@ -71,7 +74,7 @@ foreach(option valuation-table valuation-total alignment-memory alignment-cache 
     message(FATAL_ERROR "removed option accepted: ${option}: ${status}: ${err}")
   endif()
 endforeach()
-execute_process(COMMAND "${BIN}/sic-decode" "${FIXTURE}" "${WORK}/unused" --prefetch-mb 1
+execute_process(COMMAND "${BIN}/sic-decode" "${input}" "${WORK}/unused" --prefetch-mb 1
   RESULT_VARIABLE status OUTPUT_QUIET ERROR_VARIABLE err TIMEOUT 10)
 if(NOT status EQUAL 2 OR NOT err MATCHES "unknown option")
   message(FATAL_ERROR "removed prefetch option accepted: ${status}: ${err}")

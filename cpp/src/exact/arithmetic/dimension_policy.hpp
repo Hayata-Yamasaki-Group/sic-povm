@@ -17,8 +17,20 @@ struct DimensionPolicy {
     return long{1} << exponent;
   }
 };
-struct CanonicalProfile {
-  static constexpr const char* kName = "sicx-dyadic/1.0";
-  static bool maximal_order(unsigned exponent) { return exponent == 7; }
+struct QuadraticOrder {
+  long discriminant;
+  long conductor;
 };
+
+// The standard dyadic discriminant is odd and congruent to 5 modulo 8.
+inline QuadraticOrder maximal_quadratic_order(long discriminant) {
+  long conductor = 1;
+  for (long p = 3; p <= discriminant / p; p += 2) {
+    while (discriminant % (p * p) == 0) {
+      discriminant /= p * p;
+      conductor *= p;
+    }
+  }
+  return {discriminant, conductor};
+}
 }  // namespace sic::exact

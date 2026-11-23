@@ -12,11 +12,14 @@ exit status and adds the stdout diagnostic.
 
 ```text
 usage: sic-construct S --out FILE [OPTIONS] (default S=1..12; only d=2^S construction)
+       sic-construct S --orders [--maximum-exponent S]
 glibc heap policy: trim 16 MiB, mmap 32 MiB before threads; any MALLOC_* or glibc.malloc.* tunable disables both defaults.
 
 Options (available in the forms listed above):
   --out FILE  Required new output; its parent must be writable.
-  --order standard|maximal  Default order follows the canonical dimension profile.
+  --rays-out FILE  Write the selected ray list for this exact SICX to a new file.
+  --order standard|maximal  Construction order (default standard).
+  --orders  List available orders as ORDER CONDUCTOR rows and exit.
   --threads N  Positive worker limit, honored subject to memory admission.
   --memory-mib M  Positive finite memory cap in MiB; default discovered budget.
   --maximum-exponent S  Construction dimension allowance (default 12; wire maximum 20).
@@ -54,12 +57,13 @@ Exit codes: 0 success; 1 failed check or runtime/input error; 2 usage error.
 
 ```text
 usage: sic-ray-selector derive|check (--group FILE | --dimension-two) [OPTIONS]
+       sic-ray-selector list --words FILE [--sha256 HEX]
 
 Options (available in the forms listed above):
   --group FILE  Read a verified native Group checkpoint.
-  --sha256 HEX  Group SHA-256 pin (default: FILE.sha256).
+  --sha256 HEX  SHA-256 pin for the input (Group default: FILE.sha256).
   --dimension-two  Use the dimension-two closed form.
-  --words FILE  Required in check mode: selector entry JSON.
+  --words FILE  Bound ray list (list or check mode), or selector entry JSON (check mode).
   --threads N  Worker limit, 1..1024 (default process CPU allowance, capped at 1024).
   --memory-mib M  Positive finite memory cap in MiB (default: discovered budget).
   --receipt FILE  Write a new verification receipt valid only with exit status 0.
@@ -108,8 +112,8 @@ Exit codes: 0 success; 1 failed check or runtime/input error; 2 usage error.
 usage: sic-identify FILE [OPTIONS]
 
 Options (available in the forms listed above):
-  --catalogue JSON|TSV  Catalogue file (default REPO/data/catalogue.json).
-  --repo DIR  Data root; search installed data, then current directory when omitted.
+  --catalogue JSON|TSV  Explicit ray catalogue (required).
+  --repo DIR  Base directory for relative TSV paths (default current directory).
   --tol T  Positive finite match tolerance (default 1e-06).
   --entry-error E  Nonnegative finite entry error (default 8.881784197001252e-16).
   --moments K  Moment count, 1..64 (default 4).
@@ -128,8 +132,8 @@ Exit codes: 0 success; 1 failed check or runtime/input error; 2 usage error.
 usage: sic-stabilizer FILE [OPTIONS] | sic-stabilizer --dim D [OPTIONS]
 
 Options (available in the forms listed above):
-  --catalogue JSON|TSV  Catalogue file (default REPO/data/catalogue.json).
-  --repo DIR  Data root; dimension mode searches installed data, then current directory; file mode default ".".
+  --catalogue JSON|TSV  Explicit ray catalogue; required with --dim.
+  --repo DIR  Base directory for relative TSV paths (default current directory).
   --out FILE  Output stabilizer file; write stdout when omitted.
   --dim D  Positive dimension in catalogue mode; required when FILE omitted.
   --tol T  Positive finite match tolerance (default 1e-06).
@@ -148,7 +152,8 @@ Exit codes: 0 success; 1 failed check or runtime/input error; 2 usage error.
 usage: sic-decode FILE.sicx OUTDIR [OPTIONS]
 
 Options (available in the forms listed above):
-  --rays all|L1,L2,...  Ray labels (default all).
+  --rays all|L1,L2,...  Ray labels to decode (default all).
+  --ray-list FILE  Producer ray list with automatic anchors for --finalize.
   --coordinates all|A-B|A,...  Coordinates/ranges, comma separated (default all).
   --maximum-precision BITS  Computational precision ceiling (default 65536; 256..1152921504606846975).
   --target-bits BITS  Accuracy within --maximum-precision (default 128; minimum 64).
@@ -163,10 +168,11 @@ Options (available in the forms listed above):
   --tower auto|resident|stream  Tower storage policy (default auto).
   --mem-policy bind:N|preferred:N|interleave  Process NUMA memory policy; node index 0..63.
   --check-budget  Fail when peak RSS exceeds the budget.
+  --rays-sha256 HEX  Require this SHA-256 for the finalization ray list.
   --finalize  Append certified finalization records in place.
   --resume  Resume interrupted finalization.
   --working-bits B  Finalization precision, 1..1048576 (default 256).
-  --ray LABEL WORD ANCHOR  Repeatable ray: WORD comma-separated unsigned integers; ANCHOR >= 0 is required.
+  --ray LABEL WORD ANCHOR  Repeatable ray: WORD comma-separated unsigned integers; ANCHOR is a nonnegative coordinate or auto with --finalize.
   --remote PARTS.json  Read a local manifest through remote byte access.
   --source URL|DIR  Remote parts source override.
   --cache DIR  Remote extent cache; use XDG cache or ~/.cache/sicx when omitted.
@@ -276,8 +282,8 @@ Options (available in the forms listed above):
   --source URL|DIR  fetch/repair/read-range: source override.
   --maximum-precision BITS  reencode: computational precision ceiling (default 65536; 256..1152921504606846975).
   --threads J  fetch/repair/reencode: 1..64 workers; fetch/repair (default 4); reencode: default 1.
-  --data-root DIR  fetch/repair: manifest root (default data).
-  --parts FILE  fetch/repair: parts manifest (default DATA_ROOT/SPEC/multiplet.sicx.parts.json).
+  --data-root DIR  fetch/repair: explicit manifest root; alternative to --parts.
+  --parts FILE  fetch/repair: explicit parts manifest; with --data-root use DIR/SPEC/multiplet.sicx.parts.json.
   --name NAME  fetch/repair: output name (default multiplet.sicx).
   --extra-bytes N  fetch: extra required disk bytes (default 0).
   --force  fetch: replace a differing file.
@@ -332,8 +338,8 @@ Options (available in the forms listed above):
   --out DIR  split: required output directory; fetch/repair: default build/data/SPEC.
   --source URL|DIR  fetch/repair/read-range: source override.
   --threads J  fetch/repair/reencode: 1..64 workers; fetch/repair (default 4); reencode: default 1.
-  --data-root DIR  fetch/repair: manifest root (default data).
-  --parts FILE  fetch/repair: parts manifest (default DATA_ROOT/SPEC/multiplet.sicx.parts.json).
+  --data-root DIR  fetch/repair: explicit manifest root; alternative to --parts.
+  --parts FILE  fetch/repair: explicit parts manifest; with --data-root use DIR/SPEC/multiplet.sicx.parts.json.
   --name NAME  fetch/repair: output name (default multiplet.sicx).
   --extra-bytes N  fetch: extra required disk bytes (default 0).
   --force  fetch: replace a differing file.
@@ -354,8 +360,8 @@ Options (available in the forms listed above):
   --out DIR  split: required output directory; fetch/repair: default build/data/SPEC.
   --source URL|DIR  fetch/repair/read-range: source override.
   --threads J  fetch/repair/reencode: 1..64 workers; fetch/repair (default 4); reencode: default 1.
-  --data-root DIR  fetch/repair: manifest root (default data).
-  --parts FILE  fetch/repair: parts manifest (default DATA_ROOT/SPEC/multiplet.sicx.parts.json).
+  --data-root DIR  fetch/repair: explicit manifest root; alternative to --parts.
+  --parts FILE  fetch/repair: explicit parts manifest; with --data-root use DIR/SPEC/multiplet.sicx.parts.json.
   --name NAME  fetch/repair: output name (default multiplet.sicx).
   --version  Print tool identity as canonical JSON and exit 0.
   --help  Print this help to stdout and exit 0.
@@ -610,8 +616,9 @@ Exit codes: 0 success; 1 failed check or runtime/input error; 2 usage error.
 
 ```text
 usage: sic-certify-stabilizer STABILIZER_FILE [options]
-  --catalogue JSON|TSV    ray catalogue (default REPO/data/catalogue.json)
-  --repo DIR              data root (default installed data, then current directory)
+  --catalogue JSON|TSV    explicit ray catalogue (required)
+  --dim D                 require the complete catalogue table for dimension D
+  --repo DIR              base for relative TSV paths (default current directory)
   --prec BITS             ball precision, 64..100000 (default 384)
   --threshold T           positive overlap tolerance (default 2^-100)
   --d2-exact SICRAD        also verify d2 elements exactly from radical data

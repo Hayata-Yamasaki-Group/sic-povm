@@ -15,6 +15,8 @@
 
 namespace sic::decode {
 
+struct DecoderAccess;
+
 inline constexpr slong kMinimumTargetBits = 64;
 inline constexpr slong kDefaultGuardBits = 64;
 inline constexpr slong kDefaultInitialPrecisionCap = 2048;
@@ -101,6 +103,7 @@ class Decoder {
   sic::support::ComplexBallVector decode(const std::vector<Request>& requests);
 
  private:
+  friend struct DecoderAccess;
   class Impl;
   std::unique_ptr<Impl> impl_;
   Impl& state() const;

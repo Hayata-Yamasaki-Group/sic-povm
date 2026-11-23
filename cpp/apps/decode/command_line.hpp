@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-#include <chrono>
-
 #include "access/source_arguments.hpp"
 #include "sic/decode/decoder.hpp"
 #include "sic/sicx/finalize.hpp"
@@ -8,6 +6,7 @@
 #pragma once
 #include "sic/support/cli.hpp"
 namespace sic::apps::decode {
+inline constexpr int64_t kAutomaticAnchor = -1;
 sic::support::resources::NumaPolicy parse_memory_policy(const std::string& spec);
 struct CoordinateInterval {
   uint64_t first, last;
@@ -19,10 +18,10 @@ class Invocation {
 
  public:
   sic::access::SourceArguments input;
-  std::chrono::steady_clock::time_point start;
   std::filesystem::path file, outdir;
+  std::filesystem::path ray_list;
   sic::decode::Decoder::Options options;
-  std::string rays_arg, coords_arg;
+  std::string rays_arg, coords_arg, ray_list_sha256;
   bool finalize, resume, check_budget;
   uint64_t working_bits;
   std::string tower;

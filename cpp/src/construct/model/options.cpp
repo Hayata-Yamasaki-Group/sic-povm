@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "construct/model/options.hpp"
 
+#include <algorithm>
+#include <limits>
 #include <climits>
 
 #include "sic/support/parse_number.hpp"
@@ -136,7 +138,7 @@ ProducerOptions::ProducerOptions(unsigned chosen_exponent, AlignmentOptions chos
       spool_lattice(nonzero("SIC_SPOOL_LATTICE")),
       order([this] {
         const char* value = raw("SIC_ORDER");
-        if (!value) return Order::automatic;
+        if (!value) return Order::standard;
         if (std::strcmp(value, "standard") == 0) return Order::standard;
         if (std::strcmp(value, "maximal") == 0) return Order::maximal;
         return Order::invalid;

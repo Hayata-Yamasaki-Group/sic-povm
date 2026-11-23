@@ -22,6 +22,8 @@ class StreamWriter::State {
 #endif
 
   void write_data(const uint8_t* data, size_t size);
+  void reserve_directories(size_t new_leaves);
+  ResourceLimits remaining_logical_limits() const;
   static ByteBuffer record(uint8_t kind, const ByteBuffer& payload);
   void journal(uint8_t kind, const ByteBuffer& payload);
   static ByteBuffer note_payload(const std::string& key, const ByteBuffer& value);
@@ -29,7 +31,8 @@ class StreamWriter::State {
   void create_journal(const std::vector<IndexEntry>& entries,
                       const ByteBuffer* exact_note = nullptr);
   // Re-open NAME.partial + journal: verify every journaled chunk, cut after the last good one.
-  void resume_existing();
+  enum class ResumeName { partial, original, both };
+  void resume_existing(ResumeName name = ResumeName::partial);
 
  public:
   State(const std::filesystem::path& path, StreamOptions options,
@@ -67,8 +70,8 @@ class StreamWriter::State {
   // Accept the next n recovered chunks without regenerating them (they were re-hashed at open).
   void adopt(size_t n);
   // Read-only view of a journal: the chunk entries it records (stops at a torn record).
-  static std::vector<IndexEntry> peek_journal(const std::filesystem::path& journal,
-                                              Digest* plan = nullptr);
+  static std::vector<IndexEntry> peek_journal(const std::filesystem::path& journal, Digest* plan,
+                                              const WorkspaceAdmission& admit);
   // Reads one chunk of a file at its PDIR entry, checking the header and SHA-256.
   static ByteBuffer read_chunk_at(const std::filesystem::path& file, const IndexEntry& e,
                                   const ResourceLimits& limits = {});

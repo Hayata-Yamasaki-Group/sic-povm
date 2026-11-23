@@ -3,7 +3,6 @@
 
 #include <cmath>
 
-#include "../data_root.hpp"
 #include "search/stabilizer.hpp"
 namespace sic::apps::identify {
 namespace {
@@ -18,10 +17,9 @@ const sic::support::cli::Parser& command_line_parser() {
   static const sic::support::cli::Parser parser{
       "sic-identify FILE [OPTIONS]",
       {
-          {"--catalogue", "JSON|TSV",
-           "Catalogue file (default REPO/" + default_text(kDefaultCatalogue) + ").", 1, 1, false},
-          {"--repo", "DIR",
-           "Data root; search installed data, then current directory when omitted.", 1, 1, false},
+          {"--catalogue", "JSON|TSV", "Explicit ray catalogue (required).", 1, 1, false},
+          {"--repo", "DIR", "Base directory for relative TSV paths (default current directory).", 1,
+           1, false},
           {"--tol", "T",
            "Positive finite match tolerance (default " + default_text(kDefaults.z_tol) + ").", 1, 1,
            false},
@@ -48,8 +46,9 @@ Options parse_command_line(int argc, char** argv) {
   const int moments =
       args.numeric<int>("--moments", kDefaultMoments, kMinimumMoments, kMaximumMoments);
   const bool anti = !args.has("--unitary-only");
-  const std::string root = sic::apps::data_root(args.get("--repo"));
-  const std::string catalogue = args.get("--catalogue", root + "/" + kDefaultCatalogue);
+  const std::string catalogue = args.get("--catalogue");
+  sic::support::cli::require(!catalogue.empty(), "--catalogue is required");
+  const std::string root = args.get("--repo");
 
   return {path, root, catalogue, z_tol, entry_error, sic_tol, moments, anti};
 }

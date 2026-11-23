@@ -56,6 +56,7 @@ struct GroupCheckpoint {
   // the complete file digest. A caller-provided pin takes precedence over the sidecar.
   static GroupProjection project(const std::filesystem::path& path, std::string digest,
                                  bool read_ahead);
+  static GroupProjection project(const Group& group);
 };
 
 }  // namespace sic::exact

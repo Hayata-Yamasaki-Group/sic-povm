@@ -85,8 +85,12 @@ class LeafConverter {
 };
 
 // Normalized, gauged vector with a given anchor.
-sic::support::ComplexBallVector normalize(const sic::support::ComplexBallVector& v, uint64_t anchor,
+sic::support::ComplexBallVector normalize(std::span<const acb_struct> v, uint64_t anchor,
                                           slong prec);
+inline sic::support::ComplexBallVector normalize(const sic::support::ComplexBallVector& v,
+                                                 uint64_t anchor, slong prec) {
+  return normalize(v.span(), anchor, prec);
+}
 
 }  // namespace sic::decode
 

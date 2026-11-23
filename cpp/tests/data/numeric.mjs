@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-const [tool, dump, fixtures, numeric, hoggar, work] = process.argv.slice(2);
+const [tool, dump, generated, numeric, hoggar, work] = process.argv.slice(2);
 fs.rmSync(work, {recursive:true, force:true}); fs.mkdirSync(work, {recursive:true});
 function run(bin, args, success=true) {
  const r=spawnSync(bin,args,{encoding:'utf8',timeout:30000});
@@ -13,9 +13,10 @@ function run(bin, args, success=true) {
  return r;
 }
 const formats=run(tool,['formats']).stdout.trim().split(' ');
+const sicx = c => path.join(generated, c === 'd2' ? 'd2.sicx' : c + '/multiplet.sicx');
 for(const c of ['d2','d4','d8','d8-maximal']) {
  const dir=path.join(work,c), rays=path.join(dir,'rays');fs.mkdirSync(dir);
- run(dump,[path.join(fixtures,c+'.sicx'),'--json-rays',rays,'--multiplet',c==='d8'?'m2':'m1']);
+ run(dump,[sicx(c),'--json-rays',rays,'--multiplet',c==='d8'?'m2':'m1']);
  const ray=path.join(rays,'c0.json'), out=path.join(dir,'numeric');
  const fp=JSON.parse(fs.readFileSync(ray)).fp64.values.map(v=>v.join(' ')).join('\n')+'\n';
  const txt=path.join(dir,'values.fp64.txt');fs.writeFileSync(txt,fp);run(tool,['check',ray,txt]);
@@ -49,8 +50,18 @@ for(const c of ['d2','d4','d8','d8-maximal']) {
 // Keep the committed publication CSV as an oracle independent of JSON/writers.
 const ray=path.join(work,'d8/rays/c0.json');
 const oracle=fs.readFileSync(path.join(numeric,'d8/m2/c0/fiducial-fp64.csv'),'utf8').trim().split('\n').slice(1);
-const values=JSON.parse(fs.readFileSync(ray)).fp64.values;assert.equal(oracle.length,values.length);
-for(let i=0;i<oracle.length;++i){const row=oracle[i].split(',');assert.equal(Number(row[0]),i);for(let k=0;k<2;++k){const b=Buffer.alloc(8);b.writeDoubleBE(Number(row[k+1]));assert.equal(b.toString('hex'),values[i][k],`publication CSV coordinate ${i}/${k}`);}}
+const values=JSON.parse(fs.readFileSync(ray)).fp64.values;
+assert.equal(oracle.length,values.length);
+const expected=oracle.map((line,i)=>{
+ const [index,...row]=line.split(',');
+ assert.equal(Number(index),i);
+ return row.map(x=>{const b=Buffer.alloc(8);b.writeDoubleBE(Number(x));return b.toString('hex');});
+});
+// The archived release chose one of the two parity-related WH representatives.
+// Parity D_(a,b) -> D_(-a,-b) fixes the anchor at 0 and permutes coordinates j -> -j.
+const reversed=expected.map((_,i)=>expected[(expected.length-i)%expected.length]);
+assert.deepEqual(values, values[1][0]===expected[1][0]?expected:reversed,
+  'publication CSV coordinates after the parity convention');
 const h=path.join(hoggar,'c0.json');
 run(tool,['check',h,...formats.map(f=>path.join(hoggar,'c0.'+f))]);
 for (const identity of ['hoggar-fiducial-json/1.0', 'sic-hoggar-fiducial-json/1']) { // identity-negative
@@ -84,14 +95,14 @@ const zip=Buffer.from(fs.readFileSync(bundle));zip[100]^=1;fs.writeFileSync(path
 run(tool,['check-bundle',path.join(work,'bad.npz'),ordinary,ray,'--exceptional',h],false);
 run(tool,['check-bundle',bundle,ray],false);
 const layout=path.join(work,'layout');
-run(tool,['layout',path.join(fixtures,'d8-maximal.sicx'),layout,'--multiplet','1']);
-run(tool,['layout',path.join(fixtures,'d8.sicx'),layout,'--multiplet','2']);
+run(tool,['layout',sicx('d8-maximal'),layout,'--multiplet','1']);
+run(tool,['layout',sicx('d8'),layout,'--multiplet','2']);
 run(tool,['catalogue',layout]);
 assert.match(run(tool,['list',path.join(layout,'catalogue.json')]).stdout,/multiplet d8-m2 /);
 const absentLayout=path.join(work,'absent-layout');
 run(tool,['layout',path.join(work,'missing.sicx'),absentLayout,'--multiplet','1'],false);assert(!fs.existsSync(absentLayout));
-run(tool,['layout',path.join(fixtures,'d8.sicx'),absentLayout,'--multiplet','0'],false);assert(!fs.existsSync(absentLayout));
-const catalogue=path.join(fixtures,'d8_release_catalogue.json');
+run(tool,['layout',sicx('d8'),absentLayout,'--multiplet','0'],false);assert(!fs.existsSync(absentLayout));
+const catalogue=path.join(layout,'catalogue.json');
 const listing=run(tool,['list',catalogue]).stdout;assert.match(listing,/multiplet d8-m1 /);assert.match(listing,/multiplet d8-m2 /);
 for (const schema of ['sic-release-catalogue/2.0', 'sic-release-catalogue/1', 'sic-release-catalogue/0', 'wrong']) { // identity-negative
  const c=JSON.parse(fs.readFileSync(catalogue));c.schema=schema;
@@ -120,7 +131,7 @@ for (const schema of ['hoggar-manifest/1.0', 'sic-hoggar-manifest/1', 'sic-hogga
  assert.match(result.stderr,/unsupported exceptional manifest schema/);
 }
 fs.writeFileSync(hoggarManifest,originalHoggarManifest);
-const c=JSON.parse(fs.readFileSync(catalogue));c.schema='wrong';fs.writeFileSync(path.join(work,'wrong.json'),JSON.stringify(c));run(tool,['list',path.join(work,'wrong.json')],false);
+
 console.log('PASS format readbacks, d8/m2 CSV oracle, MAT column layout, deterministic/Hoggar NPZ, corruption and no-output refusals');
 
 // Malformed numeric text must fail with a categorized parse error.

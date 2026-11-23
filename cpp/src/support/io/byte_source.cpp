@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "sic/support/byte_source.hpp"
 
+#include <limits>
+
 namespace sic::support {
 void ByteSource::plan(std::span<const ByteRange> ranges) const {
   for (auto r : ranges) check(r);
@@ -16,14 +18,26 @@ void ByteSource::check(ByteRange r) const {
 
 namespace sic::support {
 LocalByteSource::LocalByteSource(const std::filesystem::path& path) {
+  const auto description = path.string();
   fd_ = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
-  if (fd_ < 0) throw sic::Error(sic::ErrorKind::io, "cannot open " + path.string());
+  if (fd_ < 0) throw sic::Error(sic::ErrorKind::io, "cannot open " + description);
+  initialize_size(description);
+}
+
+LocalByteSource::LocalByteSource(int fd) {
+  const std::string description = "descriptor";
+  fd_ = ::fcntl(fd, F_DUPFD_CLOEXEC, 0);
+  if (fd_ < 0) throw sic::Error(sic::ErrorKind::io, "cannot duplicate local source descriptor");
+  initialize_size(description);
+}
+
+void LocalByteSource::initialize_size(const std::string& description) {
   struct stat st {};
   if (::fstat(fd_, &st) || !S_ISREG(st.st_mode) || st.st_size < 0 ||
       static_cast<uint64_t>(st.st_size) > (uint64_t(1) << 62)) {
     ::close(fd_);
     fd_ = -1;
-    throw sic::Error(sic::ErrorKind::io, "byte source: invalid regular file " + path.string());
+    throw sic::Error(sic::ErrorKind::io, "byte source: invalid regular file " + description);
   }
   size_ = static_cast<uint64_t>(st.st_size);
 }

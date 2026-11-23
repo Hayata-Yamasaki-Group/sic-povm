@@ -62,7 +62,7 @@ producer inputs; that association needs independently authenticated provenance.
 radical certificate gives 36 proved rays. The norm method also covered d4, both d8 orders and d16
 (five rays). These computations do not certify a newly generated release file unless its exact root
 and ray selection match the recorded proof. Current release-production bindings will be generated
-into `data/catalogue.json` with the per-ray records. No current binding is supplied by this manual,
+into `catalogue.json` with the per-ray records. No current binding is supplied by this manual,
 and no certificate at d512 or above is claimed.
 
 <a id="verification-1-claims-and-their-status"></a>
@@ -193,8 +193,8 @@ These are recorded separation results; construction alone does not regenerate a 
 <a id="verification-27-symmetry-tables"></a>
 ### 2.7 Symmetry tables
 
-`sic-stabilizer --dim D` recomputes the stabilizer table of a dimension (binary64).
-`sic-certify-stabilizer STABFILE` certifies each element with ball arithmetic, and with `--d2-exact`
+`sic-stabilizer --dim D --catalogue FILE` recomputes the stabilizer table of a dimension (binary64).
+`sic-certify-stabilizer STABFILE --catalogue FILE` certifies each element with ball arithmetic, and with `--d2-exact`
 verifies the `d = 2` elements exactly.
 
 <a id="verification-28-unconditional-exactness-certificate-crt"></a>
@@ -826,11 +826,11 @@ controls, separate from actual SIC proof runs.
 ## Identifying a numerical vector
 
 ```
-sic-identify FILE [--catalogue JSON|TSV] [--repo DIR] [--tol T=1e-6] [--entry-error E=2^-50] [--moments K=4] [--unitary-only]
+sic-identify FILE --catalogue JSON|TSV [--repo DIR] [--tol T=1e-6] [--entry-error E=2^-50] [--moments K=4] [--unitary-only]
 ```
 Input in the repository WH convention (the Gabor-frame section of `docs/sicx.md` converts Gabor
 notation: the time-frequency shift `M_b T_a` equals `D_(a,b)` up to a phase, so a fiducial in that
-convention is used as is). The default catalogue is `data/catalogue.json` (`sic-release-catalogue/1.0`),
+convention is used as is). An explicit JSON catalogue uses `sic-release-catalogue/1.0`,
 generated from the available release tree. The source tree contains the d2 base-case
 ray and the exceptional Hoggar object; Hoggar is excluded from WH searches.
 Explicit TSV input (`d label order status csv_path`, paths relative to `--repo`)

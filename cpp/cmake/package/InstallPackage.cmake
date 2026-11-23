@@ -61,5 +61,6 @@ if(SIC_ENABLE_FLINT)
  install(FILES include/sic/data/layout.hpp DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sic/data")
 endif()
 
-# Release data is self-contained; numerical regression fixtures are never installed.
-install(DIRECTORY "${SIC_REPO_ROOT}/data/" DESTINATION "${CMAKE_INSTALL_DATADIR}/sic/data")
+# The source distribution supplies the closed form and the Hoggar data.
+install(FILES "${SIC_REPO_ROOT}/data/d2/d2.sicrad" DESTINATION "${CMAKE_INSTALL_DATADIR}/sic/data/d2")
+install(DIRECTORY "${SIC_REPO_ROOT}/data/d8/hoggar" DESTINATION "${CMAKE_INSTALL_DATADIR}/sic/data/d8")

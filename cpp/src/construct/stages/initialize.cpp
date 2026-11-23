@@ -105,9 +105,7 @@ int Construction::initialize() try {
     fprintf(stderr, "SIC_ORDER must be standard or maximal\n");
     return 1;
   }
-  maximal_order = producer_options.order == ProducerOptions::Order::maximal ||
-                  (producer_options.order == ProducerOptions::Order::automatic &&
-                   sic::exact::CanonicalProfile::maximal_order(s));
+  maximal_order = producer_options.order == ProducerOptions::Order::maximal;
   // Maximal order: epsilon = u^k for the positive cycle unit u (sicx_reduced_order.hpp; k = 1 is
   // the library route unchanged, k > 1 stores each cycle k times and takes points modulo u).
   ar_ = std::make_unique<Arithmetic>(s, false, producer_options.policy.dimension);

@@ -134,18 +134,35 @@ function applicable(promise) {
   return promise.mode === 'exact' ? exact : promise.mode === 'flint' ? enabled(contract.flint) :
     promise.mode === 'hooks' ? full && contract.enabled === 1 : true;
 }
+function withFixtureDependencies(tests, direct) {
+  const expanded = new Set(direct);
+  const required = new Set();
+  for (const test of expanded) {
+    for (const fixture of properties(test).FIXTURES_REQUIRED || []) {
+      if (required.has(fixture)) continue;
+      required.add(fixture);
+      for (const candidate of tests) {
+        const p = properties(candidate);
+        if (p.FIXTURES_SETUP?.includes(fixture) || p.FIXTURES_CLEANUP?.includes(fixture))
+          expanded.add(candidate);
+      }
+    }
+  }
+  return [...expanded];
+}
 export function checkSelector(tests, option, pattern, selected) {
   const key = `${option} ${pattern}`, promise = promises.get(key);
   assert(promise, `Undeclared selector expectation: ${key}`);
   const re = new RegExp(pattern);
-  const expected = tests.filter(t => ['-R', '-E'].includes(option) ?
+  const direct = tests.filter(t => ['-R', '-E'].includes(option) ?
     re.test(t.name) === (option === '-R') :
     (properties(t).LABELS || []).some(l => re.test(l)) === (option === '-L'));
-  assert(expected.length, `Empty documented selector: ${key}`);
+  assert(direct.length, `Empty documented selector: ${key}`);
+  const expected = withFixtureDependencies(tests, direct);
   assert.deepEqual(selected.map(t => t.name).sort(), expected.map(t => t.name).sort(),
     `Unexpected selector set: ${key}`);
   for (const witness of promise.witnesses || [])
-    assert(selected.some(t => t.name === witness), `Missing selector witness: ${key}: ${witness}`);
+    assert(direct.some(t => t.name === witness), `Missing selector witness: ${key}: ${witness}`);
   // Family expectations are independent of the observed LABELS property.
   // In particular, losing one docs/help/checker label must fail even if the
   // selector still finds hundreds of unrelated or remaining topic members.
@@ -153,7 +170,7 @@ export function checkSelector(tests, option, pattern, selected) {
     const family = tests.filter(t => promise.family.test(t.name));
     assert(family.length, `Missing family: ${key}`);
     for (const test of family)
-      assert(selected.some(t => t.name === test.name), `Missing selector member: ${key}: ${test.name}`);
+      assert(direct.includes(test), `Missing selector member: ${key}: ${test.name}`);
   }
 }
 
@@ -340,7 +357,13 @@ const missing = structuredClone(tests);
 const status = missing.find(t => t.name === 'sic_test_support_docs_status');
 status.properties.find(p => p.name === 'LABELS').value = properties(status).LABELS.filter(l => l !== 'docs');
 rejects('missing topic member', () => checkSelector(missing, '-L', 'docs',
-  missing.filter(t => properties(t).LABELS.includes('docs'))), /Missing selector (witness|member)/);
+  withFixtureDependencies(missing, missing.filter(t => properties(t).LABELS.includes('docs')))),
+  /Missing selector (witness|member)/);
+const docs = tests.filter(t => properties(t).LABELS.includes('docs'));
+const docsWithFixtures = withFixtureDependencies(tests, docs);
+for (const setup of docsWithFixtures.filter(t => !docs.includes(t)))
+  rejects('missing automatic fixture', () => checkSelector(tests, '-L', 'docs',
+    docsWithFixtures.filter(t => t !== setup)), /Unexpected selector set/);
 if (contract.enabled === 1 && full) {
   const skip = structuredClone(tests), control = skip.find(t => hooks.has(t.name));
   control.properties.push({name: 'SKIP_RETURN_CODE', value: 0});

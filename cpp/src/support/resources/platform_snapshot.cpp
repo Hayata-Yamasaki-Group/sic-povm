@@ -536,6 +536,15 @@ Snapshot inspect() {
   return result;
 }
 
+Bytes peak_rss_bytes(const rusage& usage) { return mul(static_cast<Bytes>(usage.ru_maxrss), 1024); }
+
+Bytes process_peak_rss_bytes() {
+  struct rusage usage {};
+  if (getrusage(RUSAGE_SELF, &usage))
+    throw sic::Error(ErrorKind::io, "cannot read process peak RSS");
+  return peak_rss_bytes(usage);
+}
+
 bool release_free_heap() {
 #if defined(__GLIBC__)
   malloc_trim(0);

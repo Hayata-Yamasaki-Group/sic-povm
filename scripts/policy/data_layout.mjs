@@ -6,7 +6,12 @@ import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
 
-export function checkData(root) {
+const bundled = new Set([
+  'd2/d2.sicrad', 'd8/hoggar/c0.csv', 'd8/hoggar/c0.h5', 'd8/hoggar/c0.json',
+  'd8/hoggar/c0.mat', 'd8/hoggar/c0.npy', 'd8/hoggar/exact.json', 'd8/hoggar/manifest.json',
+]);
+
+export function checkData(root, release = false) {
   const data = path.join(root, 'data');
   const files = [];
   function walk(dir, prefix = '') {
@@ -37,6 +42,10 @@ export function checkData(root) {
     }
   }
   walk(data);
+  if (!release) {
+    assert.deepEqual(new Set(files), bundled, 'bundled data must contain only the documented exceptions');
+    return files.length;
+  }
   const catalogue = JSON.parse(fs.readFileSync(path.join(data, 'catalogue.json')));
   assert.equal(catalogue.schema, 'sic-release-catalogue/1.0');
   assert.equal(typeof catalogue.release.repository, 'string');
@@ -103,13 +112,10 @@ export function checkData(root) {
     referenced.add('sha256sums.txt');
   }
   for (const f of files) assert(referenced.has(f), `unreferenced data: ${f}`);
-  // The single install declaration covers catalogue plus its checked, closed tree.
-  const install = fs.readFileSync(path.join(root, 'cpp/cmake/package/InstallPackage.cmake'), 'utf8');
-  assert(install.includes('install(DIRECTORY "${SIC_REPO_ROOT}/data/" DESTINATION "${CMAKE_INSTALL_DATADIR}/sic/data")'), 'data install rule missing');
   return files.length;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  try { console.log(`PASS data layout: ${checkData(path.resolve(process.argv[2]))} referenced release files`); }
+  try { console.log(`PASS data layout: ${checkData(path.resolve(process.argv[2]))} bundled exception files`); }
   catch (error) { console.error(error.message); process.exitCode = 1; }
 }

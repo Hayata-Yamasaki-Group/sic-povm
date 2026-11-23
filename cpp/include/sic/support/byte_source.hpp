@@ -53,6 +53,8 @@ class ByteSource {
 class LocalByteSource final : public ByteSource {
  public:
   explicit LocalByteSource(const std::filesystem::path& path);
+  // Duplicate a borrowed regular-file descriptor; reads never reopen its name.
+  explicit LocalByteSource(int fd);
   ~LocalByteSource() override;
   LocalByteSource(const LocalByteSource&) = delete;
   LocalByteSource& operator=(const LocalByteSource&) = delete;
@@ -60,6 +62,7 @@ class LocalByteSource final : public ByteSource {
   void read(uint64_t offset, std::span<uint8_t> output) const override;
 
  private:
+  void initialize_size(const std::string& description);
   int fd_ = -1;
   uint64_t size_ = 0;
 };

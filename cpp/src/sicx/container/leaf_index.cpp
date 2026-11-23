@@ -6,10 +6,15 @@
 #include "sicx/container/directory.hpp"
 #include "support/sha256.hpp"
 namespace sic::sicx {
-std::vector<LeafSpan> leaf_spans(std::span<const uint8_t> payload, const ResourceLimits& limits) {
+namespace {
+template <class Visit>
+void scan_leaves(std::span<const uint8_t> payload, const ResourceLimits& limits, Visit visit) {
   Cursor in(payload.data(), payload.size());
-  std::vector<LeafSpan> spans;
+  if (!in.remaining()) fail(ErrorKind::invalid_format, "empty element chunk");
+  uint64_t leaves = 0;
   while (in.remaining()) {
+    if (leaves == limits.directory_entries)
+      fail(ErrorKind::resource, "logical leaf resource limit");
     const auto* start = in.at;
     BlockHeader h{in.varint(), in.varint(), in.varint()};
     if (!h.count || h.first > UINT64_MAX - h.count)
@@ -39,34 +44,51 @@ std::vector<LeafSpan> leaf_spans(std::span<const uint8_t> payload, const Resourc
       }
     }
     const size_t length = in.at - start;
-    if (length > limits.block_bytes || spans.size() >= limits.directory_entries)
-      fail(sic::ErrorKind::resource, "logical leaf resource limit");
-    spans.push_back({h, static_cast<size_t>(start - payload.data()), length, nonzero});
+    if (length > limits.block_bytes) fail(sic::ErrorKind::resource, "logical leaf resource limit");
+    visit(LeafSpan{h, static_cast<size_t>(start - payload.data()), length, nonzero});
+    ++leaves;
   }
-  if (spans.empty()) fail(sic::ErrorKind::invalid_format, "empty element chunk");
+}
+}  // namespace
+
+std::vector<LeafSpan> leaf_spans(std::span<const uint8_t> payload, const ResourceLimits& limits) {
+  std::vector<LeafSpan> spans;
+  scan_leaves(payload, limits, [&](LeafSpan span) {
+    if (spans.size() == spans.capacity())
+      spans.reserve(directory_append_capacity(spans, 1, limits, "logical leaf spans"));
+    spans.push_back(span);
+  });
   return spans;
 }
 
 std::vector<LogicalEntry> chunk_leaves(const IndexEntry& entry, std::span<const uint8_t> bytes,
-                                       const ResourceLimits& limits) {
+                                       const ResourceLimits& limits,
+                                       const WorkspaceAdmission& admit) {
   std::vector<LogicalEntry> leaves;
+  const auto append = [&](LogicalEntry leaf, std::span<const uint8_t> payload) {
+    if (leaves.size() == leaves.capacity()) {
+      const auto capacity = directory_append_capacity(leaves, 1, limits, "logical leaf rows");
+      if (admit) admit("logical leaf rows", directory_append_bytes(leaves, capacity, 1));
+      leaves.reserve(capacity);
+    }
+    leaf.sha256 = logical_hash(leaf, payload);
+    leaves.push_back(leaf);
+  };
   const auto type = entry.type_name();
   if (type == "EXMT") {
     LogicalEntry e;
     e.type = entry.type;
     e.count = 1;
-    e.sha256 = logical_hash(e, bytes);
-    leaves.push_back(e);
+    append(e, bytes);
   } else if (type == "TOWR" || type == "BODY") {
-    for (const auto& span : leaf_spans(bytes, limits)) {
+    scan_leaves(bytes, limits, [&](const LeafSpan& span) {
       LogicalEntry e;
       e.type = entry.type;
       e.element = span.header.element;
       e.first = span.header.first;
       e.count = span.header.count;
-      e.sha256 = logical_hash(e, bytes.subspan(span.offset, span.length));
-      leaves.push_back(e);
-    }
+      append(e, bytes.subspan(span.offset, span.length));
+    });
   }
   return leaves;
 }

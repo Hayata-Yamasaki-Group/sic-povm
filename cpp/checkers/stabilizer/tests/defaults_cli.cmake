@@ -1,5 +1,5 @@
 execute_process(COMMAND "${CHECKER}" --help RESULT_VARIABLE rc OUTPUT_VARIABLE help)
-execute_process(COMMAND "${PARSER}" unused --repo unused RESULT_VARIABLE parsed_rc OUTPUT_VARIABLE parsed)
+execute_process(COMMAND "${PARSER}" unused --catalogue unused RESULT_VARIABLE parsed_rc OUTPUT_VARIABLE parsed)
 if(NOT rc EQUAL 0 OR NOT parsed_rc EQUAL 0)
   message(FATAL_ERROR "help/default parser failed")
 endif()
@@ -18,14 +18,14 @@ if(NOT parsed MATCHES "threshold=2\\^${value}\n")
   message(FATAL_ERROR "threshold default mismatch: ${help} ${parsed}")
 endif()
 foreach(bad "384x" "x" "-1" "18446744073709551616")
-  execute_process(COMMAND "${PARSER}" unused --repo unused --prec "${bad}" RESULT_VARIABLE rc OUTPUT_VARIABLE out)
+  execute_process(COMMAND "${PARSER}" unused --catalogue unused --prec "${bad}" RESULT_VARIABLE rc OUTPUT_VARIABLE out)
   if(NOT rc EQUAL 2 OR out MATCHES "PASS|PROVED")
     message(FATAL_ERROR "invalid precision accepted: ${bad}: ${rc} ${out}")
   endif()
 endforeach()
 
 foreach(bad 1e-30x nan inf 1e9999 1e-9999 0 -1)
-  execute_process(COMMAND "${PARSER}" unused --repo unused --threshold "${bad}"
+  execute_process(COMMAND "${PARSER}" unused --catalogue unused --threshold "${bad}"
     RESULT_VARIABLE rc OUTPUT_VARIABLE out)
   if(NOT rc EQUAL 2 OR out MATCHES "prec=|threshold=")
     message(FATAL_ERROR "invalid threshold reached certificate: ${bad}: ${rc} ${out}")

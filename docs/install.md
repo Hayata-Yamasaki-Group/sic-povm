@@ -50,14 +50,11 @@ prefixes. See the [library API](library.md) for components and ownership rules. 
 default. Test hooks require a separate build with `SIC_ENABLE_TEST_HOOKS=ON`; installation from that
 build is refused. See [Contributing](../CONTRIBUTING.md) for validation.
 
-The identification and stabilizer tools install their catalogue and data under
-`${CMAKE_INSTALL_DATADIR}/sic/data`, with self-contained release ray records under
-`${CMAKE_INSTALL_DATADIR}/sic/data/d<N>/m<M>/`. Test fixtures are never installed.
-For catalogue searches, the tools select the data root from an explicit `--repo DIR`,
-then from the installation relative to the running executable (`/proc/self/exe`),
-then from the current directory if it contains `data/catalogue.json`. If none is
-available, specify `--repo`. In stabilizer file mode, an omitted `--repo` uses the
-current directory.
+The installation includes the d2 radical record and the Hoggar files under
+`${CMAKE_INSTALL_DATADIR}/sic/data`. Identification and catalogue-mode stabilizer
+search require an explicit `--catalogue FILE`. A JSON catalogue resolves its members
+relative to its own directory. For TSV paths, `--repo DIR` selects the base directory.
+Test fixtures are excluded from installation.
 
 Installed ELF RUNPATH entries may contain external dependency prefixes outside
 the system linker path: the build uses `CMAKE_INSTALL_RPATH_USE_LINK_PATH`.

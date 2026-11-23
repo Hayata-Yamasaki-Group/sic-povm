@@ -1,20 +1,35 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "construct/runtime/resources/construction_model.hpp"
 
+#include <algorithm>
+#include <limits>
+
 #include "exact/runtime/memory/product_tiles.hpp"
 
 namespace sic::construct::resources {
+sic::support::resources::Count construction_points(sic::support::resources::Count dimension,
+                                                   sic::support::resources::Count classes) {
+  const auto points = mul(mul(std::max<uint64_t>(1, classes), dimension), dimension);
+  constexpr auto capacity = std::numeric_limits<Index>::max();
+  if (points > static_cast<uint64_t>(capacity))
+    throw sic::Error(sic::ErrorKind::resource,
+                     "d=" + std::to_string(dimension) + " requires " +
+                         (classes ? "" : "at least ") + std::to_string(points) +
+                         " points, exceeding the signed 32-bit point-index capacity of " +
+                         std::to_string(capacity));
+  return points;
+}
+
 Model::Model(sic::support::resources::Count dimension, sic::support::resources::Count h,
              sic::support::resources::Count cycle_max, sic::support::resources::Count state_count,
              sic::support::resources::Count reps)
     : d(dimension),
       classes(h),
-      degree(mul(mul(h, d), d) / 2),
+      degree(construction_points(d, h) / 2),
       points(mul(degree, 2)),
       max_cycle(cycle_max),
       states(state_count),
       representatives(reps) {
-  admit_index_count(points);
   if (mul(degree, sizeof(long)) > std::numeric_limits<std::size_t>::max())
     throw sic::Error(sic::ErrorKind::resource, "group vector exceeds size_t capacity");
 }

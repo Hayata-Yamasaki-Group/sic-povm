@@ -34,7 +34,10 @@ const sic::support::cli::Parser& command_line_parser() {
           "sic-decode FILE.sicx OUTDIR [OPTIONS]",
           {
               {"--rays", "all|L1,L2,...",
-               "Ray labels (default " + default_text(kDefaultSelection) + ").", 1, 1, false},
+               "Ray labels to decode (default " + default_text(kDefaultSelection) + ").", 1, 1,
+               false},
+              {"--ray-list", "FILE", "Producer ray list with automatic anchors for --finalize.", 1,
+               1, false},
               {"--coordinates", "all|A-B|A,...",
                "Coordinates/ranges, comma separated (default " + default_text(kDefaultSelection) +
                    ").",
@@ -84,6 +87,8 @@ const sic::support::cli::Parser& command_line_parser() {
                "Process NUMA memory policy; node index 0.." + default_text(kMaximumNumaNode) + ".",
                1, 1, false},
               {"--check-budget", "", "Fail when peak RSS exceeds the budget.", 0, 0, false},
+              {"--rays-sha256", "HEX", "Require this SHA-256 for the finalization ray list.", 1, 1,
+               false},
               {"--finalize", "", "Append certified finalization records in place.", 0, 0, false},
               {"--resume", "", "Resume interrupted finalization.", 0, 0, false},
               {"--working-bits", "B",
@@ -93,7 +98,7 @@ const sic::support::cli::Parser& command_line_parser() {
                1, 1, false},
               {"--ray", "LABEL WORD ANCHOR",
                "Repeatable ray: WORD comma-separated unsigned integers; "
-               "ANCHOR >= 0 is required.",
+               "ANCHOR is a nonnegative coordinate or auto with --finalize.",
                3, 3, true},
           }});
   return parser;
@@ -157,14 +162,18 @@ Invocation::Invocation(sic::support::cli::Arguments arguments)
       admission_log_(arguments_.has("--log-admissions")),
       stop_scope_(arguments_.get("--stop-file", "")),
       input((sic::support::check_stop(), arguments_)),
-      start((arguments_.positionals(2, 2), std::chrono::steady_clock::now())),
-      file((flint_set_num_threads(1), arguments_.pos[0])),
+      file((arguments_.positionals(2, 2), flint_set_num_threads(1), arguments_.pos[0])),
       outdir(arguments_.pos[1]) {
   options.cancellation =
       std::make_shared<sic::support::StopToken>(arguments_.get("--stop-file", ""));
   rays_arg = arguments_.get("--rays", std::string(kDefaultSelection));
   coords_arg = arguments_.get("--coordinates", std::string(kDefaultSelection));
   finalize = arguments_.has("--finalize");
+  if (arguments_.has("--ray-list")) {
+    ray_list = arguments_.get("--ray-list");
+    sic::support::cli::require(finalize && !ray_list.empty(),
+                               "--ray-list FILE requires --finalize");
+  }
   resume = arguments_.has("--resume");
   check_budget = arguments_.has("--check-budget");
   working_bits = arguments_.numeric<uint64_t>("--working-bits", kDefaultWorkingBits,
@@ -214,20 +223,33 @@ Invocation::Invocation(sic::support::cli::Arguments arguments)
     sic::sicx::FinalizeRay r;
     r.label = values[0];
     r.word = parse_word(values[1]);
-    r.anchor = sic::support::cli::number<int64_t>(values[2], "--ray ANCHOR", 0);
+    r.anchor = finalize && values[2] == "auto"
+                   ? kAutomaticAnchor
+                   : sic::support::cli::number<int64_t>(values[2], "--ray ANCHOR", 0);
     given.push_back(r);
   }
   if (arguments_.has("--mem-policy")) {
     const auto spec = arguments_.get("--mem-policy");
     sic::support::resources::apply_numa_policy(parse_memory_policy(spec), spec);
   }
+  if (arguments_.has("--rays-sha256")) {
+    ray_list_sha256 = arguments_.get("--rays-sha256");
+    sic::support::cli::require(finalize && !ray_list.empty(),
+                               "--rays-sha256 requires --finalize --ray-list FILE");
+    sic::support::cli::require(
+        ray_list_sha256.size() == 64 &&
+            ray_list_sha256.find_first_not_of("0123456789abcdef") == std::string::npos,
+        "--rays-sha256 must contain 64 lowercase hexadecimal digits");
+  }
   sic::support::cli::require(!resume || finalize, "--resume requires --finalize");
   sic::support::cli::require(!finalize || !input.remote(),
                              "--finalize requires a local complete SICX file");
   if (finalize) {
-    if (given.empty())
-      throw sic::support::cli::UsageError("--finalize needs --ray LABEL WORD ANCHOR for every ray");
-    if (coords_arg != "all" || rays_arg != "all")
+    sic::support::cli::require(!arguments_.has("--rays"), "--rays cannot be used with --finalize");
+    if (given.empty() == ray_list.empty())
+      throw sic::support::cli::UsageError(
+          "--finalize needs either --ray-list FILE or --ray LABEL WORD ANCHOR");
+    if (coords_arg != "all")
       throw sic::support::cli::UsageError("--finalize decodes every coordinate of every ray");
     if (sic::sicx::finalization_in_progress(file) && !resume)
       throw sic::Error(sic::ErrorKind::invalid_argument,

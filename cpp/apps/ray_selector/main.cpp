@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+#include <limits>
 #include <chrono>
-#include <fstream>
 #include <new>
 
 #include "exact/group/ray_selection.hpp"
@@ -15,12 +15,10 @@ namespace {
 namespace cli = sic::support::cli;
 namespace resources = sic::support::resources;
 namespace sha256 = sic::support::sha256;
-using sic::exact::SmithWord;
 using sic::support::Json;
 using Clock = std::chrono::steady_clock;
 
 constexpr std::string_view kTool = "sic-ray-selector";
-constexpr size_t kWordInputBytes = resources::kMib;
 constexpr int kMaximumThreads = 1024;
 
 struct WorkerDefault {
@@ -33,12 +31,16 @@ constexpr WorkerDefault kDefaultThreads;
 
 const cli::Parser& parser() {
   static const cli::Parser value{
-      "sic-ray-selector derive|check (--group FILE | --dimension-two) [OPTIONS]",
+      "sic-ray-selector derive|check (--group FILE | --dimension-two) [OPTIONS]\n"
+      "       sic-ray-selector list --words FILE [--sha256 HEX]",
       {
           {"--group", "FILE", "Read a verified native Group checkpoint.", 1, 1, false},
-          {"--sha256", "HEX", "Group SHA-256 pin (default: FILE.sha256).", 1, 1, false},
+          {"--sha256", "HEX", "SHA-256 pin for the input (Group default: FILE.sha256).", 1, 1,
+           false},
           {"--dimension-two", "", "Use the dimension-two closed form.", 0, 0, false},
-          {"--words", "FILE", "Required in check mode: selector entry JSON.", 1, 1, false},
+          {"--words", "FILE",
+           "Bound ray list (list or check mode), or selector entry JSON (check mode).", 1, 1,
+           false},
           {"--threads", "N",
            "Worker limit, 1.." + cli::default_text(kMaximumThreads) + " (default " +
                kDefaultThreads.description() + ").",
@@ -51,68 +53,6 @@ const cli::Parser& parser() {
   return value;
 }
 
-std::string word_text(const SmithWord& word) {
-  std::string text;
-  for (long digit : word) {
-    if (!text.empty()) text += ',';
-    text += std::to_string(digit);
-  }
-  return text;
-}
-
-SmithWord parse_word(std::string_view text, size_t rank) {
-  SmithWord word;
-  for (;;) {
-    const auto comma = text.find(',');
-    const auto digit = text.substr(0, comma);
-    if (word.size() == rank || digit.empty() || (digit.size() > 1 && digit.front() == '0') ||
-        digit.find_first_not_of("0123456789") != digit.npos)
-      throw sic::Error(sic::ErrorKind::invalid_format, "invalid ray word");
-    word.push_back(sic::support::parse_number<long>(digit, "ray word digit",
-                                                    sic::ErrorKind::invalid_format, 0));
-    if (comma == text.npos) return word;
-    text.remove_prefix(comma + 1);
-  }
-}
-
-std::vector<SmithWord> read_words(const std::string& path, const std::vector<long>& smith,
-                                  const resources::Budget& budget, std::string& digest) {
-  std::ifstream stream(path, std::ios::binary);
-  if (!stream) throw sic::Error(sic::ErrorKind::io, "cannot open selector entry");
-  std::string text(kWordInputBytes + 1, '\0');
-  stream.read(text.data(), text.size());
-  if (stream.bad()) throw sic::Error(sic::ErrorKind::io, "cannot read selector entry");
-  text.resize(stream.gcount());
-  if (text.size() > kWordInputBytes)
-    throw sic::Error(sic::ErrorKind::resource, "selector entry exceeds 1 MiB");
-  // Charge the parser's nodes, strings, map entries and transient vector growth.
-  // Even an adversarial document has at most one new value per input byte.
-  budget.require_additional("selector entry JSON",
-                            resources::mul(text.size(), 4 * sizeof(Json) + 128));
-  digest = sha256::digest_hex(text);
-  const auto entry = sic::support::JsonParser::parse_integer_document(text);
-  entry.keys({"smith", "words"}, {"map", "smithSource"});
-  const auto& factors = entry.at("smith").as_array();
-  for (const auto& factor : factors)
-    if (factor.kind != Json::Kind::integer_value)
-      throw sic::Error(sic::ErrorKind::invalid_format, "Smith factors must be JSON integers");
-  if (entry.at("smith").as_uints<long>() != smith)
-    throw sic::Error(sic::ErrorKind::integrity, "selector Smith basis differs from the Group");
-  std::vector<SmithWord> words;
-  for (const auto& word : entry.at("words").as_array())
-    words.push_back(parse_word(word.as_str(), smith.size()));
-  return words;
-}
-
-Json entry_json(const std::vector<long>& smith, const std::vector<SmithWord>& words) {
-  Json entry;
-  entry["smith"] = Json::integer_array(smith);
-  entry["words"] = Json::array_value();
-  for (const auto& word : words)
-    entry["words"].array.push_back(Json::string_value(word_text(word)));
-  return entry;
-}
-
 int64_t elapsed_us(Clock::time_point start, Clock::time_point end) {
   return std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 }
@@ -120,7 +60,24 @@ int64_t elapsed_us(Clock::time_point start, Clock::time_point end) {
 int run(const cli::Arguments& args) {
   args.positionals(1, 1);
   const auto& mode = args.pos.front();
-  cli::require(mode == "derive" || mode == "check", "expected derive or check");
+  cli::require(mode == "derive" || mode == "check" || mode == "list",
+               "expected derive, check or list");
+  if (args.has("--sha256")) {
+    const auto pin = args.get("--sha256");
+    cli::require(pin.size() == 64 && pin.find_first_not_of("0123456789abcdef") == pin.npos,
+                 "--sha256 must contain 64 lowercase hexadecimal digits");
+  }
+  if (mode == "list") {
+    args.only({"--words", "--sha256"});
+    cli::require(!args.get("--words").empty(), "--words is required in list mode");
+    resources::Budget budget;
+    std::string digest;
+    const auto list = sic::sicx::read_ray_list(args.get("--words"), budget, false, &digest);
+    if (args.has("--sha256") && digest != args.get("--sha256"))
+      throw sic::Error(sic::ErrorKind::integrity, "ray list SHA-256 differs from the supplied pin");
+    std::cout << sic::sicx::bound_ray_list_json(list);
+    return cli::kSuccess;
+  }
   const bool check = mode == "check";
   const bool d2 = args.has("--dimension-two");
   cli::require(d2 != args.has("--group"), "specify exactly one of --group or --dimension-two");
@@ -130,11 +87,6 @@ int run(const cli::Arguments& args) {
   cli::require(!check || !args.get("--words").empty(), "--words must be nonempty");
   cli::require(!args.has("--receipt") || !args.get("--receipt").empty(),
                "--receipt must be nonempty");
-  if (args.has("--sha256")) {
-    const auto pin = args.get("--sha256");
-    cli::require(pin.size() == 64 && pin.find_first_not_of("0123456789abcdef") == pin.npos,
-                 "--sha256 must contain 64 lowercase hexadecimal digits");
-  }
   const int threads = args.has("--threads")
                           ? cli::number<int>(args.get("--threads"), "--threads", 1, kMaximumThreads)
                           : kDefaultThreads.value();
@@ -163,40 +115,34 @@ int run(const cli::Arguments& args) {
     budget.require_additional("group checkpoint authentication",
                               sha256::kFileChunkBytes * (read_ahead ? 2 : 1));
   const auto read_start = Clock::now();
-  sic::exact::GroupProjection group;
-  if (d2) {
-    group.exponent = 1;
-    group.smith = {2};
-  } else {
-    group =
-        sic::exact::GroupCheckpoint::project(args.get("--group"), args.get("--sha256"), read_ahead);
-  }
+  const auto group = d2 ? sic::exact::dimension_two_projection()
+                        : sic::exact::GroupCheckpoint::project(args.get("--group"),
+                                                               args.get("--sha256"), read_ahead);
   const auto select_start = Clock::now();
-  const int workers = d2 ? 1 : std::min<long>(threads, group.classes * group.smith.size());
-  // Reduced forms, exact ideal witnesses, and worker scratch. No element table.
-  const auto arithmetic_bytes =
-      d2 ? 0
-         : resources::add(resources::mul(group.classes, 4096 + 32 * group.smith.size()),
-                          resources::mul(uint64_t{1} << group.exponent, 32768));
-  budget.require_additional(
-      "ray selection",
-      resources::add(arithmetic_bytes,
-                     resources::add(workers * resources::kMib, check ? kWordInputBytes + 1 : 0)));
   std::string word_input_digest;
-  auto words = check ? read_words(args.get("--words"), group.smith, budget, word_input_digest)
-                     : std::vector<SmithWord>{};
-  if (d2) {
-    const std::vector<SmithWord> identity{{0}};
-    if (check && words != identity)
-      throw sic::Error(sic::ErrorKind::invalid_format, "dimension two requires exactly word 0");
-    words = identity;
+  sic::sicx::RayList list;
+  if (check) {
+    list = sic::sicx::read_ray_list(args.get("--words"), budget, true, &word_input_digest);
+    if (list.smith != group.smith)
+      throw sic::Error(sic::ErrorKind::integrity, "selector Smith basis differs from the Group");
+    if (list.dimension || d2) {
+      const auto expected = sic::exact::select_rays(group, threads, budget);
+      if (list.dimension &&
+          (list.dimension != expected.dimension || list.source != expected.source))
+        throw sic::Error(sic::ErrorKind::integrity, "ray list source differs from the Group");
+      if (list.words != expected.words)
+        throw sic::Error(sic::ErrorKind::invalid_format,
+                         "ray list differs from the selected words");
+    } else {
+      const int workers = sic::exact::admit_ray_selection(group, threads, budget);
+      const sic::exact::RaySelection selection(group, workers);
+      selection.check(list.words);
+      sic::exact::sort_ray_words(list.words);
+    }
   } else {
-    const sic::exact::RaySelection selection(group, workers);
-    if (!check) words = selection.derive();
-    selection.check(words);
-    std::sort(words.begin(), words.end());
+    list = sic::exact::select_rays(group, threads, budget);
   }
-  const auto output = sic::support::dump_integer_json(entry_json(group.smith, words)) + '\n';
+  const auto output = sic::sicx::ray_entry_json(list);
   const auto select_end = Clock::now();
 
   if (args.has("--receipt")) {

@@ -9,7 +9,6 @@ namespace {
 using sic::support::cli::default_text;
 constexpr unsigned kDefaultTransferThreads = 4;
 constexpr unsigned kDefaultReencodeThreads = 1;
-constexpr std::string_view kDefaultDataRoot = "data";
 constexpr const char* kDefaultOutputRoot = "build/data";
 constexpr const char* kDefaultPartsFilename = "multiplet.sicx.parts.json";
 constexpr uint64_t kDefaultExtraBytes = 0;
@@ -51,12 +50,11 @@ const sic::support::cli::Parser& command_line_parser(std::string_view command) {
            default_text(kDefaultTransferThreads) + "); reencode: default " +
            default_text(kDefaultReencodeThreads) + ".",
        1, 1, false},
-      {"--data-root", "DIR",
-       "fetch/repair: manifest root (default " + default_text(kDefaultDataRoot) + ").", 1, 1,
+      {"--data-root", "DIR", "fetch/repair: explicit manifest root; alternative to --parts.", 1, 1,
        false},
       {"--parts", "FILE",
-       "fetch/repair: parts manifest (default DATA_ROOT/SPEC/" +
-           default_text(kDefaultPartsFilename) + ").",
+       "fetch/repair: explicit parts manifest; with --data-root use DIR/SPEC/" +
+           default_text(kDefaultPartsFilename) + ".",
        1, 1, false},
       {"--name", "NAME",
        "fetch/repair: output name (default " + default_text(sic::transport::kLogicalName) + ").", 1,
@@ -148,10 +146,12 @@ sic::transport::TransferJob setup(const Args& a, std::string_view extra_bytes) t
     throw sic::support::cli::UsageError("multiplet must look like d1024/m1");
   (void)a.numeric<unsigned>("--threads", kDefaultTransferThreads, kMinimumThreads, kMaximumThreads);
   (void)sic::support::cli::number<uint64_t>(extra_bytes, "--extra-bytes");
+  sic::support::cli::require(a.get("--parts").empty() != a.get("--data-root").empty(),
+                             "specify exactly one of --parts FILE or --data-root DIR");
   const filesystem::path parts_path =
-      a.has("--parts") ? filesystem::path(a.get("--parts"))
-                       : filesystem::path(a.get("--data-root", std::string(kDefaultDataRoot))) /
-                             spec / kDefaultPartsFilename;
+      !a.get("--parts").empty()
+          ? filesystem::path(a.get("--parts"))
+          : filesystem::path(a.get("--data-root")) / spec / kDefaultPartsFilename;
   sic::transport::TransferJob j;
   j.parts = sic::transport::parse_parts(sic::transport::read_text(parts_path));
   const std::string want = spec.substr(0, slash) + "-" + spec.substr(slash + 1);

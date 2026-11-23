@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "sic/support/admission.hpp"
 #include "sic/support/ball_vectors.hpp"
 namespace sic::decode {
 using sic::support::ComplexBallVector;
@@ -34,5 +35,15 @@ inline uint64_t acb_bytes(slong prec) {
          2 * (16 + 8 * (static_cast<uint64_t>(std::max<slong>(prec, 64)) / 64 + 1));
 }
 inline uint64_t av_bytes(uint64_t n, slong prec) { return 48 + n * acb_bytes(prec); }
+
+inline uint64_t request_metadata_bytes(uint64_t count, size_t rank) {
+  using namespace sic::support::admission;
+  return mul(count, add(256, mul(rank, 32)));
+}
+
+inline uint64_t request_numeric_bytes(uint64_t count, slong bits) {
+  using sic::support::admission::mul;
+  return mul(count, mul(3, acb_bytes(bits)));
+}
 
 }  // namespace sic::decode

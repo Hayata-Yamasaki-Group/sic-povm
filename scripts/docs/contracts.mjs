@@ -64,12 +64,13 @@ export function checkRow(row,help) {
     if(option.default!==undefined) assert(help.includes(option.default),`contracts: rendered default ${name}`);
   }
 }
-function independentProbes(row,bin) {
-  const fixture=path.join(root,'cpp/tests/fixtures/sicx/d4.sicx');
-  const text=read(path.join(root,'cpp/tests/fixtures/sicx/d4.jsonl')).trimEnd().split('\n');
+function independentProbes(row,bin,d4) {
+  const fixture=path.join(d4,'d4.sicx');
+  const textPath=path.join(d4,'d4.jsonl');
+  const text=read(textPath).trimEnd().split('\n');
   const footer=JSON.parse(text.at(-1));
-  const values={'--decode':'off','--text':path.join(root,'cpp/tests/fixtures/sicx/d4.jsonl'),
-    '--prec':'256','--threshold':'1','--inject':'rep','--ray':row.tool==='sic-verify-independent'?'c0':'0',
+  const values={'--decode':'off','--text':textPath,
+    '--prec':'256','--dim':'2','--threshold':'1','--inject':'rep','--ray':row.tool==='sic-verify-independent'?'c0':'0',
     '--exact-root':footer.exact_root,'--expect-exact-root':footer.exact_root,
     '--file-root':footer.merkle_root,'--expect-file-root':footer.merkle_root,
     '--sha256':crypto.createHash('sha256').update(fs.readFileSync(fixture)).digest('hex'),
@@ -93,6 +94,7 @@ function independentProbes(row,bin) {
 }
 export function checkContracts(build) {
   const inventory=JSON.parse(read(path.join(root,'docs/cli_contract.json')));
+  const d4=path.join(build,'sicx-generated/d4');
   let checked=0;
   for(const row of inventory) {
     const cache=read(path.join(build,'CMakeCache.txt'));
@@ -101,7 +103,7 @@ export function checkContracts(build) {
     const bin=toolPath(build,row.tool);
     const help=run(bin,[...(row.command?[row.command]:[]),'--help']);
     checkRow(row,help);++checked;
-    if(row.independent)independentProbes(row,bin);
+    if(row.independent)independentProbes(row,bin,d4);
     // Bad grammar must fail before any numerical work or file publication.
     const args=row.command?[row.command]:[];
     if(row.tool==='sic-inspect')for(const [mode,arity]of Object.entries(row.mode_arities)) {
@@ -124,9 +126,10 @@ export function checkContracts(build) {
   assert(checked>0,'contracts: no built tools');
   if(fs.existsSync(path.join(build,'sic-data'))) {
     const scratch=fs.mkdtempSync(path.join(build,'help-contract-'));
+    const fixture=path.join(d4,'d4.sicx');
     try {
-      run(process.execPath,[path.join(root,'cpp/tests/cli/sic_test_data_subcommand_arity.mjs'),build,root,path.join(scratch,'data-arity')]);
-      run(process.execPath,[path.join(root,'cpp/tests/cli/sic_test_inspect_json_multiplet.mjs'),path.join(build,'sic-inspect'),path.join(root,'cpp/tests/fixtures/sicx/d4.sicx'),path.join(scratch,'inspect-multiplet')]);
+      run(process.execPath,[path.join(root,'cpp/tests/cli/sic_test_data_subcommand_arity.mjs'),build,root,path.join(scratch,'data-arity'),fixture]);
+      run(process.execPath,[path.join(root,'cpp/tests/cli/sic_test_inspect_json_multiplet.mjs'),path.join(build,'sic-inspect'),fixture,path.join(scratch,'inspect-multiplet')]);
     } finally {
       fs.rmSync(scratch,{recursive:true,force:true});
     }

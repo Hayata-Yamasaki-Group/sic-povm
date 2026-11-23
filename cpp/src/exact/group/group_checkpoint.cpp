@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "exact/group/group_checkpoint.hpp"
 
+#include <cstring>
+#include <limits>
 #include <array>
 #include <iomanip>
 
@@ -263,6 +265,26 @@ void GroupCheckpoint::load(Group& group, const std::filesystem::path& path, long
 }
 
 namespace {
+void project_principal_base(const GroupProjection& group, Index first, Index principal) {
+  if (first != 0 || principal != 1)
+    throw sic::Error(sic::ErrorKind::invalid_format, "missing principal group base");
+  for (size_t i = 1; i < group.smith.size(); ++i)
+    if (group.smith[i] % group.smith[i - 1])
+      throw sic::Error(sic::ErrorKind::invalid_format, "invalid Smith divisibility");
+}
+
+void project_principal_image(GroupProjection& group, bool identity, Index image) {
+  if (identity) {
+    if (image != 1)
+      throw sic::Error(sic::ErrorKind::invalid_format, "invalid principal identity image");
+    return;
+  }
+  const auto grid = Count{1} << (2 * group.exponent);
+  if (image <= 0 || image >= group.points || image % grid == 0)
+    throw sic::Error(sic::ErrorKind::invalid_format, "invalid principal group image");
+  group.axis_classes.push_back(image / grid);
+}
+
 struct ColumnEntry {
   Index value = 0;
   size_t filled = 0;
@@ -282,6 +304,29 @@ struct ColumnEntry {
 };
 }  // namespace
 
+GroupProjection GroupCheckpoint::project(const Group& group) {
+  const auto& ar = group.ar;
+  if (group.nb() < 2 || group.N <= 0 || group.invf.empty() ||
+      group.invf.size() != group.stride.size() || group.img.size() != mul(group.N, group.nb()))
+    throw sic::Error(sic::ErrorKind::invalid_argument, "ray selection needs a completed Group");
+  GroupProjection result;
+  result.exponent = ar.s;
+  result.discriminant = ar.Delta;
+  result.original_discriminant = ar.original_Delta;
+  result.order_index = ar.order_index;
+  result.classes = ar.h();
+  result.points = group.npts;
+  result.elements = group.N;
+  result.smith = group.invf;
+  result.stride = group.stride;
+  result.source = source_id();
+  project_principal_base(result, group.base[0], group.base[1]);
+  project_principal_image(result, true, group.img[1]);
+  for (const auto row : result.stride)
+    project_principal_image(result, false, group.img.at(row * group.nb() + 1));
+  return result;
+}
+
 GroupProjection GroupCheckpoint::project(const std::filesystem::path& path, std::string digest,
                                          bool read_ahead) try {
   if (!std::filesystem::is_regular_file(path))
@@ -289,14 +334,9 @@ GroupProjection GroupCheckpoint::project(const std::filesystem::path& path, std:
   const auto expected = read_digest(path, std::move(digest));
   const auto file_size = std::filesystem::file_size(path);
   GroupProjection result;
-  Count length = 0, grid = 0, column = 0, row_bytes = 0;
+  Count length = 0, column = 0, row_bytes = 0;
   size_t samples = 0;
   ColumnEntry sample;
-  const auto narrow_class = [&](Index image) -> Index {
-    if (image <= 0 || image >= result.points || image % grid == 0)
-      throw sic::Error(sic::ErrorKind::invalid_format, "invalid principal group image");
-    return image / grid;
-  };
   const auto visit = [&](std::span<const unsigned char> chunk) {
     if (!result.bytes) {
       auto prefix = chunk;
@@ -307,10 +347,10 @@ GroupProjection GroupCheckpoint::project(const std::filesystem::path& path, std:
         prefix = prefix.subspan(size);
       };
       const auto header = read_header(read_prefix, [&](const HeaderFields& fields) {
-        if (fields[kExponent] < 2 || fields[kExponent] > DimensionPolicy{}.maximum_exponent)
+        if (fields[kExponent] < 2 || fields[kExponent] > DimensionPolicy::kWireMaximumExponent)
           throw sic::Error(sic::ErrorKind::unsupported,
                            "group checkpoint dimension is unsupported");
-        grid = Count{1} << (2 * fields[kExponent]);
+        const auto grid = Count{1} << (2 * fields[kExponent]);
         constexpr auto kPointLimit = std::numeric_limits<Index>::max();
         if (!fields[kClasses] || fields[kClasses] > kPointLimit / grid ||
             fields[kPoints] != fields[kClasses] * grid || !fields[kElements] ||
@@ -337,13 +377,9 @@ GroupProjection GroupCheckpoint::project(const std::filesystem::path& path, std:
       if (fields[kBases] < 2)
         throw sic::Error(sic::ErrorKind::invalid_format, "missing principal group base");
       read_smith(header, read_prefix, result.smith, result.stride);
-      for (size_t i = 1; i < result.smith.size(); ++i)
-        if (result.smith[i] % result.smith[i - 1])
-          throw sic::Error(sic::ErrorKind::invalid_format, "invalid Smith divisibility");
       std::array<Index, 2> bases;
       read_prefix(bases.data(), sizeof bases);
-      if (bases != std::array<Index, 2>{0, 1})
-        throw sic::Error(sic::ErrorKind::invalid_format, "missing principal group base");
+      project_principal_base(result, bases[0], bases[1]);
       column = header.image_offset() + sizeof(Index);
       row_bytes = fields[kBases] * sizeof(Index);
     }
@@ -352,11 +388,7 @@ GroupProjection GroupCheckpoint::project(const std::filesystem::path& path, std:
     while (samples <= result.stride.size()) {
       const Count row = samples == 0 ? 0 : result.stride[samples - 1];
       if (!sample.read(column + row * row_bytes, result.bytes, chunk)) break;
-      if (samples) {
-        result.axis_classes.push_back(narrow_class(sample.value));
-      } else if (sample.value != 1) {
-        throw sic::Error(sic::ErrorKind::invalid_format, "invalid principal identity image");
-      }
+      project_principal_image(result, samples == 0, sample.value);
       ++samples;
     }
     result.bytes += chunk.size();

@@ -39,10 +39,12 @@ const catalogue = {schema: 'sic-release-catalogue/1.0',
       sicx: {size_bytes: '0', sha256: hash, merkle_root: hash, exact_root: hash,
         parts_file: 'd2/m1/multiplet.sicx.parts.json', assets: []}, rays: [ray]}]}]};
 const table = '# sic-stabilizers/1.0\n' +
+  'ray d2-m1-c0 d 2 order - status - group_order 2 unitary_order 2\n' +
+  'elem d2-m1-c0 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2\n' +
   'elem d2-m1-c0 1 det +1 F 1 0 0 1 chi 0 1 order 2 trace 2\nend 1\n';
 let count = 0;
 
-function run(name, {changeCatalogue, changeRecord, rawCatalogue, rawRecord, status = 2,
+function run(name, {changeCatalogue, changeRecord, rawCatalogue, rawRecord, changeTable, status = 2,
     match = /error:/, options = [], externalCatalogue = false} = {}) {
   const root = join(work, name);
   const data = externalCatalogue ? join(work, `${name}-external-data`) : join(root, 'data');
@@ -56,9 +58,9 @@ function run(name, {changeCatalogue, changeRecord, rawCatalogue, rawRecord, stat
   writeFileSync(join(data, 'd2/m1/c0.json'), rawRecord?.(JSON.stringify(value)) ??
     JSON.stringify(value));
   writeFileSync(join(data, 'd2/m1/c0.csv'), 'index,real,imag\n0,1,0\n1,0,0\n');
-  writeFileSync(join(root, 'stabilizers.txt'), table);
-  if (externalCatalogue) options = [...options, '--catalogue', join(data, 'catalogue.json')];
-  const result = spawnSync(checker, [join(root, 'stabilizers.txt'), '--repo', root, ...options],
+  writeFileSync(join(root, 'stabilizers.txt'), changeTable ? changeTable(table) : table);
+  options = [...options, '--catalogue', join(data, 'catalogue.json')];
+  const result = spawnSync(checker, [join(root, 'stabilizers.txt'), '--dim', '2', '--repo', root, ...options],
     {env: {...process.env, SIC_THREADS: '1'}, encoding: 'utf8', timeout: 10000});
   assert.ifError(result.error);
   assert.equal(result.status, status, `${name}: ${result.stdout}\n${result.stderr}`);
@@ -68,6 +70,18 @@ function run(name, {changeCatalogue, changeRecord, rawCatalogue, rawRecord, stat
 const multiplet = cat => cat.dimensions[0].multiplets[0];
 const entry = cat => multiplet(cat).rays[0];
 try {
+  run('empty-table', {changeTable: () => '# sic-stabilizers/1.0\nend 0\n',
+    match: /does not cover the catalogue rays/});
+  run('truncated-table', {changeTable: s => s.replace('end 1\n', ''),
+    match: /missing or unreadable footer/});
+  run('truncated-ray', {changeTable: s => s.replace(/^elem .* 1 det.*\n/m, ''),
+    match: /declared element counts differ/});
+  run('missing-ray', {changeCatalogue: c => {
+    multiplet(c).rays.push({...ray, label: 'c1', id: 'd2-m1-c1',
+      files: [file('d2/m1/c1.csv'), file('d2/m1/c1.json')]});
+  }, match: /does not cover the catalogue rays/});
+  run('footer-count', {changeTable: s => s.replace('end 1', 'end 2'),
+    match: /invalid footer count/});
   run('basis-positive', {status: 0, match: /certified 1 non-identity elements.*PASS/});
   run('external-catalogue-repo-mismatch-positive', {externalCatalogue: true,
     status: 0, match: /certified 1 non-identity elements.*PASS/});

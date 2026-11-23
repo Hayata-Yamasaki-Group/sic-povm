@@ -11,18 +11,19 @@
 
 int main(int argc, char** argv) {
   try {
-    if (argc != 3) throw std::runtime_error("expected release data and work paths");
-    const std::filesystem::path data(argv[1]), work(argv[2]);
-    const auto rays = sic::data::read_catalogue((data / "catalogue.json").string());
-    const auto base =
-        std::find_if(rays.begin(), rays.end(), [](const auto& r) { return r.label == "d2-m1-c0"; });
-    if (base == rays.end() || base->d != 2 ||
-        base->csv != std::filesystem::absolute(data / "d2/m1/c0.csv").string())
-      throw std::runtime_error("interim release catalogue bindings differ");
-    std::ifstream in(data / "catalogue.json");
-    const std::string original{std::istreambuf_iterator<char>(in),
-                               std::istreambuf_iterator<char>()};
+    if (argc != 2) throw std::runtime_error("expected catalogue work path");
+    const std::filesystem::path work(argv[1]);
     std::filesystem::create_directories(work);
+    const auto catalogue = work / "catalogue.json";
+    const std::string original =
+        R"({"dimensions":[{"d":"2","multiplets":[)"
+        R"({"id":"d2-m1","labels":{},"rays":[{"files":[)"
+        R"({"path":"d2/m1/c0.csv"}],"id":"d2-m1-c0","label":"c0"}]}]}],"schema":"sic-release-catalogue/1.0"})";
+    std::ofstream(catalogue) << original;
+    const auto rays = sic::data::read_catalogue(catalogue.string());
+    if (rays.size() != 1 || rays.front().label != "d2-m1-c0" || rays.front().d != 2 ||
+        rays.front().csv != std::filesystem::absolute(work / "d2/m1/c0.csv").string())
+      throw std::runtime_error("catalogue path binding differs");
     const auto bad = work / "invalid.json";
     for (const auto& [from, to] :
          {std::pair{"sic-release-catalogue/1.0", "sic-release-catalogue/1"},   // identity-negative
@@ -48,6 +49,7 @@ int main(int argc, char** argv) {
       if (!refused) throw std::runtime_error("invalid release catalogue accepted");
     }
     std::filesystem::remove(bad);
+    std::filesystem::remove(catalogue);
     std::cout << "PASS release catalogue and refusal controls\n";
     return 0;
   } catch (const std::exception& e) {

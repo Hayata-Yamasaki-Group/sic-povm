@@ -21,10 +21,10 @@ if(SIC_ENABLE_TEST_HOOKS)
 elseif(SIC_ENABLE_FLINT AND SIC_BUILD_APPS)
   add_test(NAME sic_test_support_test_hooks_installed_isolation COMMAND ${CMAKE_COMMAND}
     -DBUILD=${PROJECT_BINARY_DIR} -DWORK=${PROJECT_BINARY_DIR}/hooks-installed-isolation
-    -DFIXTURE=${SIC_TEST_FIXTURES_DIR}/d4.sicx
+    -DFIXTURE=${_generated_d4}
     -DSCRIPT=${PROJECT_SOURCE_DIR}/tests/cli/test_hooks.cmake
     -P ${PROJECT_SOURCE_DIR}/tests/install/test_hooks.cmake)
-  set_tests_properties(sic_test_support_test_hooks_installed_isolation PROPERTIES LABELS "integration;policy")
+  set_tests_properties(sic_test_support_test_hooks_installed_isolation PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "integration;policy")
 endif()
 sic_add_executable(sic-test-core-policy tests/core/policy.cpp)
 add_test(NAME sic_test_core_policy COMMAND sic-test-core-policy)
@@ -49,41 +49,42 @@ if(SIC_ENABLE_FLINT)
   target_link_libraries(sic-test-sicx-policy PRIVATE sic_bounds sic_decode sic_sicx)
   target_link_libraries(sic-test-sicx-policy PRIVATE sic_access sic_bounds)
   add_test(NAME sic_test_sicx_overlap_reference COMMAND sic-test-sicx-policy overlap_reference
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/overlap_reference")
-  set_tests_properties(sic_test_sicx_overlap_reference PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/overlap_reference")
+  set_tests_properties(sic_test_sicx_overlap_reference PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
   add_test(NAME sic_test_sicx_overlap_admission COMMAND sic-test-sicx-policy overlap_admission
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/overlap_admission")
-  set_tests_properties(sic_test_sicx_overlap_admission PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/overlap_admission")
+  set_tests_properties(sic_test_sicx_overlap_admission PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
   add_test(NAME sic_test_sicx_branch_precision COMMAND sic-test-sicx-policy branch_precision
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/branch_precision")
-  set_tests_properties(sic_test_sicx_branch_precision PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/branch_precision")
+  set_tests_properties(sic_test_sicx_branch_precision PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
   add_test(NAME sic_test_sicx_container_resources COMMAND sic-test-sicx-policy container_resources
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/container_resources")
-  set_tests_properties(sic_test_sicx_container_resources PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/container_resources")
+  set_tests_properties(sic_test_sicx_container_resources PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
   add_test(NAME sic_test_sicx_valuation_admission COMMAND sic-test-sicx-policy valuation_admission
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/valuation_admission")
-  set_tests_properties(sic_test_sicx_valuation_admission PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/valuation_admission")
+  set_tests_properties(sic_test_sicx_valuation_admission PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
   add_test(NAME sic_test_sicx_graph_width COMMAND sic-test-sicx-policy graph_width
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/graph_width")
-  set_tests_properties(sic_test_sicx_graph_width PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/graph_width")
+  set_tests_properties(sic_test_sicx_graph_width PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
   add_test(NAME sic_test_sicx_decode_memory COMMAND sic-test-sicx-policy decode_memory
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/decode_memory")
-  set_tests_properties(sic_test_sicx_decode_memory PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/decode_memory")
+  set_tests_properties(sic_test_sicx_decode_memory PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
   add_test(NAME sic_test_sicx_decode_options COMMAND sic-test-sicx-policy decode_options
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/decode_options")
-  set_tests_properties(sic_test_sicx_decode_options PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/decode_options")
+  set_tests_properties(sic_test_sicx_decode_options PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
   add_test(NAME sic_test_sicx_decode_cancellation COMMAND sic-test-sicx-policy decode_cancellation
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/decode_cancellation")
-  set_tests_properties(sic_test_sicx_decode_cancellation PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/decode_cancellation")
+  set_tests_properties(sic_test_sicx_decode_cancellation PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
   add_test(NAME sic_test_sicx_decode_thread_ownership COMMAND sic-test-sicx-policy decode_thread_ownership
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/decode_thread_ownership")
-  set_tests_properties(sic_test_sicx_decode_thread_ownership PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/decode_thread_ownership")
+  set_tests_properties(sic_test_sicx_decode_thread_ownership PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
   add_test(NAME sic_test_sicx_conjugation_selection COMMAND sic-test-sicx-policy conjugation_selection
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/conjugation_selection")
-  set_tests_properties(sic_test_sicx_conjugation_selection PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/conjugation_selection" "${_generated_d2}")
+  set_tests_properties(sic_test_sicx_conjugation_selection PROPERTIES
+    FIXTURES_REQUIRED "sicx_generated_d2;sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
   add_test(NAME sic_test_sicx_conjugation_word_width COMMAND sic-test-sicx-policy conjugation_word_width
-    "${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx" "${PROJECT_BINARY_DIR}/policy-work/conjugation_word_width")
-  set_tests_properties(sic_test_sicx_conjugation_word_width PROPERTIES LABELS "sicx;policy" TIMEOUT 120)
+    "${_generated_d4}" "${PROJECT_BINARY_DIR}/policy-work/conjugation_word_width")
+  set_tests_properties(sic_test_sicx_conjugation_word_width PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;policy" TIMEOUT 120)
 endif()
 if(SIC_ENABLE_FLINT)
   add_test(NAME sic_test_bounds_admission COMMAND "${CMAKE_COMMAND}"
@@ -94,12 +95,12 @@ if(SIC_ENABLE_FLINT)
   add_test(NAME sic_test_support_install_policy COMMAND "${CMAKE_COMMAND}" -DBUILD=${PROJECT_BINARY_DIR}
     -DSOURCE=${PROJECT_SOURCE_DIR}/tests/install/policy -DWORK=${PROJECT_BINARY_DIR}/policy-consumer
     "-DFLINT_PREFIX=${CMAKE_PREFIX_PATH}" "-DCONSUMER_CXX_FLAGS=${CMAKE_CXX_FLAGS}"
-    "-DCONSUMER_LINK_FLAGS=${CMAKE_EXE_LINKER_FLAGS}" -DFIXTURE=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/d4.sicx
+    "-DCONSUMER_LINK_FLAGS=${CMAKE_EXE_LINKER_FLAGS}" -DFIXTURE=${_generated_d4}
     -DREPO=${SIC_REPO_ROOT} -DSCAN=${PROJECT_SOURCE_DIR}/tests/install/scan-paths.mjs
     -DNODE=${SIC_NODE_EXECUTABLE} -DBINDIR=${CMAKE_INSTALL_BINDIR} -DDATADIR=${CMAKE_INSTALL_DATADIR}
     -DDEPENDENCY_PATHS=${PROJECT_BINARY_DIR}/dependency-paths.txt
     -DDEPENDENCY_CONTROL=${SicFLINT_INCLUDE_DIR}
     -P ${PROJECT_SOURCE_DIR}/tests/install/policy/run.cmake)
-  set_tests_properties(sic_test_support_install_policy PROPERTIES LABELS "policy;release")
+  set_tests_properties(sic_test_support_install_policy PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "policy;release")
   endif()
 endif()

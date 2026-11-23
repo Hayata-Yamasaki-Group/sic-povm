@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include <sys/resource.h>
 
+#include <algorithm>
+#include <cstring>
+#include <limits>
 #include <fstream>
 #include <iostream>
 #include <optional>
@@ -10,6 +13,7 @@
 #include "../fixtures/fixture.hpp"
 #include "access/range_cache.hpp"
 #include "access/source_arguments.hpp"
+#include "finalization_cases.hpp"
 #include "producer_cases.hpp"
 #include "sic/sicx/finalize.hpp"
 #include "sic/sicx/json.hpp"
@@ -1040,7 +1044,6 @@ bool after_rename = false, rename_seen = false;
 size_t fault_hits = 0;
 std::optional<ErrorKind> read_kind;
 std::optional<ErrorKind> full_kind;
-fs::path validation_replacement;
 // Asset renames have no immediate parent sync. Their next parent sync belongs
 // to manifest publication in support::atomic_write; fault the actual syscall.
 extern "C" int __real_fsync(int);
@@ -1060,8 +1063,6 @@ extern "C" int __wrap_fsync(int fd) {
   return __real_fsync(fd);
 }
 void fault(std::string_view operation, const fs::path& target) {
-  if (operation == "finalization_validation" && !validation_replacement.empty())
-    copy_fixture(validation_replacement, target);
   if (operation == "read" && read_kind) throw sic::Error(*read_kind, "injected range read");
   if (operation == "full_validation" && full_kind) {
     if (*full_kind != ErrorKind::io) throw sic::Error(*full_kind, "injected full validation");
@@ -1152,42 +1153,7 @@ void range_failures(const fs::path& work) {
 }
 
 void rename_failures(const fs::path& fixture, const fs::path& work) {
-  {
-    Reader good(fixture);
-    sicx_tests::Fixture f(fixture, work / "invariant-fixture");
-    auto alternate = f.good;
-    auto json = sicx_tests::json(alternate[0]);
-    json["elements"].array[0]["max_bits"] =
-        sic::support::Json::integer_value(good.meta().elements[0].max_bits + 1);
-    sicx_tests::set_json(alternate[0], json);
-    validation_replacement = work / "alternate-finalized.sicx";
-    sicx_tests::write(validation_replacement, alternate);
-    const auto path = work / "invariant-finalize.sicx";
-    copy_fixture(fixture, path);
-    auto meta = good.meta();
-    std::vector<FinalizeRay> rays;
-    std::vector<std::vector<BallPart>> balls;
-    for (size_t i = 0; i < meta.rays.size(); ++i) {
-      const auto& ray = meta.rays[i];
-      rays.push_back({ray.label, ray.word, static_cast<int64_t>(ray.anchor)});
-      balls.push_back(good.ball_parts(i));
-    }
-    const auto final = build_finalization(meta, rays, balls, meta.ball_working_bits);
-    bool standard = false;
-    {
-      FaultScope hook("none");
-      try {
-        finalize_in_place(path, meta, final, false, good.exact_root());
-      } catch (const std::logic_error& error) {
-        standard = std::string(error.what()).find("finalization invariant") != std::string::npos;
-      }
-    }
-    validation_replacement.clear();
-    check(standard, "finalization invariant lost its standard type");
-    check(bytes(path.string() + ".partial") == bytes(work / "alternate-finalized.sicx"),
-          "failed invariant removed private evidence");
-    check(!fs::exists(path), "failed invariant published output");
-  }
+  finalization_publication_failures(fixture, work);
   Reader reader(fixture);
   auto index = reader.index();
   index.resize(reader.exact_count());

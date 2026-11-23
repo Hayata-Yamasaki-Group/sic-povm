@@ -165,7 +165,6 @@ void numerical_categories() {
     standard = true;
   }
   SIC_CHECK(standard);
-  kind(ErrorKind::unsupported, [] { Arithmetic unsupported(3, true); });
   kind(ErrorKind::construction, [] { resid(Rational(1, 3), 4); });
   Arithmetic arithmetic(2);
   kind(ErrorKind::construction, [&] { reduced_order::degree(arithmetic, 3); });

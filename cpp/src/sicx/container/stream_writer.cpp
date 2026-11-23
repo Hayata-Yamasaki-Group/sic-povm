@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "sicx/container/stream_writer.hpp"
 
+#include <algorithm>
+#include <cstring>
+
 #include "sicx/codec/integer.hpp"
 #include "sicx/container/directory.hpp"
 #include "sicx/container/leaf_index.hpp"
 #include "sicx/io/io.hpp"
+#include "support/io/durable_output.hpp"
 
 namespace {
 struct ChunkDescriptor {
@@ -17,6 +21,53 @@ struct ChunkDescriptor {
     if (value >= 0) ::close(std::exchange(value, -1));
   }
 };
+
+struct stat regular_stat(int fd, const char* what) {
+  struct stat state {};
+  if (::fstat(fd, &state) || !S_ISREG(state.st_mode) || state.st_size < 0)
+    sic::sicx::fail(sic::ErrorKind::io, std::string("invalid ") + what);
+  return state;
+}
+
+bool same_modification(const struct stat& a, const struct stat& b) {
+  return a.st_mtim.tv_sec == b.st_mtim.tv_sec && a.st_mtim.tv_nsec == b.st_mtim.tv_nsec;
+}
+
+bool same_change(const struct stat& a, const struct stat& b) {
+  return a.st_ctim.tv_sec == b.st_ctim.tv_sec && a.st_ctim.tv_nsec == b.st_ctim.tv_nsec;
+}
+
+void require_named_file(const std::filesystem::path& path, const struct stat& expected,
+                        bool same_ctime) {
+  struct stat current {};
+  if (::lstat(path.c_str(), &current) || !S_ISREG(current.st_mode) ||
+      current.st_dev != expected.st_dev || current.st_ino != expected.st_ino ||
+      current.st_size != expected.st_size || !same_modification(current, expected) ||
+      (same_ctime && !same_change(current, expected)))
+    sic::sicx::fail(sic::ErrorKind::integrity, "writer output identity changed: " + path.string());
+}
+
+sic::sicx::ByteBuffer read_journal(int fd, const sic::sicx::ResourceLimits& limits,
+                                   const sic::sicx::WorkspaceAdmission& admit) {
+  using namespace sic::sicx;
+  const auto before = regular_stat(fd, "resume journal");
+  const auto bytes = static_cast<uint64_t>(before.st_size);
+  constexpr uint64_t header = 56, framing = 13;
+  if (bytes < header) fail(sic::ErrorKind::invalid_format, "invalid journal header");
+  const auto possible =
+      std::min(limits.directory_entries, (bytes - header) / (kIndexEntryBytes + framing));
+  const auto workspace = checked_add(bytes, checked_mul(possible, 2 * sizeof(IndexEntry)));
+  if (workspace > limits.reader_memory_bytes || bytes > SIZE_MAX)
+    fail(sic::ErrorKind::resource, "resume journal workspace exceeds SICX limits");
+  if (admit) admit("resume journal and index", workspace);
+  ByteBuffer result(static_cast<size_t>(bytes));
+  pread_exact(fd, result.data(), result.size(), 0);
+  const auto after = regular_stat(fd, "resume journal");
+  if (after.st_size != before.st_size || !same_modification(before, after) ||
+      !same_change(before, after))
+    fail(sic::ErrorKind::integrity, "resume journal changed while reading");
+  return result;
+}
 }  // namespace
 
 namespace sic::sicx {
@@ -125,16 +176,16 @@ void StreamWriter::State::create_journal(const std::vector<IndexEntry>& entries,
 }  // namespace sic::sicx
 
 namespace sic::sicx {
-void StreamWriter::State::resume_existing() {
-  jfd_ = ::open(journal_.c_str(), O_RDWR | O_CLOEXEC);
+void StreamWriter::State::resume_existing(ResumeName name) {
+  jfd_ = ::open(journal_.c_str(), O_RDWR | O_CLOEXEC | O_NONBLOCK | O_NOFOLLOW);
   if (jfd_ < 0) fail(sic::ErrorKind::io, "resume: no journal " + journal_.string());
-  fd_ = ::open(partial_.c_str(), O_RDWR | O_CLOEXEC);
-  if (fd_ < 0) fail(sic::ErrorKind::io, "resume: cannot open " + partial_.string());
-  struct stat js {
-  }, fs{};
-  if (::fstat(jfd_, &js) || ::fstat(fd_, &fs)) fail(sic::ErrorKind::io, "resume: stat failed");
-  ByteBuffer j(static_cast<size_t>(js.st_size));
-  if (!j.empty()) pread_exact(jfd_, j.data(), j.size(), 0);
+  const auto& prefix = name == ResumeName::original ? path_ : partial_;
+  fd_ = ::open(prefix.c_str(), O_RDWR | O_CLOEXEC | O_NONBLOCK | O_NOFOLLOW);
+  if (fd_ < 0) fail(sic::ErrorKind::io, "resume: cannot open " + prefix.string());
+  const auto fs = regular_stat(fd_, "resume data file");
+  if (name == ResumeName::both) require_named_file(path_, fs, true);
+  const auto journal_state = regular_stat(jfd_, "resume journal");
+  const auto j = read_journal(jfd_, options_.limits, options_.admit_workspace);
   if (j.size() < 56 || !std::equal(kJournalMagic.begin(), kJournalMagic.end(), j.begin()))
     fail(sic::ErrorKind::invalid_format, "resume: invalid journal header");
   if (!std::equal(options_.plan.begin(), options_.plan.end(), j.begin() + 8))
@@ -174,6 +225,8 @@ void StreamWriter::State::resume_existing() {
       if (!known_type(e.type_name()) || e.codec || e.decoded_length != e.length)
         fail(sic::ErrorKind::invalid_format, "resume: invalid retained chunk");
       admit_chunk(e.type_name(), e.length, options_.limits);
+      if (replay_.size() >= options_.limits.directory_entries)
+        fail(sic::ErrorKind::resource, "resume journal directory limit");
       if (e.offset != offset ||
           checked_add(checked_add(e.offset, kChunkHeaderBytes), e.length) > file_size)
         break;
@@ -182,7 +235,12 @@ void StreamWriter::State::resume_existing() {
       if (std::memcmp(head, e.type.data(), 4) || get_le(head + 4, 4) != e.flags ||
           get_le(head + 8, 8) != e.length)
         break;
-      payload.resize(e.length);
+      if (e.length > payload.capacity()) {
+        if (options_.admit_workspace) options_.admit_workspace("resume retained chunk", e.length);
+        payload = ByteBuffer(e.length);
+      } else {
+        payload.resize(e.length);
+      }
       if (e.length) pread_exact(fd_, payload.data(), e.length, e.offset + kChunkHeaderBytes);
       if (sha256(payload.data(), payload.size()) != e.sha256) break;
       replay_.push_back(e);
@@ -191,12 +249,27 @@ void StreamWriter::State::resume_existing() {
       if (len < 4) fail(sic::ErrorKind::invalid_format, "resume: invalid journal note");
       const uint64_t klen = get_le(p, 4);
       if (klen + 4 > len) fail(sic::ErrorKind::invalid_format, "resume: invalid journal note");
+      if (notes_.size() >= options_.limits.directory_entries)
+        fail(sic::ErrorKind::resource, "resume journal note limit");
+      if (options_.admit_workspace)
+        options_.admit_workspace("resume journal note", checked_add(len, 256));
       notes_[std::string(reinterpret_cast<const char*>(p + 4), klen)] =
           ByteBuffer(p + 4 + klen, p + len);
     } else
       fail(sic::ErrorKind::invalid_format, "resume: unknown journal record");
     at += 5 + len + 8;
     good_journal = at;
+  }
+  require_named_file(prefix, fs, true);
+  require_named_file(journal_, journal_state, true);
+  if (name == ResumeName::original) {
+    sic::sicx::rename_file(path_, partial_, "resume_reopen");
+    sync_dir(path_);
+  } else if (name == ResumeName::both) {
+    require_named_file(path_, fs, true);
+    if (::unlink(path_.c_str()))
+      fail(ErrorKind::io, "resume: cannot withdraw published name before replay");
+    sync_dir(path_);
   }
   if (::ftruncate(fd_, static_cast<off_t>(offset)) ||
       ::ftruncate(jfd_, static_cast<off_t>(good_journal)))
@@ -299,16 +372,29 @@ std::unique_ptr<StreamWriter::State> StreamWriter::State::resume_reopen(
     void (*validate_output)(const std::filesystem::path&, ResourceLimits)) {
   const std::filesystem::path partial = path.string() + ".partial",
                               journal = path.string() + ".partial.journal";
-  if (sic::sicx::filesystem_io([&] { return std::filesystem::exists(journal); }) &&
-      !sic::sicx::filesystem_io([&] { return std::filesystem::exists(partial); }) &&
-      sic::sicx::filesystem_io([&] { return std::filesystem::exists(path); })) {
-    sic::sicx::rename_file(path, partial,
-                           "resume_reopen");  // crashed between journal creation and rename
-    sync_dir(path);
-  }
   options.durable = true;
   options.resume = true;
   options.part = false;
+  if (sic::sicx::filesystem_io(
+          [&] { return std::filesystem::exists(journal) && std::filesystem::exists(path); })) {
+    const auto name = sic::sicx::filesystem_io([&] { return std::filesystem::exists(partial); })
+                          ? ResumeName::both
+                          : ResumeName::original;
+    auto w = std::unique_ptr<State>(new State());
+    w->path_ = path;
+    w->partial_ = partial;
+    w->journal_ = journal;
+    w->options_ = std::move(options);
+    w->validate_output_ = validate_output;
+#ifdef SIC_ENABLE_TEST_HOOKS
+    w->kill_at_byte_ = env_u64("SIC_FAULT_KILL_AT_BYTE");
+    w->kill_after_chunks_ = env_u64("SIC_FAULT_KILL_AFTER_CHUNKS");
+#endif
+    // With a journal, one original name or two links to the same inode
+    // can be left by interruption. Check the recovery before changing names.
+    w->resume_existing(name);
+    return w;
+  }
   return std::make_unique<State>(path, options, validate_output);
 }
 }  // namespace sic::sicx
@@ -368,13 +454,37 @@ void StreamWriter::State::put_note(const std::string& key, const ByteBuffer& val
 }  // namespace sic::sicx
 
 namespace sic::sicx {
+ResourceLimits StreamWriter::State::remaining_logical_limits() const {
+  auto limits = options_.limits;
+  (void)directory_append_capacity(logical_, 0, limits, "writer logical directory");
+  limits.directory_entries -= logical_.size();
+  return limits;
+}
+
+void StreamWriter::State::reserve_directories(size_t new_leaves) {
+  const auto physical =
+      directory_append_capacity(index_, 1, options_.limits, "writer physical directory");
+  const auto logical =
+      directory_append_capacity(logical_, new_leaves, options_.limits, "writer logical directory");
+  if (options_.admit_workspace)
+    options_.admit_workspace("writer directory append",
+                             checked_add(directory_append_bytes(index_, physical, 1),
+                                         directory_append_bytes(logical_, logical, new_leaves)));
+  index_.reserve(physical);
+  logical_.reserve(logical);
+}
+
 void StreamWriter::State::adopt(size_t n) {
   if (n > pending_replay())
     fail(sic::ErrorKind::invalid_argument, "adopt beyond the recovered chunks");
   for (size_t q = 0; q < n; ++q) {
     const auto& e = replay_[index_.size()];
+    const auto limits = remaining_logical_limits();
+    if (e.leaf_count > limits.directory_entries)
+      fail(ErrorKind::resource, "SICX: logical directory resource limit");
+    if (options_.admit_workspace) options_.admit_workspace("adopted chunk payload", e.length);
     const auto payload = read_chunk_at(partial_, e, options_.limits);
-    const auto leaves = chunk_leaves(e, payload, options_.limits);
+    const auto leaves = chunk_leaves(e, payload, limits, options_.admit_workspace);
     if (!leaves.empty() && (e.first_leaf != logical_.size() || e.leaf_count != leaves.size()))
       fail(sic::ErrorKind::invalid_format, "resume logical mapping");
     if (e.type_name() == "TOWR" || e.type_name() == "BODY") {
@@ -387,9 +497,7 @@ void StreamWriter::State::adopt(size_t n) {
       if (next - e.first != e.count)
         fail(sic::ErrorKind::invalid_format, "resume logical coordinate count");
     }
-    if (leaves.size() > options_.limits.directory_entries ||
-        logical_.size() > options_.limits.directory_entries - leaves.size())
-      throw Error(ErrorKind::resource, "SICX: logical directory resource limit");
+    reserve_directories(leaves.size());
     logical_.insert(logical_.end(), leaves.begin(), leaves.end());
     index_.push_back(e);
     offset_ = e.offset + kChunkHeaderBytes + e.length;
@@ -399,16 +507,12 @@ void StreamWriter::State::adopt(size_t n) {
 
 namespace sic::sicx {
 std::vector<IndexEntry> StreamWriter::State::peek_journal(const std::filesystem::path& journal,
-                                                          Digest* plan) {
-  std::ifstream in(journal, std::ios::binary);
-  if (!in) fail(ErrorKind::io, "cannot open journal " + journal.string());
-  ByteBuffer j;
-  try {
-    j.assign(std::istreambuf_iterator<char>(in), {});
-  } catch (const std::ios_base::failure&) {
-    fail(ErrorKind::io, "cannot read journal " + journal.string());
-  }
-  if (in.bad()) fail(ErrorKind::io, "cannot read journal " + journal.string());
+                                                          Digest* plan,
+                                                          const WorkspaceAdmission& admit) {
+  const ChunkDescriptor fd(::open(journal.c_str(), O_RDONLY | O_CLOEXEC | O_NONBLOCK | O_NOFOLLOW));
+  if (fd.value < 0) fail(ErrorKind::io, "cannot open journal " + journal.string());
+  const ResourceLimits limits;
+  const auto j = read_journal(fd.value, limits, admit);
   if (j.size() < 56 || !std::equal(kJournalMagic.begin(), kJournalMagic.end(), j.begin()))
     fail(sic::ErrorKind::invalid_format, "invalid journal " + journal.string());
   if (plan) std::copy(j.begin() + 8, j.begin() + 40, plan->begin());
@@ -420,7 +524,11 @@ std::vector<IndexEntry> StreamWriter::State::peek_journal(const std::filesystem:
     if (!std::equal(h.begin(), h.begin() + 8,
                     j.begin() + static_cast<std::ptrdiff_t>(at + 5 + len)))
       break;
-    if (j[at] == 1 && len == kIndexEntryBytes) out.push_back(IndexEntry::get(j.data() + at + 5));
+    if (j[at] == 1 && len == kIndexEntryBytes) {
+      if (out.size() >= limits.directory_entries)
+        fail(ErrorKind::resource, "resume journal directory limit");
+      out.push_back(IndexEntry::get(j.data() + at + 5));
+    }
     at += 5 + len + 8;
   }
   return out;
@@ -479,7 +587,8 @@ void StreamWriter::State::chunk(const std::string& type, uint32_t flags,
   e.first = first;
   e.count = count;
   e.sha256 = sha256(payload.data(), payload.size());
-  const auto leaves = chunk_leaves(e, payload, options_.limits);
+  const auto leaves =
+      chunk_leaves(e, payload, remaining_logical_limits(), options_.admit_workspace);
   if (!leaves.empty()) {
     e.first_leaf = logical_.size();
     e.leaf_count = leaves.size();
@@ -494,10 +603,6 @@ void StreamWriter::State::chunk(const std::string& type, uint32_t flags,
     if (next - first != count)
       fail(sic::ErrorKind::invalid_format, "writer coordinate count mismatch");
   }
-  if (leaves.size() > options_.limits.directory_entries ||
-      logical_.size() > options_.limits.directory_entries - leaves.size())
-    throw Error(ErrorKind::resource, "SICX: logical directory resource limit");
-  logical_.insert(logical_.end(), leaves.begin(), leaves.end());
   if (index_.size() < replay_.size()) {
     ByteBuffer a, b;
     e.put(a);
@@ -506,10 +611,14 @@ void StreamWriter::State::chunk(const std::string& type, uint32_t flags,
       fail(sic::ErrorKind::integrity,
            "resume: chunk " + std::to_string(index_.size()) + " (" + type +
                ") differs from the interrupted run (non-deterministic input?)");
+    reserve_directories(leaves.size());
+    logical_.insert(logical_.end(), leaves.begin(), leaves.end());
     index_.push_back(e);
     offset_ += kChunkHeaderBytes + payload.size();
     return;
   }
+  reserve_directories(leaves.size());
+  logical_.insert(logical_.end(), leaves.begin(), leaves.end());
   ByteBuffer head(type.begin(), type.end());
   put_le(head, flags, 4);
   put_le(head, payload.size(), 8);
@@ -557,6 +666,12 @@ Digest StreamWriter::State::finish() {
       fail(sic::ErrorKind::io, "output exists: " + idx_path.string());
     sic::sicx::rename_file(idx_partial, idx_path, "part_index");
   } else {
+    if (options_.admit_workspace) {
+      const auto directory_bytes = checked_add(checked_mul(logical_.size(), kLogicalEntryBytes),
+                                               checked_mul(index_.size(), kIndexEntryBytes));
+      options_.admit_workspace("writer directories",
+                               checked_add(4096, checked_mul(8, directory_bytes)));
+    }
     ByteBuffer lt;
     put_le(lt, logical_.size(), 8);
     for (const auto& e : logical_) e.put(lt);
@@ -584,12 +699,37 @@ Digest StreamWriter::State::finish() {
     if (::ftruncate(fd_, static_cast<off_t>(offset_))) fail(sic::ErrorKind::io, "truncate failed");
     if (::fsync(fd_)) fail(sic::ErrorKind::io, "fsync failed");
   }
+  const auto complete = regular_stat(fd_, "completed writer file");
+  if (options_.verify_output) {
+    options_.verify_output(partial_, fd_, root);
+  } else if (!options_.part) {
+    validate_output_(partial_, options_.limits);
+  }
+  if (options_.before_publish) options_.before_publish(partial_);
+#ifdef SIC_ENABLE_TEST_HOOKS
+  if (options_.verify_output && io_fault_hook)
+    io_fault_hook("finalization_before_publish", partial_);
+#endif
+  require_named_file(partial_, complete, true);
+  if (options_.verify_output) {
+#ifdef SIC_ENABLE_TEST_HOOKS
+    if (io_fault_hook) io_fault_hook("finalization_publish_link", partial_);
+#endif
+    sic::support::publish_pinned_no_replace(fd_, partial_, path_);
+  } else {
+    sic::support::publish_no_replace(partial_, path_);
+  }
+  const auto published = regular_stat(fd_, "published writer file");
+  require_named_file(path_, complete, false);
+  sync_dir(path_);
+#ifdef SIC_ENABLE_TEST_HOOKS
+  if (options_.verify_output && io_fault_hook) io_fault_hook("finalization_after_publish", path_);
+#endif
+  // A rename changes ctime. Size, mtime and inode still describe the validated
+  // descriptor, so reporting the root never requires reopening a mutable name.
+  require_named_file(path_, published, true);
   ::close(fd_);
   fd_ = -1;
-  if (!options_.part) validate_output_(partial_, options_.limits);
-  if (options_.before_publish) options_.before_publish(partial_);
-  sic::support::publish_no_replace(partial_, path_);
-  sync_dir(path_);
   finished_ = true;
   if (jfd_ >= 0) {
     ::close(jfd_);

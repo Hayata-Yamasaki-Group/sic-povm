@@ -126,9 +126,13 @@ function compareConfiguration(documents,sources) {
     assert(row && row.split('|')[5].trim()==='hook build only', 'defaults: hook scope '+name);
   }
   const hookRows=table.split('\n').filter(l=>l.startsWith('| environment |') && l.split('|')[5].trim()==='hook build only').map(l=>l.split('|')[2].trim().replaceAll('`',''));
-  // The inspect tool owns its separate compile-time guard outside ProducerOptions.
-  assert.deepEqual(hookRows.filter(n=>n!=='SIC_TEST_INSPECT_EXACT_RENAME_FAIL').sort(),ignoredNames.sort(), 'defaults: hook scope enrollment');
+  // Inspect and decoder hooks have their own compile-time guards outside ProducerOptions.
   assert(/#ifdef SIC_ENABLE_TEST_HOOKS\s+if \(std::getenv\("SIC_TEST_INSPECT_EXACT_RENAME_FAIL"\)\)[\s\S]*?#endif/.test(sources('cpp/apps/inspect/command.cpp')), 'defaults: inspect hook guard');
+  const decoderHooks=['cpp/apps/decode/command.cpp', 'cpp/src/decode/scheduling.cpp']
+    .flatMap(file=>[...sources(file).matchAll(/#ifdef SIC_ENABLE_TEST_HOOKS([^#]+)#endif/g)])
+    .flatMap(block=>[...block[1].matchAll(/env_u64\("([A-Z0-9_]+)"\)/g)].map(match=>match[1]));
+  assert.deepEqual(hookRows.sort(), [...ignoredNames, 'SIC_TEST_INSPECT_EXACT_RENAME_FAIL', ...decoderHooks].sort(),
+    'defaults: hook scope enrollment');
   // Optional storage booleans are interpreted by the stage consuming them.
   // Bind the unset fallback as well as the exact nonzero reader, on both sides.
   const storage = [

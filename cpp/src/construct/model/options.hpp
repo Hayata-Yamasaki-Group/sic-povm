@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 #include <exception>
+#include <filesystem>
 #include <map>
 #include <optional>
 
@@ -60,6 +61,7 @@ struct ProducerOptions {
   unsigned seed = 7;
 
   const char* out;
+  std::filesystem::path rays_out;
   const char* d2_radicals;
   const char* completed_cache_root;
   const char* group_cache;
@@ -95,7 +97,7 @@ struct ProducerOptions {
   const std::optional<bool> group_resident_entries;
   const std::optional<bool> spool_lattice;
 
-  enum class Order { automatic, standard, maximal, invalid };
+  enum class Order { standard, maximal, invalid };
   const Order order;
 
   const ParsedProducerOption<int> requested_threads;

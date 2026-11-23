@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Check committed WH ray formats with the production readback command.
+// Check regenerated WH ray formats with the production readback command.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -26,7 +26,7 @@ for (const dim of fs.readdirSync(data, {withFileTypes: true})) {
     }
   }
 }
-assert(rays.length > 0, 'no committed WH ray JSON records');
+assert(rays.length > 0, 'no generated WH ray JSON records');
 let checked = 0;
 for (const json of rays.sort()) {
   const stem = path.basename(json, '.json');
@@ -57,6 +57,6 @@ try {
 } finally {
   fs.rmSync(work, {recursive: true, force: true});
 }
-console.log(`PASS committed ray formats: ${rays.length} rays, ${checked} sibling files; changed-coordinate control refused`);
+console.log(`PASS generated ray formats: ${rays.length} rays, ${checked} sibling files; changed-coordinate control refused`);
 
 console.log('SIC_NEGATIVE_CONTROL:data-formats');

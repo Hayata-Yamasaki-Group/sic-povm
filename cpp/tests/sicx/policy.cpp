@@ -34,9 +34,10 @@ void refuses(sic::ErrorKind kind, F f) {
 }
 int main(int argc, char** argv) {
   try {
-    require(argc == 4);
+    require(argc >= 2);
     flint_set_num_threads(1);
     const std::string_view name = argv[1];
+    require(argc == (name == "conjugation_selection" ? 5 : 4));
     sic::sicx::Reader reader(argv[2]);
     sic::decode::Decoder::Options o;
     o.pin = false;
@@ -248,7 +249,7 @@ int main(int argc, char** argv) {
       require(rejected);
     } else if (name == "conjugation_selection") {
       // General d2: K(omega*i,sqrt(2)), not the fixture's generator or shape.
-      sic::sicx::Reader d2(std::filesystem::path(argv[2]).parent_path() / "d2.sicx");
+      sic::sicx::Reader d2(argv[4]);
       auto& meta = const_cast<sic::sicx::Meta&>(d2.meta());
       meta.degrees = {2, 2};
       meta.width = {1, 2, 4};

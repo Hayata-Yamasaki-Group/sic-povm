@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "support/sha256.hpp"
 
+#include <cstring>
 #include <limits>
 
 #include "sic/error.hpp"
@@ -269,7 +270,8 @@ std::string file_hex_visit(const std::filesystem::path& path, bool read_ahead,
 #include <cerrno>
 #include <stdexcept>
 namespace sic::support::sha256 {
-std::string range_hash(int fd, uint64_t offset, uint64_t size, std::span<unsigned char> scratch) {
+std::string range_hash(int fd, uint64_t offset, uint64_t size, std::span<unsigned char> scratch,
+                       [[maybe_unused]] bool read_ahead) {
   const auto maximum = static_cast<uint64_t>(std::numeric_limits<off_t>::max());
   if (size && (offset > maximum || size > maximum - offset))
     throw std::overflow_error("checksum range exceeds off_t range");
@@ -278,9 +280,15 @@ std::string range_hash(int fd, uint64_t offset, uint64_t size, std::span<unsigne
   while (size) {
     const size_t bytes = static_cast<size_t>(std::min<uint64_t>(scratch.size(), size));
     read_exact(fd, static_cast<off_t>(offset), scratch.data(), bytes);
-    hasher.update(scratch.data(), bytes);
     offset += bytes;
     size -= bytes;
+#ifdef POSIX_FADV_WILLNEED
+    if (read_ahead && size) {
+      const auto next = static_cast<off_t>(std::min<uint64_t>(scratch.size(), size));
+      (void)::posix_fadvise(fd, static_cast<off_t>(offset), next, POSIX_FADV_WILLNEED);
+    }
+#endif
+    hasher.update(scratch.data(), bytes);
   }
   return hasher.finish_hex();
 }

@@ -7,7 +7,11 @@
 namespace sic::data {
 void require_new_output(const std::filesystem::path& path);
 std::string dump_ball(const acb_t z);
-void write_balls(const std::filesystem::path& path, const sic::support::ComplexBallVector& v);
+void write_balls(const std::filesystem::path& path, std::span<const acb_struct> v);
+inline void write_balls(const std::filesystem::path& path,
+                        const sic::support::ComplexBallVector& v) {
+  write_balls(path, v.span());
+}
 void write_decode_provenance(const std::filesystem::path& path, const std::string& text);
 std::string json_escape(const std::string& text);
 struct DecodedComparison {

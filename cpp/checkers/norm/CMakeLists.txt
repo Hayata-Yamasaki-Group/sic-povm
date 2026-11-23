@@ -50,19 +50,22 @@ target_compile_options(sic-certify-norm PRIVATE
 if(SIC_BUILD_TESTS)
   foreach(_case estimate leaf_estimate max_bits max_dimension max_field_dimension)
     add_test(NAME sic_test_norm_option_${_case} COMMAND ${CMAKE_COMMAND}
-      -DCHECKER=$<TARGET_FILE:sic-certify-norm> -DFIXTURE=${SIC_TEST_FIXTURES_DIR}/d4.sicx
+      -DCHECKER=$<TARGET_FILE:sic-certify-norm> -DFIXTURE=${_generated_d4}
       -DCASE=${_case} -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/options_cli.cmake)
-    set_tests_properties(sic_test_norm_option_${_case} PROPERTIES LABELS integration TIMEOUT 120)
+    set_tests_properties(sic_test_norm_option_${_case} PROPERTIES LABELS integration TIMEOUT 120
+      FIXTURES_REQUIRED sicx_generated_d4)
   endforeach()
   foreach(_case d4 d8 d8-maximal d16)
     set(_rays 1)
     if(_case STREQUAL "d16")
       set(_rays 2)
     endif()
+    string(REPLACE "-" "_" _fixture "${_case}")
     string(REPLACE "-" "_" _sic_test_case_0 "sic_test_norm_certificate_${_case}")
   sic_add_verdict_test(NAME ${_sic_test_case_0} EXIT 0 COMMAND sic-certify-norm
-      ${SIC_TEST_FIXTURES_DIR}/${_case}.sicx --threads 2)
-    set_tests_properties(${_sic_test_case_0} PROPERTIES LABELS "exact;independence;integration" PASS_REGULAR_EXPRESSION "summary: ${_rays} rays, ALL CERTIFIED")
+      ${_generated_${_case}} --threads 2)
+    set_tests_properties(${_sic_test_case_0} PROPERTIES LABELS "exact;independence;integration"
+      FIXTURES_REQUIRED "sicx_generated_${_fixture}" PASS_REGULAR_EXPRESSION "summary: ${_rays} rays, ALL CERTIFIED")
   endforeach()
   add_executable(sic-test-norm-reader tests/reader_tests.cpp ${_checker_input_sources} src/algebra/algebra.cpp ${_checker_test_sources})
   target_compile_features(sic-test-norm-reader PRIVATE cxx_std_20)

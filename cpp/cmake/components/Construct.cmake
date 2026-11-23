@@ -85,7 +85,8 @@ if(SIC_BUILD_TESTS)
   target_link_libraries(sic-test-construct-guarded-writer PRIVATE sic_construct sic_exact)
   sic_add_sicx_app(sic-test-construct-branch-admission "${PROJECT_SOURCE_DIR}/tests/construct/branch_admission.cpp")
   target_link_libraries(sic-test-construct-branch-admission PRIVATE sic_construct)
-  add_test(NAME sic_test_construct_completed_replay_authentication COMMAND sic-test-construct-guarded-writer "${SIC_TEST_FIXTURES_DIR}/d4.sicx")
+  add_test(NAME sic_test_construct_completed_replay_authentication COMMAND sic-test-construct-guarded-writer "${_generated_d4}")
+  set_tests_properties(sic_test_construct_completed_replay_authentication PROPERTIES FIXTURES_REQUIRED sicx_generated_d4)
   add_test(NAME sic_test_construct_branch_scratch_admission COMMAND sic-test-construct-branch-admission)
   if(SIC_ENABLE_TEST_HOOKS)
   add_test(NAME sic_test_construct_quarantine_sic_failure COMMAND ${CMAKE_COMMAND} -DPROGRAM=$<TARGET_FILE:sic-construct>
@@ -98,13 +99,13 @@ endif()
 if(SIC_BUILD_TESTS)
   sic_add_sicx_app(sic-test-construct-reencode "${PROJECT_SOURCE_DIR}/tests/construct/reencode.cpp")
   target_link_libraries(sic-test-construct-reencode PRIVATE sic_construct sic_exact)
-  add_test(NAME sic_test_construct_file_route_conformance COMMAND sic-test-construct-reencode "${SIC_TEST_FIXTURES_DIR}/d4.sicx" "${CMAKE_CURRENT_BINARY_DIR}/producer-reencode")
-  set_tests_properties(sic_test_construct_file_route_conformance PROPERTIES LABELS "sicx;conformance;sanitizer")
+  add_test(NAME sic_test_construct_file_route_conformance COMMAND sic-test-construct-reencode "${_generated_d4}" "${CMAKE_CURRENT_BINARY_DIR}/producer-reencode")
+  set_tests_properties(sic_test_construct_file_route_conformance PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;conformance;sanitizer")
 endif()
 
 if(SIC_BUILD_TESTS)
-  add_test(NAME sic_test_construct_file_route_cli COMMAND ${CMAKE_COMMAND} -DPROGRAM=$<TARGET_FILE:sic-container> -DFIXTURES=${SIC_TEST_FIXTURES_DIR} -DWORK=${CMAKE_CURRENT_BINARY_DIR}/producer-reencode-cli -P ${PROJECT_SOURCE_DIR}/tests/construct/reencode_cli.cmake)
-  set_tests_properties(sic_test_construct_file_route_cli PROPERTIES LABELS "sicx;conformance;sanitizer")
+  add_test(NAME sic_test_construct_file_route_cli COMMAND ${CMAKE_COMMAND} -DPROGRAM=$<TARGET_FILE:sic-container> -DFIXTURES=${PROJECT_BINARY_DIR}/sicx-generated -DWORK=${CMAKE_CURRENT_BINARY_DIR}/producer-reencode-cli -P ${PROJECT_SOURCE_DIR}/tests/construct/reencode_cli.cmake)
+  set_tests_properties(sic_test_construct_file_route_cli PROPERTIES FIXTURES_REQUIRED "sicx_generated_d2;sicx_generated_d4;sicx_generated_d8;sicx_generated_d8_maximal;sicx_generated_d16;sicx_generated_d32" LABELS "sicx;conformance;sanitizer")
 endif()
 
 
@@ -124,34 +125,23 @@ if(SIC_BUILD_TESTS)
 endif()
 
 if(SIC_BUILD_TESTS)
-  add_test(NAME sic_test_construct_alignment_fixture_d16 COMMAND ${CMAKE_COMMAND}
-    -DINPUT=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/canonical/d16.sicx -DEXPECTED=ea3f7225c1db830622d08b50c0994912b40f2d5bd77124bd39a227b3db7027a9
-    -DGOLDEN=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/canonical/d16.decode.sha256
-    -DWORK=${CMAKE_CURRENT_BINARY_DIR}/producer-fixture-d16
-    -DVERIFY=$<TARGET_FILE:sic-verify> -DDECODE=$<TARGET_FILE:sic-decode> -DSICX=$<TARGET_FILE:sic-container>
-    -DIDENTITY_SCRIPT=${PROJECT_SOURCE_DIR}/tests/decode/run_decode_identity.cmake -P ${PROJECT_SOURCE_DIR}/tests/construct/canonical/fixture.cmake)
-  set_tests_properties(sic_test_construct_alignment_fixture_d16 PROPERTIES LABELS "sicx;conformance;regression")
-  add_test(NAME sic_test_construct_alignment_fixture_d32 COMMAND ${CMAKE_COMMAND}
-    -DINPUT=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/canonical/d32.sicx -DEXPECTED=40336885cbe9bbca246b6ae32db9add3e86fc4c4c8105a63f28724b6d28f6a08
-    -DGOLDEN=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/canonical/d32.decode.sha256
-    -DWORK=${CMAKE_CURRENT_BINARY_DIR}/producer-fixture-d32
-    -DVERIFY=$<TARGET_FILE:sic-verify> -DDECODE=$<TARGET_FILE:sic-decode> -DSICX=$<TARGET_FILE:sic-container>
-    -DIDENTITY_SCRIPT=${PROJECT_SOURCE_DIR}/tests/decode/run_decode_identity.cmake -P ${PROJECT_SOURCE_DIR}/tests/construct/canonical/fixture.cmake)
-  set_tests_properties(sic_test_construct_alignment_fixture_d32 PROPERTIES LABELS "sicx;conformance;regression")
-  add_test(NAME sic_test_construct_alignment_fixture_d64 COMMAND ${CMAKE_COMMAND}
-    -DINPUT=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/canonical/d64.sicx -DEXPECTED=a4c150832bc6d6aef269aead3dab6a8ca7cc7b592e223cac5832c379c80b1486
-    -DGOLDEN=${PROJECT_SOURCE_DIR}/tests/fixtures/sicx/canonical/d64.decode.sha256
-    -DWORK=${CMAKE_CURRENT_BINARY_DIR}/producer-fixture-d64
-    -DVERIFY=$<TARGET_FILE:sic-verify> -DDECODE=$<TARGET_FILE:sic-decode> -DSICX=$<TARGET_FILE:sic-container>
-    -DIDENTITY_SCRIPT=${PROJECT_SOURCE_DIR}/tests/decode/run_decode_identity.cmake -P ${PROJECT_SOURCE_DIR}/tests/construct/canonical/fixture.cmake)
-  set_tests_properties(sic_test_construct_alignment_fixture_d64 PROPERTIES LABELS "sicx;conformance;regression")
+  foreach(d 16 32 64)
+    set(test sic_test_construct_alignment_fixture_d${d})
+    add_test(NAME ${test} COMMAND ${CMAKE_COMMAND}
+      -DINPUT=${_generated_d${d}} -DWORK=${CMAKE_CURRENT_BINARY_DIR}/producer-fixture-d${d}
+      -DVERIFY=$<TARGET_FILE:sic-verify> -DDECODE=$<TARGET_FILE:sic-decode> -DSICX=$<TARGET_FILE:sic-container>
+      -DIDENTITY_SCRIPT=${PROJECT_SOURCE_DIR}/tests/decode/run_decode_identity.cmake
+      -P ${PROJECT_SOURCE_DIR}/tests/construct/canonical/fixture.cmake)
+    set_tests_properties(${test} PROPERTIES LABELS "sicx;conformance;regression"
+      FIXTURES_REQUIRED sicx_generated_d${d})
+  endforeach()
 endif()
 
 if(SIC_BUILD_TESTS)
   sic_add_sicx_app(sic-test-construct-extensibility "${PROJECT_SOURCE_DIR}/tests/construct/extensibility.cpp")
   target_link_libraries(sic-test-construct-extensibility PRIVATE sic_construct sic_exact)
-  add_test(NAME sic_test_construct_extensibility COMMAND sic-test-construct-extensibility "${SIC_TEST_FIXTURES_DIR}/d4.sicx")
-  set_tests_properties(sic_test_construct_extensibility PROPERTIES LABELS "sicx;unit;conformance" TIMEOUT 120)
+  add_test(NAME sic_test_construct_extensibility COMMAND sic-test-construct-extensibility "${_generated_d4}")
+  set_tests_properties(sic_test_construct_extensibility PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "sicx;unit;conformance" TIMEOUT 120)
 endif()
 if(SIC_BUILD_TESTS)
   sic_add_sicx_app(sic-test-construct-runtime "${PROJECT_SOURCE_DIR}/tests/construct/runtime.cpp")
@@ -195,8 +185,8 @@ if(SIC_BUILD_TESTS)
     target_compile_definitions(sic-test-construct-failure-categories PRIVATE SIC_TEST_WRAP_ENV=1)
     target_link_options(sic-test-construct-failure-categories PRIVATE "LINKER:--wrap=setenv,--wrap=unsetenv")
   endif()
-  add_test(NAME sic_test_construct_failure_categories COMMAND sic-test-construct-failure-categories "${SIC_TEST_FIXTURES_DIR}/d4.sicx" "$<TARGET_FILE:sic-construct>")
-  set_tests_properties(sic_test_construct_failure_categories PROPERTIES LABELS "unit;construct;sanitizer" TIMEOUT 120)
+  add_test(NAME sic_test_construct_failure_categories COMMAND sic-test-construct-failure-categories "${_generated_d4}" "$<TARGET_FILE:sic-construct>")
+  set_tests_properties(sic_test_construct_failure_categories PROPERTIES FIXTURES_REQUIRED "sicx_generated_d4" LABELS "unit;construct;sanitizer" TIMEOUT 120)
 endif()
 
 if(SIC_BUILD_TESTS)

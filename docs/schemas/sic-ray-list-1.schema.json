@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sic-ray-list/1.0",
+  "title": "sic-ray-list/1.0",
+  "description": "Producer ray list bound to the exact SICX root. The dimension is dyadic. Labels are consecutive from c0 and index the words in strictly increasing numeric lexicographic order. Each word has one residue per Smith factor, within that factor. A final LF follows the compact JSON.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "dimension", "exact_root", "group_source", "labels", "smith", "words"],
+  "properties": {
+    "schema": {"const": "sic-ray-list/1.0"},
+    "dimension": {"type": "integer", "minimum": 2, "maximum": 1048576},
+    "exact_root": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "group_source": {"type": "string", "pattern": "^([0-9a-f]{64}|closed-form)$"},
+    "labels": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^c(0|[1-9][0-9]*)$"}},
+    "smith": {"type": "array", "minItems": 1, "items": {"type": "integer", "minimum": 2}},
+    "words": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^(0|[1-9][0-9]*)(,(0|[1-9][0-9]*))*$"}}
+  },
+  "oneOf": [
+    {"properties": {"dimension": {"const": 2}, "group_source": {"const": "closed-form"}, "smith": {"const": [2]}, "labels": {"const": ["c0"]}, "words": {"const": ["0"]}}},
+    {"properties": {"dimension": {"minimum": 4}, "group_source": {"pattern": "^[0-9a-f]{64}$"}}}
+  ]
+}
