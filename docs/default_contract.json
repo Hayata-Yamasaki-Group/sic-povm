@@ -27,7 +27,7 @@
   },
   {
     "file": "docs/data.md",
-    "claim": "All tools support `--help` (stdout, exit 0). See the [complete CLI\nreference](library.md#command-argument-contract) for option scopes and exit codes. Fetch and repair\nrequire `--data-root DIR` or `--parts FILE` and default to `--out build/data/d<d>/m<N>`, `--name multiplet.sicx` and `--threads\n4` (range 1..64). Only fetch accepts `--force` and `--extra-bytes`. Split uses the fixed\n1,900,000,000-byte ceiling; `--part-size` accepts only that value.",
+    "claim": "All tools support `--help` (stdout, exit 0). See the [complete command-line\nreference](library.md#command-argument-contract) for option scopes and exit codes. Fetch and repair\nrequire `--data-root DIR` or `--parts FILE` and default to `--out build/data/d<d>/m<N>`, `--name multiplet.sicx` and `--threads\n4` (range 1..64). Only fetch accepts `--force` and `--extra-bytes`. Split uses the fixed\n1,900,000,000-byte ceiling; `--part-size` accepts only that value.",
     "kind": "value",
     "authority": [
       {
@@ -46,7 +46,7 @@
   },
   {
     "file": "docs/data.md",
-    "claim": "The SICX reader and decoder also accept a **local parts manifest** with remote byte access. The SICX\nbytes, exact root and certificates are unchanged. Build with libcurl >= 7.81 development headers for\nHTTP support (`SIC_ENABLE_REMOTE` defaults to ON when libcurl is found). The numeric core library\ndoes not link libcurl. The CLIs load shared libcurl when opening an HTTP source, so local decoding\ndoes not load it. `-DSIC_ENABLE_REMOTE=OFF` still supports local files and local parts mirrors.\nTests use a local Node HTTP server and never contact GitHub.",
+    "claim": "The SICX reader and decoder also accept a **local parts manifest** with remote byte access. The SICX\nbytes, exact root and certificates are unchanged. Build with libcurl >= 7.81 development headers for\nHTTP support (`SIC_ENABLE_REMOTE` defaults to ON when libcurl is found). The numeric core library\ndoes not link libcurl. The command-line tools load shared libcurl when opening an HTTP source, so local decoding\ndoes not load it. `-DSIC_ENABLE_REMOTE=OFF` still supports local files and local parts mirrors.\nTests use a local Node HTTP server and never contact GitHub.",
     "kind": "value",
     "authority": [
       {
@@ -72,7 +72,7 @@
   },
   {
     "file": "docs/data.md",
-    "claim": "At most `--range-jobs` requests run concurrently (default 4, range 1..32). The default\nrange size is 1 MiB. Each range request\nrequires **206** and the exact `Content-Range: bytes FIRST-LAST/PART_SIZE`; a 200 response is aborted\nat its headers. Wrong ranges, sizes, encodings and malformed redirects fail immediately. Connection\nfailures, timeouts and HTTP 408/429/5xx retry with exponential backoff (100 ms initially,\n`--remote-retries 3` additional attempts, maximum 10). `--remote-timeout-ms` defaults to 30000 per\nattempt; the connection timeout is 10000 ms, and stalled bodies also have a low-speed timeout.\nWithin a retry, a received prefix is retained and the next Range starts at the next byte. Across\nprocess interruptions, complete atomic cache extents survive; at most the in-flight extents need\nfetching again. The decoder reserves source staging and metadata headroom inside `--memory-mib`:\n`2*jobs*(range_bytes+56) + 2*8 MiB + 512*cache_max_ranges + 8 MiB`, in addition to its measured\nresident baseline and admitted numerical work. This is conservative (about 160 MiB at the defaults),\nso tiny remote budgets require smaller range/job/metadata caps or are refused before decoding.\nRSS remains subject to allocator and library overhead. `--check-budget` uses the operating\nsystem's process high-water RSS. For finalization it checks again after private validation\nand whole-file SHA-256, before publishing, and reports the peak through publication.\nThis measure covers the process rather than filesystem cache or cgroup-wide memory.\nLinux publication links the checked file descriptor without replacing an output.\nOther platforms use the private pathname, with inode checks on either side of publication.\n`--cache-max-ranges` bounds cache and read-plan metadata\n(default 262144, maximum 1048576); exceeding it recommends a full download.",
+    "claim": "At most `--range-jobs` requests run concurrently (default 4, range 1..32). The default\nrange size is 1 MiB. Each range request\nrequires **206** and the exact `Content-Range: bytes FIRST-LAST/PART_SIZE`; a 200 response is aborted\nat its headers. Wrong ranges, sizes, encodings and malformed redirects fail immediately. Connection\nfailures, timeouts and HTTP 408/429/5xx retry with exponential backoff (100 ms initially,\n`--remote-retries 3` additional attempts, maximum 10). `--remote-timeout-ms` defaults to 30000 per\nattempt; the connection timeout is 10000 ms, and stalled bodies also have a low-speed timeout.\nWithin a retry, a received prefix is retained and the next Range starts at the next byte. Across\nprocess interruptions, complete atomic cache extents survive; at most the in-flight extents need\nfetching again. The decoder reserves source staging and metadata headroom inside `--memory-mib`:\n`2*jobs*(range_bytes+56) + 2*8 MiB + 512*cache_max_ranges + 8 MiB`, in addition to its measured\nresident baseline and admitted numerical work. This is conservative (about 160 MiB at the defaults),\nso tiny remote budgets require smaller range/job/metadata caps or are refused before decoding.\nThe resident set size remains subject to allocator and library overhead. `--check-budget` uses the operating\nsystem's process high-water resident set size. For finalization it checks again after private validation\nand whole-file SHA-256, before publishing, and reports the peak through publication.\nThis measure covers the process rather than filesystem cache or cgroup-wide memory.\nLinux publication links the checked file descriptor without replacing an output.\nOther platforms use the private pathname, with inode checks on either side of publication.\n`--cache-max-ranges` bounds cache and read-plan metadata\n(default 262144, maximum 1048576); exceeding it recommends a full download.",
     "kind": "value",
     "authority": [
       {
@@ -116,7 +116,7 @@
   },
   {
     "file": "docs/data.md",
-    "claim": "`sic-construct 1 --out d2.sicx --radicals data/d2/d2.sicrad` reads this record (the default uses the\nembedded pinned record). `sic-certify-stabilizer STABFILE --catalogue FILE --d2-exact data/d2/d2.sicrad` checks the\nd2 symmetries exactly. The optional exact-JSON GP check also exercises the d2 SICX; its embedding\nlimitations remain as stated in verification. The parsed polynomial identities above are the\nmathematical basis of the radical proof, distinct from the supplementary Arb residual.",
+    "claim": "`sic-construct 1 --out d2.sicx --radicals data/d2/d2.sicrad` reads this record (the default uses the\nembedded pinned record). `sic-certify-stabilizer STABFILE --catalogue FILE --d2-exact data/d2/d2.sicrad` checks the\nsymmetries in dimension 2 exactly. The optional exact-JSON check with PARI/GP also exercises the\nSICX file of dimension 2; its embedding limitations are stated in verification. The parsed\npolynomial identities above are the mathematical basis of the radical proof, distinct from the\nsupplementary Arb residual.",
     "kind": "value",
     "authority": [
       {
@@ -213,7 +213,7 @@
   },
   {
     "file": "docs/library.md",
-    "claim": "This is engineering work admission, not a native-instruction bound or a\nbit-complexity theorem for FLINT. The default score admits d2048, including\nits 4,194,303 nonidentity labels. Lower caller scores still refuse explicitly.",
+    "claim": "This is engineering work admission, not a native-instruction bound or a\nbit-complexity theorem for FLINT. The default score admits dimension 2048, including\nits 4,194,303 nonidentity labels. Lower caller scores still refuse explicitly.",
     "kind": "value",
     "authority": [
       {
@@ -256,7 +256,7 @@
   },
   {
     "file": "docs/library.md",
-    "claim": "Default library producer threads use distinct physical cores in the process CPU\nallowance, capped by cgroup CPU quotas/cpusets and SLURM_CPUS_PER_TASK. The producer CLI\nalso applies its dimension-dependent work cap; the decoder CLI caps its default\nat 32. Linux topology is cached once per CPU for the process lifetime. On macOS, logical\nallowance uses hw.logicalcpu (hardware_concurrency() as fallback) and physical defaults\nuse hw.physicalcpu (or one). Other platforms without affinity use hardware_concurrency()\nfor logical allowance and one physical core for defaults. Unknown Linux cgroup-v2\nancestry limits defaults to one worker only. Memory discovery still fails closed.\nMalformed readable quotas are errors.",
+    "claim": "Default library producer threads use distinct physical cores in the process CPU\nallowance, capped by cgroup CPU quotas/cpusets and SLURM_CPUS_PER_TASK. The producer command-line tool\nalso applies its dimension-dependent work cap; the decoder command-line tool caps its default\nat 32. Linux topology is cached once per CPU for the process lifetime. On macOS, logical\nallowance uses hw.logicalcpu (hardware_concurrency() as fallback) and physical defaults\nuse hw.physicalcpu (or one). Other platforms without affinity use hardware_concurrency()\nfor logical allowance and one physical core for defaults. Unknown Linux cgroup-v2\nancestry limits defaults to one worker only. Memory discovery still fails closed.\nMalformed readable quotas are errors.",
     "kind": "value",
     "authority": [
       {
@@ -279,7 +279,7 @@
   },
   {
     "file": "docs/library.md",
-    "claim": "Explicit SIC_THREADS in the library and --threads in the producer CLI take precedence\nover the default and are never clamped to the CPU allowance; invalid counts are refused.\nDecoder teams retain the requested count, subject to `maximum_threads` and memory\nadmission. Physical compute dispatch uses a subset on distinct placement cores when\nplacement CPUs are known; otherwise it uses the full team. There is no process-allowance\ncap on explicit counts. Internal producer fan-out uses its caller's worker budget,\nbounded by available work and memory.\nSnapshot::cpus retains logical allowance and SLURM_MEM_PER_CPU accounting. The production CLI\ncaptures its options, validates documented inherited producer settings, and clears inherited\nSIC_* settings before running the producer. Invalid unused settings are refused before output\nprobes or construction work.",
+    "claim": "Explicit SIC_THREADS in the library and --threads in the producer command-line tool take precedence\nover the default and are never clamped to the CPU allowance; invalid counts are refused.\nDecoder teams retain the requested count, subject to `maximum_threads` and memory\nadmission. Physical compute dispatch uses a subset on distinct placement cores when\nplacement CPUs are known; otherwise it uses the full team. There is no process-allowance\ncap on explicit counts. Internal producer fan-out uses its caller's worker budget,\nbounded by available work and memory.\nSnapshot::cpus retains logical allowance and SLURM_MEM_PER_CPU accounting. The production command-line tool\ncaptures its options, validates documented inherited producer settings, and clears inherited\nSIC_* settings before running the producer. Invalid unused settings are refused before output\nprobes or construction work.",
     "kind": "value",
     "authority": [
       {
@@ -369,14 +369,14 @@
   },
   {
     "file": "docs/verification.md",
-    "claim": "Build with `cmake -S cpp -B cpp/build -DSIC_ENABLE_FLINT=ON`, then `cmake --build cpp/build --target\nsic-certify-norm`; the binary is `cpp/build/sic-certify-norm`. Use\n`-DCMAKE_PREFIX_PATH=FLINT_INSTALL` if FLINT is installed outside the system search path.\nSee the complete [norm checker options](tools.md#sic-certify-norm) for syntax and defaults.\n`--estimate` performs exact preprocessing and a precision estimate without a SIC verdict;\n`--leaf-estimate` gives a heuristic feasibility estimate without exact preprocessing or a SIC\nverdict. Exit codes are 0 for all selected rays certified (or a completed estimate), 1 for an\ninconclusive certificate or BALL mismatch, 2 for usage errors, and 3 for a refused input or\ncomputation. Numeric CLI values must be full-string unsigned decimals with checked overflow;\nmalformed values, missing values and out-of-range options exit 2 before certification. `--max-bits`\naccepts\n1..9223372036854775807, `--ray` accepts a zero-based index, and `--threads` must be positive.\nInput-only limits include 64 MiB per directory/JSON payload and 256 MiB per physical/logical\npayload; see the checker input/admission contract below for the other limits. Mathematical\ncertification requires `d, [L:K] ≤ 4096`; these are resource limits, not feasibility guarantees.\nExact certification supports real quadratic base fields and quadratic tower levels at the final\nhigh-precision stage. Odd levels can be used for estimates, but final certification refuses them.\nExact-only files can be read for estimates; certification requires finalized rays and balls.",
+    "claim": "Build with `cmake -S cpp -B cpp/build -DSIC_ENABLE_FLINT=ON`, then `cmake --build cpp/build --target\nsic-certify-norm`; the binary is `cpp/build/sic-certify-norm`. Use\n`-DCMAKE_PREFIX_PATH=FLINT_INSTALL` if FLINT is installed outside the system search path.\nSee the complete [norm checker options](tools.md#sic-certify-norm) for syntax and defaults.\n`--estimate` performs exact preprocessing and a precision estimate without a SIC-POVM verdict;\n`--leaf-estimate` gives a heuristic feasibility estimate without exact preprocessing or a SIC-POVM\nverdict. Exit codes are 0 for all selected rays certified (or a completed estimate), 1 for an\ninconclusive certificate or BALL mismatch, 2 for usage errors, and 3 for a refused input or\ncomputation. Numeric command-line values must be full-string unsigned decimals with checked overflow;\nmalformed values, missing values and out-of-range options exit 2 before certification. `--max-bits`\naccepts\n1..9223372036854775807, `--ray` accepts a zero-based index, and `--threads` must be positive.\nInput-only limits include 64 MiB per directory/JSON payload and 256 MiB per physical/logical\npayload; see the checker input/admission contract below for the other limits. Mathematical\ncertification requires `d, [L:K] ≤ 4096`; these are resource limits, not feasibility guarantees.\nExact certification supports real quadratic base fields and quadratic tower levels at the final\nhigh-precision stage. Odd levels can be used for estimates, but final certification refuses them.\nExact-only files can be read for estimates; certification requires finalized rays and balls.",
     "kind": "reference",
     "reason": "The complete generated norm-checker help owns option defaults; this paragraph links to it and describes estimate/exit scope. Semantic default comparisons use that generated help, and compiled omitted-option controls remain enrolled.",
     "authority": []
   },
   {
-    "file": "docs/verification.md",
-    "claim": "`ctest -L crt` exercises eleven input groups (valid, rejection mutations, boundaries/regrouping,\npartial trust/scope, amendments, primitive guards, mixed odd/quadratic branches, targeted guards,\ngeneral dimensions, deterministic fuzz mutations, and public CLI), five fixture CRT proofs,\nbound-only diagnostics, strict CLI option/error cases, help/parser defaults, help, source\nindependence, a shift retry, and three deliberate mathematical negative controls. The independent\nexecutables are enrolled in the repository’s independence audit. Rehashed negative fixtures pin\nrejection categories so a different later failure cannot silently substitute for the intended check.\nFive additional `sic-test-crt-faults` cases interpose OS/FLINT failures to test otherwise rare\nfail-closed paths; interposition is test-only.",
+    "file": "CONTRIBUTING.md",
+    "claim": "`ctest -L crt` exercises eleven input groups (valid, rejection mutations, boundaries/regrouping,\npartial trust/scope, amendments, primitive guards, mixed odd/quadratic branches, targeted guards,\ngeneral dimensions, deterministic fuzz mutations, and public command-line interface), five fixture CRT proofs,\nbound-only diagnostics, strict command-line option and error cases, help/parser defaults, help, source\nindependence, a shift retry, and three deliberate mathematical negative controls. The independent\nexecutables are enrolled in the repository’s independence audit. Rehashed negative fixtures pin\nrejection categories so a different later failure cannot silently substitute for the intended check.\nFive additional `sic-test-crt-faults` cases interpose OS/FLINT failures to test otherwise rare\nfail-closed paths; interposition is test-only.",
     "kind": "reference",
     "reason": "Lists default-check test coverage; no numeric default is stated.",
     "authority": [
@@ -385,13 +385,6 @@
         "text": "add_test(NAME sic_test_crt_cli_defaults"
       }
     ]
-  },
-  {
-    "file": "docs/verification.md",
-    "claim": "**SICX 1.0 measurements.** Measurements on a shared AMD EPYC 7763 host with FLINT 3.6.0, GCC 11.4\nand `-O3`. All runs used 120 threads, the default proved bound, no prime-count override, and their\nrecorded exact presentations. These are measurements of those inputs; they are not current\nrelease-production certificates. Every run finished `[PROVED]`. Wall time and peak RSS are GNU\ntime's whole-process measurements, including input admission. Shared-host timings are approximate.\nLemma I covers levels with `2[F_j:K] ≤ 8192`.",
-    "kind": "recorded",
-    "reason": "Recorded input-specific measurement context rather than a current configurable default.",
-    "authority": []
   },
   {
     "file": "docs/verification.md",
@@ -468,7 +461,7 @@
   },
   {
     "file": "CONTRIBUTING.md",
-    "claim": "The policy checks also enforce the [CLI contract inventory](docs/cli_contract.json),\n[configuration census](docs/configuration.md) and\n[install inventory](docs/install_contract.json). `sic_test_policy_help_contract`\nchecks each selected subcommand's option operands/repeatability and grammar;\n`sic_test_policy_source_claims` checks parser declarations against reads, the\nruntime/CMake input census and the documented read owners. `sic_test_policy_documented_defaults` binds default\nclaims to their source authorities and runs the compiled omitted-option checks.\n`sic_test_support_docs_links` checks explicit code/data pointers as well as links;\n`sic_test_support_docs_fixture_inventory` reconciles purpose, checksums and build copies.\n`sic_test_policy_schema_smoke` validates every schema family against fresh d4/d8\noutputs and retained exceptional and numerical metadata. `sic_test_policy_shell_examples`\nruns blocks tagged `<!-- shell:run -->` with explicit resources; other shell\nblocks must be marked `<!-- shell:template -->` and describe their bindings.\nThe install policy reuses the relocated consumer owner. All tests named `sic_test_policy_*` have\nnegative controls enumerated in `scripts/docs/policy_controls.json`;\n`sic_test_policy_claim_registry` rejects an unenrolled policy and requires both\nexit status and output verdict for every regex-based success assertion.",
+    "claim": "The policy checks also enforce the [command-line contract inventory](docs/cli_contract.json),\n[configuration census](docs/configuration.md) and\n[install inventory](docs/install_contract.json). `sic_test_policy_help_contract`\nchecks each selected subcommand's option operands/repeatability and grammar;\n`sic_test_policy_source_claims` checks parser declarations against reads, the\nruntime/CMake input census and the documented read owners. `sic_test_policy_documented_defaults` binds default\nclaims to their source authorities and runs the compiled omitted-option checks.\n`sic_test_support_docs_links` checks explicit code/data pointers as well as links;\n`sic_test_support_docs_fixture_inventory` reconciles purpose, checksums and build copies.\n`sic_test_policy_schema_smoke` validates every schema family against fresh d4/d8\noutputs and retained exceptional and numerical metadata. `sic_test_policy_shell_examples`\nruns blocks tagged `<!-- shell:run -->` with explicit resources; other shell\nblocks must be marked `<!-- shell:template -->` and describe their bindings.\nThe install policy reuses the relocated consumer owner. All tests named `sic_test_policy_*` have\nnegative controls enumerated in `scripts/docs/policy_controls.json`;\n`sic_test_policy_claim_registry` rejects an unenrolled policy and requires both\nexit status and output verdict for every regex-based success assertion.",
     "kind": "reference",
     "reason": "Contribution requirement or policy description; no new numeric default value is asserted.",
     "authority": [
@@ -480,7 +473,7 @@
   },
   {
     "file": "CONTRIBUTING.md",
-    "claim": "Ordinary tests, including policy tests and default heavy controls, have a\npositive timeout of at most 120 seconds. The sole long-test exemption is\n`sic_test_sicx_exact_gp_d16`: explicitly opt in with `SIC_SICX_GP_D16=ON`;\nit is heavy and retains a 3600-second timeout (one GP shift takes several\nminutes empirically). Its registration is checked without requiring the long\ncomputation. Use `ctest -L independence` for checker boundaries, or\n`ctest -LE heavy` for the ordinary suite. The publication manifest pins the\ncopied test inputs.",
+    "claim": "Ordinary tests, including policy tests and default heavy controls, have a\npositive timeout of at most 120 seconds. The sole long-test exemption is\n`sic_test_sicx_exact_gp_d16`: explicitly opt in with `SIC_SICX_GP_D16=ON`;\nit is heavy and retains a 3600-second timeout (one PARI/GP shift takes several\nminutes empirically). Its registration is checked without requiring the long\ncomputation. Use `ctest -L independence` for checker boundaries, or\n`ctest -LE heavy` for the ordinary suite. The publication manifest pins the\ncopied test inputs.",
     "kind": "reference",
     "reason": "Timeout and optional heavy membership are checked by the registry.",
     "authority": [
@@ -504,7 +497,7 @@
   },
   {
     "file": "docs/library.md",
-    "claim": "On glibc, `sic-construct` sets the process heap trim threshold to 16 MiB and the\nmmap threshold to 32 MiB before starting construction threads. Ordinary frees\ncan then release free top chunks in worker arenas while medium-sized temporaries\nremain on the heap. If mmap threshold setup is refused, the CLI skips trim setup\nand continues with allocator defaults. If trim setup is refused, it continues\nwith the mmap setting. Any environment\nvariable whose name starts with `MALLOC_`, or any colon-separated entry starting\nwith `glibc.malloc.` in `GLIBC_TUNABLES`, disables the entire CLI default, including\nwhen its value is empty. This includes unrelated allocator settings such as\n`MALLOC_ARENA_MAX` and `glibc.malloc.tcache_count`.",
+    "claim": "On glibc, `sic-construct` sets the process heap trim threshold to 16 MiB and the\nmmap threshold to 32 MiB before starting construction threads. Ordinary frees\ncan then release free top chunks in worker arenas while medium-sized temporaries\nremain on the heap. If mmap threshold setup is refused, the command-line tool skips trim setup\nand continues with allocator defaults. If trim setup is refused, it continues\nwith the mmap setting. Any environment\nvariable whose name starts with `MALLOC_`, or any colon-separated entry starting\nwith `glibc.malloc.` in `GLIBC_TUNABLES`, disables the entire command-line default, including\nwhen its value is empty. This includes unrelated allocator settings such as\n`MALLOC_ARENA_MAX` and `glibc.malloc.tcache_count`.",
     "kind": "value",
     "authority": [
       {

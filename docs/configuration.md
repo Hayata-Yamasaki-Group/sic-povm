@@ -7,13 +7,11 @@ environment. Documented producer settings are validated for syntax and context-f
 before construction starts, including settings for stages that the requested dimension does
 not use. Presence switches accept any value, numeric settings require a complete finite
 number, and storage selectors accept `0` or `1`. Invalid settings report `invalid_argument`.
-The production construction CLI validates inherited producer settings, then clears them and
-translates its explicit options into that map. The listed TEST, FAULT and DEV
-settings, plus class-thread overrides, are instrumentation inputs admitted only
-by a hook build.
-They are not production CLI options. Scheduler allocation and cache-location
-variables are external platform conventions. Unset entries describe library
-reads; the construction CLI explicitly selects its worker and storage settings.
+The construction tool validates inherited producer settings, then clears them and translates its
+explicit options into that map. The [test-hook settings](#test-hook-settings) are admitted only by
+a hook build and are not production options. Scheduler allocation and cache-location variables are
+external platform conventions. Unset entries describe library reads; the construction tool
+explicitly selects its worker and storage settings.
 See [resource policy](library.md)
 and [command help](tools.md) for the public options and precedence.
 
@@ -36,30 +34,22 @@ and [command help](tools.md) for the public options and precedence.
 | CMake | `SIC_ENABLE_LTO` | Enable supported optimized-build IPO | ON | configure | `cpp/cmake/components/LinkTimeOptimization.cmake` |
 | CMake | `SIC_ENABLE_REMOTE` | Enable HTTP range access | ON when libcurl is found | configure | `cpp/cmake/components/SicxRemote.cmake` |
 | CMake | `SIC_ENABLE_TEST_HOOKS` | Enable private fault/test instrumentation | OFF | test configure; installation refused | `cpp/CMakeLists.txt` |
-| CMake | `SIC_SICX_GP_D16` | Enable long independent GP check | OFF | test configure | `cpp/tests/sicx/tests.cmake` |
+| CMake | `SIC_SICX_GP_D16` | Enable long independent PARI/GP check | OFF | test configure | `cpp/tests/sicx/tests.cmake` |
 | CMake | `SIC_SOURCE_COMMIT` | Producer provenance identity override | configured source identity | configure | `cpp/CMakeLists.txt` |
 | CMake | `SIC_TEST_WORKERS` | Explicit native parallel-product and nested-build workers | empty; max(3, process allowance) | test runtime | `cpp/cmake/checks/TestLayers.cmake` |
-| environment | `GLIBC_TUNABLES` | Allocator override; a `glibc.malloc.` entry disables construction heap settings | inherited | glibc construction CLI | `cpp/apps/construct/main.cpp` |
-| environment prefix | `MALLOC_*` | Any variable with this prefix, including an empty value, disables construction heap settings | inherited | glibc construction CLI | `cpp/apps/construct/main.cpp` |
+| environment | `GLIBC_TUNABLES` | Allocator override; a `glibc.malloc.` entry disables construction heap settings | inherited | glibc construction tool | `cpp/apps/construct/main.cpp` |
+| environment prefix | `MALLOC_*` | Any variable with this prefix, including an empty value, disables construction heap settings | inherited | glibc construction tool | `cpp/apps/construct/main.cpp` |
 | environment | `HOME` | User home for fallback cache location | platform supplied | platform | `cpp/src/access/range_cache.cpp` |
-| environment | `SIC_EXACT_JSON` | Exact JSON input for the independent GP checker | unset | GP checker | `cpp/checkers/gp/sicx_exact_verify.gp` |
-| environment | `SIC_FAULT_KILL_AFTER_CHUNKS` | Abort after a chosen chunk count | unset; inactive | hook build only | `cpp/src/sicx/container/stream_writer.cpp` |
-| environment | `SIC_FAULT_KILL_AT_BYTE` | Abort at a byte offset | unset; inactive | hook build only | `cpp/src/sicx/container/stream_writer.cpp` |
-| environment | `SIC_RAY` | Ray selected by the GP checker | all rays | GP checker | `cpp/checkers/gp/sicx_exact_verify.gp` |
-| environment | `SIC_SHIFTS` | Dyadic shift vector for the GP checker | all shifts from 0 through d/2 | GP checker | `cpp/checkers/gp/sicx_exact_verify.gp` |
-| environment | `SIC_TEST_ABORT_AFTER_PARTS` | Abort after part writes | unset; inactive | hook build only | `cpp/src/transport/parts.cpp` |
+| environment | `SIC_EXACT_JSON` | Exact JSON input for the independent PARI/GP checker | unset | PARI/GP checker | `cpp/checkers/gp/sicx_exact_verify.gp` |
+| environment | `SIC_RAY` | Ray selected by the PARI/GP checker | all rays | PARI/GP checker | `cpp/checkers/gp/sicx_exact_verify.gp` |
+| environment | `SIC_SHIFTS` | Dyadic shift vector for the PARI/GP checker | all shifts from 0 through d/2 | PARI/GP checker | `cpp/checkers/gp/sicx_exact_verify.gp` |
 | environment | `SIC_ANALYTIC_CACHE` | Analytic cache path | unset | producer library | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_CHECK_ENTRY_GROUPS` | Cross-check entry group calculations | disabled | producer library | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_CHECK_SUPPORT_PERIODS` | Cross-check support periods | disabled | producer library | `cpp/src/construct/model/options.cpp` |
-| environment | `SIC_CLASS_THREADS` | Override class worker count | unset; inactive | hook build only | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_COMPACT_WORK` | Use compact work storage | follows phased storage; disabled | producer library | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_COMPLETED_CLASS_CACHE` | Directory for completed class cache | unset | producer library | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_D2_RADICALS` | Dimension-two radical input path | embedded radical record | producer library | `cpp/src/construct/model/options.cpp` |
-| environment | `SIC_DEV_KEEP_ALL` | Retain all developer intermediates | unset; inactive | hook build only | `cpp/src/construct/runtime/command_line.cpp` |
-| environment | `SIC_DEV_MEMORY_MB` | Developer memory override | unset; inactive | hook build only | `cpp/src/construct/runtime/command_line.cpp` |
-| environment | `SIC_DEV_SPILL` | Force developer spill policy | unset; inactive | hook build only | `cpp/src/construct/runtime/command_line.cpp` |
 | environment | `SIC_DIRECT_ETA_CHECK` | Cross-check eta entries directly | disabled | producer library | `cpp/src/construct/model/options.cpp` |
-| environment | `SIC_DIRECT_ETA_TEST_FAULT` | Inject eta disagreement | unset; inactive | hook build only | `cpp/src/construct/stages/entries.cpp` |
 | environment | `SIC_ENTRY_ARB` | Use Arb entry evaluation; any present value, including 0, enables it | unset; construction refused | producer library | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_GENERATOR_BLOCK` | Generator evaluation block size | 262144 | producer library | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_GHOST_DEBUG` | Trace reconstruction | disabled | diagnostics | `cpp/src/exact/certification/reconstruction/ghost.cpp` |
@@ -95,6 +85,28 @@ and [command help](tools.md) for the public options and precedence.
 | environment | `SIC_STREAM_STEPS` | Stream step data | follows action streaming; disabled | producer library | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_STREAM_TABLES` | Stream exact tables | enabled on the phased path | producer library | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_TDEBUG` | Trace tower calculations | disabled | diagnostics | `cpp/src/construct/model/options.cpp` |
+| environment | `SIC_THREADS` | Explicit producer library worker count | process CPU allowance | producer library | `cpp/src/construct/model/options.cpp` |
+| environment | `SLURM_CPUS_PER_TASK` | Job CPU ceiling | unset; affinity/cgroup discovery | platform | `cpp/src/support/resources/platform_snapshot.cpp` |
+| environment | `SLURM_MEM_PER_CPU` | Job memory per admitted logical CPU | unset | platform | `cpp/src/support/resources/platform_snapshot.cpp` |
+| environment | `SLURM_MEM_PER_NODE` | Job total memory ceiling | unset | platform | `cpp/src/support/resources/platform_snapshot.cpp` |
+| environment | `XDG_CACHE_HOME` | Base directory for the remote byte cache | HOME/.cache fallback | platform | `cpp/src/access/range_cache.cpp` |
+
+## Test-hook settings
+
+These settings are read only by builds configured with `SIC_ENABLE_TEST_HOOKS=ON`, which the
+installation refuses. They inject faults and force rare paths in the test suite and are not
+production inputs.
+
+| Kind | Name | Meaning | Default when unset | Scope | Read owner |
+| --- | --- | --- | --- | --- | --- |
+| environment | `SIC_FAULT_KILL_AFTER_CHUNKS` | Abort after a chosen chunk count | unset; inactive | hook build only | `cpp/src/sicx/container/stream_writer.cpp` |
+| environment | `SIC_FAULT_KILL_AT_BYTE` | Abort at a byte offset | unset; inactive | hook build only | `cpp/src/sicx/container/stream_writer.cpp` |
+| environment | `SIC_TEST_ABORT_AFTER_PARTS` | Abort after part writes | unset; inactive | hook build only | `cpp/src/transport/parts.cpp` |
+| environment | `SIC_CLASS_THREADS` | Override class worker count | unset; inactive | hook build only | `cpp/src/construct/model/options.cpp` |
+| environment | `SIC_DEV_KEEP_ALL` | Retain all developer intermediates | unset; inactive | hook build only | `cpp/src/construct/runtime/command_line.cpp` |
+| environment | `SIC_DEV_MEMORY_MB` | Developer memory override | unset; inactive | hook build only | `cpp/src/construct/runtime/command_line.cpp` |
+| environment | `SIC_DEV_SPILL` | Force developer spill policy | unset; inactive | hook build only | `cpp/src/construct/runtime/command_line.cpp` |
+| environment | `SIC_DIRECT_ETA_TEST_FAULT` | Inject eta disagreement | unset; inactive | hook build only | `cpp/src/construct/stages/entries.cpp` |
 | environment | `SIC_TEST_CEIL1_FORCE_PRECISION_REFUSAL` | Force precision admission refusal | unset; inactive | hook build only | `cpp/src/exact/arithmetic/qk.cpp` |
 | environment | `SIC_TEST_FAIL_SIC_CHECK` | Force final SIC check failure | unset; inactive | hook build only | `cpp/src/construct/stages/sic_check.cpp` |
 | environment | `SIC_TEST_FINALIZATION_BATCH_RAYS` | Inject a resource refusal above this finalization batch size | unset; inactive | hook build only | `cpp/apps/decode/command.cpp` |
@@ -107,8 +119,3 @@ and [command help](tools.md) for the public options and precedence.
 | environment | `SIC_TEST_NEWTON_DEFER_ENTRY_AFTER_HINT` | Force entry deferral after a hint | unset; inactive | hook build only | `cpp/src/construct/model/options.cpp` |
 | environment | `SIC_TEST_PRECISION_RETRY` | Force precision retry | unset; inactive | hook build only | `cpp/src/construct/stages/final_pass.cpp` |
 | environment | `SIC_TEST_REP_BAND_BITS` | Force log2 representative band count | unset; inactive | hook build only | `cpp/src/construct/runtime/resources/final_memory.cpp` |
-| environment | `SIC_THREADS` | Explicit producer library worker count | process CPU allowance | producer library | `cpp/src/construct/model/options.cpp` |
-| environment | `SLURM_CPUS_PER_TASK` | Job CPU ceiling | unset; affinity/cgroup discovery | platform | `cpp/src/support/resources/platform_snapshot.cpp` |
-| environment | `SLURM_MEM_PER_CPU` | Job memory per admitted logical CPU | unset | platform | `cpp/src/support/resources/platform_snapshot.cpp` |
-| environment | `SLURM_MEM_PER_NODE` | Job total memory ceiling | unset | platform | `cpp/src/support/resources/platform_snapshot.cpp` |
-| environment | `XDG_CACHE_HOME` | Base directory for the remote byte cache | HOME/.cache fallback | platform | `cpp/src/access/range_cache.cpp` |

@@ -1,14 +1,14 @@
 # Numeric fixtures
 
-Pinned copies of the published normalized balls and binary64 coordinates for
-d = 2 through 64, the 12 d128 rays, the 12 d256 rays, and d512 maximal c0.
-Small-ray metadata and d512 metadata preserve converter coverage. These are test
-inputs, not regenerated numerical results. SHA256SUMS pins every copied file.
+Pinned normalized balls and binary64 coordinates of fiducial vectors in dimensions 2 to 64, the 12
+fiducial vectors in dimension 128, the 12 in dimension 256 and `c0` of the maximal order in
+dimension 512, from an earlier construction of these multiplets. They are test inputs, not the
+released data in `data/`, and they are not regenerated. The metadata of the small dimensions and of
+dimension 512 keeps the converter coverage. SHA256SUMS pins every copied file.
 
-The labels, order, and certification status are retained in ../../data/catalogue.tsv.
-The d512 collection remains conditional
-on its exact-source premises. Numerical files were checked byte for byte against the
-published source during packaging and remain unchanged. Public metadata is a
-sanitized provenance view: SHA-256 artifact identifiers replace local
-paths. The metadata sidecar checksums are updated explicitly; original descriptors
-remain identified by their unchanged hashes.
+The labels, orders and certification status of these inputs are listed in
+`cpp/tests/data/catalogue.tsv`. No exact SIC-POVM claim is made for these test inputs here
+([verification](../../../../docs/verification.md) states the claims about the released data). The numerical files were checked
+byte for byte against their source when they were copied. The public metadata is a sanitized
+provenance view: SHA-256 artifact identifiers replace local paths. The metadata sidecar checksums
+are updated explicitly; the source descriptors remain identified by their unchanged digests.

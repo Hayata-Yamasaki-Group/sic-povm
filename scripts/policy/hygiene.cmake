@@ -52,6 +52,14 @@ set(_bad 0)
 set(_report "")
 set(_used "")
 foreach(_path IN LISTS _files)
+  # Generated numerical payloads of a release tree are checked by the data layout
+  # policy (names, roles, catalogue closure and digests). Manifests, the catalogue,
+  # symmetry tables, the bundled inputs and the metadata of ray files remain subject
+  # to hygiene.
+  if(_path MATCHES "^data/d[1-9][0-9]*/m[1-9][0-9]*/c(0|[1-9][0-9]*)[.](csv|npy|mat|h5)$" OR
+     _path MATCHES "^data/d[1-9][0-9]*/all[.]npz$")
+    continue()
+  endif()
   # Binary formats contain zero bytes in their headers. Inspect the prefix as
   # bytes rather than treating printable fragments of binary data as prose.
   file(READ "${ROOT}/${_path}" _prefix LIMIT 8192 HEX)
@@ -60,6 +68,18 @@ foreach(_path IN LISTS _files)
     continue()
   endif()
   file(READ "${ROOT}/${_path}" _text)
+  # In a ray file only the numerical arrays are skipped; every other member,
+  # including labels, rounding and error bounds, is scanned.
+  if(_path MATCHES "^data/d[1-9][0-9]*/m[1-9][0-9]*/c(0|[1-9][0-9]*)[.]json$")
+    # Text that does not parse as JSON is scanned in full.
+    # The largest arrays go first, so each later parse reads a shorter text.
+    foreach(_member "hp;values" "fp64;decimal" "fp64;values" "fp32;decimal" "fp32;values")
+      string(JSON _reduced ERROR_VARIABLE _json_error REMOVE "${_text}" ${_member})
+      if(NOT _json_error)
+        set(_text "${_reduced}")
+      endif()
+    endforeach()
+  endif()
   string(TOLOWER "${_text}" _lower)
   set(_candidate FALSE)
   foreach(_rule RANGE 1 13)

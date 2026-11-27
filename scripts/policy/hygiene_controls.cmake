@@ -83,6 +83,29 @@ check(pass)
 # The archive inventory must visit hidden public files too.
 file(WRITE "${WORK}/source/.hidden" "${_bad_sample}\n")
 check("Public hygiene: 1 unreviewed hits")
+file(REMOVE "${WORK}/source/.hidden")
+# Numerical payloads and the numerical levels of ray files are exempt; ray-file metadata,
+# bundled inputs and manifests in data/ are not.
+file(WRITE "${WORK}/source/data/d8/m1/c0.csv" "${_bad_sample}\n")
+# The numerical arrays of a ray file are exempt; its other members are scanned.
+set(_ray_numeric "\"fp32\":{\"values\":[[\"${_bad_sample}\"]],\"rounding\":\"ROUNDING\"},\"hp\":{\"values\":[[\"${_bad_sample}\"]]}")
+set(_ray "{\"d\":\"8\",${_ray_numeric},\"id\":\"d8-m1-c0\",\"labels\":{\"context\":\"LABEL\",\"id\":\"x\"}}\n")
+file(WRITE "${WORK}/source/data/d8/m1/c0.json" "${_ray}")
+check(pass)
+foreach(_place "LABEL" "ROUNDING")
+  string(REPLACE "${_place}" "${_bad_sample}" _mutated "${_ray}")
+  file(WRITE "${WORK}/source/data/d8/m1/c0.json" "${_mutated}")
+  check("Public hygiene: 1 unreviewed hits")
+endforeach()
+# A ray file that does not parse as JSON is scanned in full.
+file(WRITE "${WORK}/source/data/d8/m1/c0.json" "{\"fp32\":{\"values\":[[\"${_bad_sample}\"]]}\n")
+check("Public hygiene: 1 unreviewed hits")
+file(REMOVE "${WORK}/source/data/d8/m1/c0.json" "${WORK}/source/data/d8/m1/c0.csv")
+foreach(_data_path "data/d2/d2.sicrad" "data/d8/m1/manifest.json" "data/catalogue.json")
+  file(WRITE "${WORK}/source/${_data_path}" "${_bad_sample}\n")
+  check("Public hygiene: 1 unreviewed hits")
+  file(REMOVE "${WORK}/source/${_data_path}")
+endforeach()
 message(STATUS "Hygiene negative, allowance-mutation and positive controls passed")
 
 message(STATUS "SIC_NEGATIVE_CONTROL:hygiene-controls")

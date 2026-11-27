@@ -47,7 +47,8 @@ set_tests_properties(sic_test_policy_symbols PROPERTIES LABELS "unit;policy" TIM
 
 add_test(NAME sic_test_policy_hygiene COMMAND "${CMAKE_COMMAND}"
   "-DROOT=${SIC_REPO_ROOT}" -P "${_policy}/hygiene.cmake")
-set_tests_properties(sic_test_policy_hygiene PROPERTIES LABELS "unit;policy;hygiene" TIMEOUT 30)
+# A release tree adds the metadata of every ray file to the scan.
+set_tests_properties(sic_test_policy_hygiene PROPERTIES LABELS "unit;policy;hygiene" TIMEOUT 60)
 add_test(NAME sic_test_policy_hygiene_controls COMMAND "${CMAKE_COMMAND}"
   "-DWORK=${PROJECT_BINARY_DIR}/policy-hygiene-controls" -P "${_policy}/hygiene_controls.cmake")
 set_tests_properties(sic_test_policy_hygiene_controls PROPERTIES LABELS "unit;policy" TIMEOUT 30)
@@ -56,8 +57,9 @@ add_test(NAME sic_test_policy_data_layout COMMAND "${SIC_NODE_EXECUTABLE}"
   "${_policy}/data_layout.mjs" "${SIC_REPO_ROOT}")
 add_test(NAME sic_test_policy_data_layout_controls COMMAND "${SIC_NODE_EXECUTABLE}"
   "${_policy}/data_layout_controls.mjs" "${SIC_REPO_ROOT}" "${PROJECT_BINARY_DIR}/policy-data-controls")
+# A release tree hashes the full numerical data in each check and control.
 set_tests_properties(sic_test_policy_data_layout sic_test_policy_data_layout_controls
-  PROPERTIES LABELS "unit;policy" TIMEOUT 2)
+  PROPERTIES LABELS "unit;policy" TIMEOUT 30)
 add_test(NAME sic_test_policy_explicit_data_inputs COMMAND "${SIC_NODE_EXECUTABLE}"
   "${_policy}/contracts/explicit_data_inputs.mjs" "${SIC_REPO_ROOT}")
 set_tests_properties(sic_test_policy_explicit_data_inputs PROPERTIES LABELS "unit;policy" TIMEOUT 10)

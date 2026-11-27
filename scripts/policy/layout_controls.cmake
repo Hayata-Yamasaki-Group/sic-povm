@@ -19,6 +19,11 @@ foreach(_i RANGE 1 21)
   file(WRITE "${WORK}/crowded/file_${_i}.txt" "")
 endforeach()
 check_control(crowded "D1:")
+# Only release multiplet folders may hold more files; other data folders may not.
+foreach(_i RANGE 1 21)
+  file(WRITE "${WORK}/data_crowded/data/d8/file_${_i}.txt" "")
+endforeach()
+check_control(data_crowded "D1: data/d8:")
 file(MAKE_DIRECTORY "${WORK}/stem")
 file(WRITE "${WORK}/stem/util.hpp" "#pragma once\n")
 check_control(stem "F5:")
@@ -34,6 +39,15 @@ execute_process(COMMAND "${CMAKE_COMMAND}" "-DROOT=${WORK}/valid" "-DEXCEPTIONS=
   OUTPUT_VARIABLE _stdout ERROR_VARIABLE _stderr TIMEOUT 5)
 if(NOT _status EQUAL 0 OR NOT _stdout MATCHES "passed: 1 files")
   message(FATAL_ERROR "Positive inventory control failed: ${_stdout}${_stderr}")
+endif()
+foreach(_i RANGE 1 21)
+  file(WRITE "${WORK}/data_multiplet/data/d8/m1/c${_i}.csv" "")
+endforeach()
+execute_process(COMMAND "${CMAKE_COMMAND}" "-DROOT=${WORK}/data_multiplet" "-DEXCEPTIONS=${WORK}/exceptions.txt"
+  -P "${CMAKE_CURRENT_LIST_DIR}/layout.cmake" RESULT_VARIABLE _status
+  OUTPUT_VARIABLE _stdout ERROR_VARIABLE _stderr TIMEOUT 5)
+if(NOT _status EQUAL 0 OR NOT _stdout MATCHES "passed: 21 files")
+  message(FATAL_ERROR "Release multiplet folder control failed: ${_stdout}${_stderr}")
 endif()
 message(STATUS "Layout negative and positive controls passed")
 # Exercise the Git inventory with untracked public and excluded entries.

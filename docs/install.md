@@ -4,9 +4,12 @@ CMake 3.20 or newer and a C++20 compiler are required. The default test-enabled 
 Node.js 20 or newer, Bash 4 or newer, and `nm` or `llvm-nm`. A build configured with
 `-DSIC_BUILD_TESTS=OFF` needs only the build dependencies.
 
+The tools build and run on Linux. The release was built and tested on Ubuntu 24.04 (x86-64) with
+GCC 13.3, CMake 3.28 and FLINT 3.6.0.
+
 Only the C++ formatting test needs clang-format 14 (`clang-format-14` on Ubuntu 24.04).
 CTest reports that test as skipped when a working version 14 is unavailable.
-Exact tests require OpenSSL Crypto development files. Install `pari-gp` to run the GP controls and
+Exact tests require OpenSSL Crypto development files. Install `pari-gp` to run the PARI/GP controls and
 libcurl development files to run the HTTP Range controls.
 The plain configuration builds the numerical core and tools without FLINT:
 

@@ -1,0 +1,262 @@
+# sic-stabilizers/1.0
+# Extended Clifford stabilizers of WH SIC fiducials, D_p = tau^(p1 p2) X^p1 Z^p2, tau = -exp(pi i/d).
+# Element U = D_chi U_F, F = [[a, b], [c, e]] in ESL(2, Z_dbar) (canonical lift, Appleby2005symmetric);
+# det -1: U_F = U_(FJ) K antiunitary. Binary64 computation, see docs/data.md#stab; not an exact proof.
+# catalogue catalogue.json
+ray d2048-m1-c0 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.927e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 0.000e+00 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c0 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d2048-m1-c0 1 det +1 F 2047 2047 1 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 0.000e+00
+elem d2048-m1-c0 2 det +1 F 0 1 4095 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.000e-11 residual 0.000e+00
+ray d2048-m1-c1 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 5.367e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 2.442e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c1 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.442e-15
+elem d2048-m1-c1 1 det +1 F 2047 305 47 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 2.442e-15
+elem d2048-m1-c1 2 det +1 F 0 1743 4049 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.000e-11 residual 2.442e-15
+ray d2048-m1-c2 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.952e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c2 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d2048-m1-c2 1 det +1 F 2047 1183 161 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 1.110e-16
+elem d2048-m1-c2 2 det +1 F 0 865 3935 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.110e-16
+ray d2048-m1-c3 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.198e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.023e-11 max_element_residual 1.998e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c3 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.776e-15
+elem d2048-m1-c3 1 det +1 F 2047 1681 1423 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.023e-11 residual 1.998e-15
+elem d2048-m1-c3 2 det +1 F 0 367 625 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.023e-11 residual 1.998e-15
+ray d2048-m1-c4 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.572e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 5.551e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c4 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 5.551e-16
+elem d2048-m1-c4 1 det +1 F 2047 511 513 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 5.551e-16
+elem d2048-m1-c4 2 det +1 F 0 1537 1535 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.000e-11 residual 4.441e-16
+ray d2048-m1-c5 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.445e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.057e-11 max_element_residual 0.000e+00 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c5 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d2048-m1-c5 1 det +1 F 2047 1841 1583 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.057e-11 residual 0.000e+00
+elem d2048-m1-c5 2 det +1 F 0 207 2513 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.057e-11 residual 0.000e+00
+ray d2048-m1-c6 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.144e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 1.776e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c6 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.776e-15
+elem d2048-m1-c6 1 det +1 F 2047 1695 673 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 1.776e-15
+elem d2048-m1-c6 2 det +1 F 0 353 3423 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.776e-15
+ray d2048-m1-c7 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.331e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 8.882e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c7 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 8.882e-16
+elem d2048-m1-c7 1 det +1 F 2047 1169 911 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 6.661e-16
+elem d2048-m1-c7 2 det +1 F 0 879 1137 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 7.772e-16
+ray d2048-m1-c8 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.445e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 2.887e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c8 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.887e-15
+elem d2048-m1-c8 1 det +1 F 2047 1023 1025 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 2.665e-15
+elem d2048-m1-c8 2 det +1 F 0 1025 1023 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 2.776e-15
+ray d2048-m1-c9 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.952e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.108e-11 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c9 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 6.661e-16
+elem d2048-m1-c9 1 det +1 F 2047 1329 1071 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.108e-11 residual 5.551e-16
+elem d2048-m1-c9 2 det +1 F 0 719 3025 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.108e-11 residual 5.551e-16
+ray d2048-m1-c10 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.060e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c10 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d2048-m1-c10 1 det +1 F 2047 159 1185 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 6.661e-16
+elem d2048-m1-c10 2 det +1 F 0 1889 863 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.000e-11 residual 6.661e-16
+ray d2048-m1-c11 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.819e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 1.332e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c11 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.332e-15
+elem d2048-m1-c11 1 det +1 F 2047 657 399 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.110e-15
+elem d2048-m1-c11 2 det +1 F 0 1391 1649 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.221e-15
+ray d2048-m1-c12 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.060e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.216e-11 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c12 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d2048-m1-c12 1 det +1 F 2047 1535 1537 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.216e-11 residual 2.220e-16
+elem d2048-m1-c12 2 det +1 F 0 513 511 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.216e-11 residual 2.220e-16
+ray d2048-m1-c13 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.548e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 1.554e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c13 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.554e-15
+elem d2048-m1-c13 1 det +1 F 2047 817 559 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 1.443e-15
+elem d2048-m1-c13 2 det +1 F 0 1231 3537 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.443e-15
+ray d2048-m1-c14 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.927e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c14 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 6.661e-16
+elem d2048-m1-c14 1 det +1 F 2047 671 1697 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 6.661e-16
+elem d2048-m1-c14 2 det +1 F 0 1377 351 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 6.661e-16
+ray d2048-m1-c15 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.952e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c15 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d2048-m1-c15 1 det +1 F 2047 145 1935 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 1.110e-16
+elem d2048-m1-c15 2 det +1 F 0 1903 2161 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.110e-16
+ray d2048-m1-c16 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.927e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 1.776e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c16 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.776e-15
+elem d2048-m1-c16 1 det +1 F 2047 2047 1 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 1.665e-15
+elem d2048-m1-c16 2 det +1 F 0 1 4095 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.776e-15
+ray d2048-m1-c17 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.439e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c17 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 6.661e-16
+elem d2048-m1-c17 1 det +1 F 2047 305 47 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 5.551e-16
+elem d2048-m1-c17 2 det +1 F 0 1743 4049 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 6.661e-16
+ray d2048-m1-c18 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.952e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c18 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 6.661e-16
+elem d2048-m1-c18 1 det +1 F 2047 1183 161 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 6.661e-16
+elem d2048-m1-c18 2 det +1 F 0 865 3935 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 6.661e-16
+ray d2048-m1-c19 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.445e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 2.220e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c19 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-15
+elem d2048-m1-c19 1 det +1 F 2047 1681 1423 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.998e-15
+elem d2048-m1-c19 2 det +1 F 0 367 625 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.887e-15
+ray d2048-m1-c20 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.927e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 1.554e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c20 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.554e-15
+elem d2048-m1-c20 1 det +1 F 2047 511 513 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.554e-15
+elem d2048-m1-c20 2 det +1 F 0 1537 1535 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.554e-15
+ray d2048-m1-c21 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.494e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 1.443e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c21 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.443e-15
+elem d2048-m1-c21 1 det +1 F 2047 1841 1583 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 1.332e-15
+elem d2048-m1-c21 2 det +1 F 0 207 2513 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.332e-15
+ray d2048-m1-c22 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.927e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c22 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d2048-m1-c22 1 det +1 F 2047 1695 673 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 6.661e-16
+elem d2048-m1-c22 2 det +1 F 0 353 3423 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 6.661e-16
+ray d2048-m1-c23 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.445e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c23 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 6.661e-16
+elem d2048-m1-c23 1 det +1 F 2047 1169 911 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 6.661e-16
+elem d2048-m1-c23 2 det +1 F 0 879 1137 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 5.551e-16
+ray d2048-m1-c24 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.927e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 30 candidate_pairs 6
+elem d2048-m1-c24 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 6.661e-16
+elem d2048-m1-c24 1 det +1 F 2047 1023 1025 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 6.661e-16
+elem d2048-m1-c24 2 det +1 F 0 1025 1023 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 5.551e-16
+ray d2048-m1-c25 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.445e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 1.998e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c25 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.998e-15
+elem d2048-m1-c25 1 det +1 F 2047 1329 1071 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 1.998e-15
+elem d2048-m1-c25 2 det +1 F 0 719 3025 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.887e-15
+ray d2048-m1-c26 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.247e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c26 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d2048-m1-c26 1 det +1 F 2047 159 1185 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 0.000e+00
+elem d2048-m1-c26 2 det +1 F 0 1889 863 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.110e-16
+ray d2048-m1-c27 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 5.367e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.114e-11 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c27 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d2048-m1-c27 1 det +1 F 2047 657 399 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.114e-11 residual 4.441e-16
+elem d2048-m1-c27 2 det +1 F 0 1391 1649 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.114e-11 residual 4.441e-16
+ray d2048-m1-c28 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.114e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 2.166e-11 max_element_residual 1.110e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c28 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.110e-15
+elem d2048-m1-c28 1 det +1 F 2047 1535 1537 0 chi 1024 0 order 3 trace 2047 zauner z_dev 2.166e-11 residual 8.882e-16
+elem d2048-m1-c28 2 det +1 F 0 513 511 2047 chi 0 0 order 3 trace 2047 zauner z_dev 2.166e-11 residual 9.992e-16
+ray d2048-m1-c29 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.114e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c29 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 6.661e-16
+elem d2048-m1-c29 1 det +1 F 2047 817 559 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 6.661e-16
+elem d2048-m1-c29 2 det +1 F 0 1231 3537 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 6.661e-16
+ray d2048-m1-c30 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.626e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c30 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d2048-m1-c30 1 det +1 F 2047 671 1697 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 4.441e-16
+elem d2048-m1-c30 2 det +1 F 0 1377 351 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 4.441e-16
+ray d2048-m1-c31 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.952e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c31 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d2048-m1-c31 1 det +1 F 2047 145 1935 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 6.661e-16
+elem d2048-m1-c31 2 det +1 F 0 1903 2161 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 4.441e-16
+ray d2048-m1-c32 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.843e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.046e-11 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 36 candidate_pairs 6
+elem d2048-m1-c32 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d2048-m1-c32 1 det +1 F 2047 2047 1 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.046e-11 residual 4.441e-16
+elem d2048-m1-c32 2 det +1 F 0 1 4095 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.046e-11 residual 4.441e-16
+ray d2048-m1-c33 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.952e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c33 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d2048-m1-c33 1 det +1 F 2047 305 47 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 1.110e-16
+elem d2048-m1-c33 2 det +1 F 0 1743 4049 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.110e-16
+ray d2048-m1-c34 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.927e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 1.110e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 30 candidate_pairs 6
+elem d2048-m1-c34 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.110e-15
+elem d2048-m1-c34 1 det +1 F 2047 1183 161 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 1.110e-15
+elem d2048-m1-c34 2 det +1 F 0 865 3935 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.110e-15
+ray d2048-m1-c35 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.927e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 0.000e+00 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c35 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d2048-m1-c35 1 det +1 F 2047 1681 1423 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 0.000e+00
+elem d2048-m1-c35 2 det +1 F 0 367 625 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 0.000e+00
+ray d2048-m1-c36 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.843e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.137e-11 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c36 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 6.661e-16
+elem d2048-m1-c36 1 det +1 F 2047 511 513 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.137e-11 residual 5.551e-16
+elem d2048-m1-c36 2 det +1 F 0 1537 1535 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.137e-11 residual 5.551e-16
+ray d2048-m1-c37 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.114e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.103e-11 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c37 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d2048-m1-c37 1 det +1 F 2047 1841 1583 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.103e-11 residual 4.441e-16
+elem d2048-m1-c37 2 det +1 F 0 207 2513 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.103e-11 residual 4.441e-16
+ray d2048-m1-c38 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.385e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 1.332e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c38 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.332e-15
+elem d2048-m1-c38 1 det +1 F 2047 1695 673 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 1.221e-15
+elem d2048-m1-c38 2 det +1 F 0 353 3423 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.221e-15
+ray d2048-m1-c39 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.927e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.046e-11 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c39 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d2048-m1-c39 1 det +1 F 2047 1169 911 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.046e-11 residual 2.220e-16
+elem d2048-m1-c39 2 det +1 F 0 879 1137 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.046e-11 residual 2.220e-16
+ray d2048-m1-c40 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.120e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 2.665e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c40 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.665e-15
+elem d2048-m1-c40 1 det +1 F 2047 1023 1025 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 2.665e-15
+elem d2048-m1-c40 2 det +1 F 0 1025 1023 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 2.665e-15
+ray d2048-m1-c41 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.409e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.158e-11 max_element_residual 3.331e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c41 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d2048-m1-c41 1 det +1 F 2047 1329 1071 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.158e-11 residual 3.331e-16
+elem d2048-m1-c41 2 det +1 F 0 719 3025 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.158e-11 residual 3.331e-16
+ray d2048-m1-c42 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.952e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 0.000e+00 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c42 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d2048-m1-c42 1 det +1 F 2047 159 1185 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 0.000e+00
+elem d2048-m1-c42 2 det +1 F 0 1889 863 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 0.000e+00
+ray d2048-m1-c43 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.006e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.160e-11 max_element_residual 8.882e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c43 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 8.882e-16
+elem d2048-m1-c43 1 det +1 F 2047 657 399 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.160e-11 residual 7.772e-16
+elem d2048-m1-c43 2 det +1 F 0 1391 1649 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.160e-11 residual 6.661e-16
+ray d2048-m1-c44 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.927e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 1.554e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c44 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.332e-15
+elem d2048-m1-c44 1 det +1 F 2047 1535 1537 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.332e-15
+elem d2048-m1-c44 2 det +1 F 0 513 511 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.554e-15
+ray d2048-m1-c45 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.445e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.046e-11 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c45 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d2048-m1-c45 1 det +1 F 2047 817 559 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.046e-11 residual 1.110e-16
+elem d2048-m1-c45 2 det +1 F 0 1231 3537 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.046e-11 residual 0.000e+00
+ray d2048-m1-c46 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 5.367e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 9.550e-12 max_element_residual 2.220e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c46 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.998e-15
+elem d2048-m1-c46 1 det +1 F 2047 671 1697 0 chi 1024 0 order 3 trace 2047 zauner z_dev 9.550e-12 residual 1.998e-15
+elem d2048-m1-c46 2 det +1 F 0 1377 351 2047 chi 0 0 order 3 trace 2047 zauner z_dev 9.550e-12 residual 2.220e-15
+ray d2048-m1-c47 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.090e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 1.776e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c47 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.776e-15
+elem d2048-m1-c47 1 det +1 F 2047 145 1935 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 1.665e-15
+elem d2048-m1-c47 2 det +1 F 0 1903 2161 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.665e-15
+ray d2048-m1-c48 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.144e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 1.998e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c48 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.998e-15
+elem d2048-m1-c48 1 det +1 F 2047 2047 1 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 1.998e-15
+elem d2048-m1-c48 2 det +1 F 0 1 4095 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.998e-15
+ray d2048-m1-c49 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.572e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c49 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d2048-m1-c49 1 det +1 F 2047 305 47 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 2.220e-16
+elem d2048-m1-c49 2 det +1 F 0 1743 4049 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 2.220e-16
+ray d2048-m1-c50 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 5.367e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 1.998e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c50 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.998e-15
+elem d2048-m1-c50 1 det +1 F 2047 1183 161 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.000e-11 residual 1.998e-15
+elem d2048-m1-c50 2 det +1 F 0 865 3935 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.998e-15
+ray d2048-m1-c51 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.469e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 1.998e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c51 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.776e-15
+elem d2048-m1-c51 1 det +1 F 2047 1681 1423 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.998e-15
+elem d2048-m1-c51 2 det +1 F 0 367 625 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.998e-15
+ray d2048-m1-c52 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.656e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c52 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d2048-m1-c52 1 det +1 F 2047 511 513 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 4.441e-16
+elem d2048-m1-c52 2 det +1 F 0 1537 1535 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 4.441e-16
+ray d2048-m1-c53 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.795e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 2.442e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c53 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.442e-15
+elem d2048-m1-c53 1 det +1 F 2047 1841 1583 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 2.442e-15
+elem d2048-m1-c53 2 det +1 F 0 207 2513 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 2.442e-15
+ray d2048-m1-c54 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.494e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 1.110e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c54 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.110e-15
+elem d2048-m1-c54 1 det +1 F 2047 1695 673 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 1.110e-15
+elem d2048-m1-c54 2 det +1 F 0 353 3423 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.110e-15
+ray d2048-m1-c55 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.849e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 2.665e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c55 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.665e-15
+elem d2048-m1-c55 1 det +1 F 2047 1169 911 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 2.554e-15
+elem d2048-m1-c55 2 det +1 F 0 879 1137 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 2.442e-15
+ray d2048-m1-c56 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 2.223e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 1.110e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d2048-m1-c56 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.110e-15
+elem d2048-m1-c56 1 det +1 F 2047 1023 1025 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.110e-15
+elem d2048-m1-c56 2 det +1 F 0 1025 1023 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.000e-11 residual 1.110e-15
+ray d2048-m1-c57 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.572e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 3.331e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c57 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 3.331e-16
+elem d2048-m1-c57 1 det +1 F 2047 1329 1071 2048 chi 0 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 2.220e-16
+elem d2048-m1-c57 2 det +1 F 0 719 3025 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.110e-16
+ray d2048-m1-c58 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.445e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.007e-11 max_element_residual 1.443e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d2048-m1-c58 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.443e-15
+elem d2048-m1-c58 1 det +1 F 2047 159 1185 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.007e-11 residual 1.332e-15
+elem d2048-m1-c58 2 det +1 F 0 1889 863 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.007e-11 residual 1.221e-15
+ray d2048-m1-c59 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 3.198e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c59 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d2048-m1-c59 1 det +1 F 2047 657 399 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 2.220e-16
+elem d2048-m1-c59 2 det +1 F 0 1391 1649 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.000e-11 residual 2.220e-16
+ray d2048-m1-c60 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.952e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.000e-11 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c60 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d2048-m1-c60 1 det +1 F 2047 1535 1537 0 chi 1024 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 3.331e-16
+elem d2048-m1-c60 2 det +1 F 0 513 511 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.000e-11 residual 3.331e-16
+ray d2048-m1-c61 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.445e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.091e-11 max_element_residual 1.554e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c61 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.554e-15
+elem d2048-m1-c61 1 det +1 F 2047 817 559 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.091e-11 residual 1.443e-15
+elem d2048-m1-c61 2 det +1 F 0 1231 3537 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.091e-11 residual 1.554e-15
+ray d2048-m1-c62 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.626e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.023e-11 max_element_residual 0.000e+00 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c62 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d2048-m1-c62 1 det +1 F 2047 671 1697 0 chi 0 0 order 3 trace 2047 zauner z_dev 1.023e-11 residual 0.000e+00
+elem d2048-m1-c62 2 det +1 F 0 1377 351 2047 chi 0 1024 order 3 trace 2047 zauner z_dev 1.023e-11 residual 0.000e+00
+ray d2048-m1-c63 d 2048 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.952e-18 z_tol 1.0e-06 z_error_bound 2.510e-08 max_element_z_deviation 1.114e-11 max_element_residual 3.331e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d2048-m1-c63 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 3.331e-16
+elem d2048-m1-c63 1 det +1 F 2047 145 1935 2048 chi 1024 1024 order 3 trace 4095 zauner z_dev 1.114e-11 residual 2.220e-16
+elem d2048-m1-c63 2 det +1 F 0 1903 2161 2047 chi 0 0 order 3 trace 2047 zauner z_dev 1.114e-11 residual 2.220e-16
+end 64

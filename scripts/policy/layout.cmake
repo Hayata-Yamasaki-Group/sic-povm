@@ -49,7 +49,9 @@ foreach(_path IN LISTS _files)
   endif()
   string(SHA256 _id "${_dir}")
   math(EXPR _count_${_id} "0${_count_${_id}} + 1")
-  if(_count_${_id} GREATER 20)
+  # A release multiplet folder holds the files of every fiducial vector of the multiplet,
+  # as fixed by the data contract and checked by the data layout policy.
+  if(_count_${_id} GREATER 20 AND NOT _dir MATCHES "^data/d[1-9][0-9]*/m[1-9][0-9]*$")
     sic_layout_failure(D1 "${_dir}" "more than 20 direct regular files")
   endif()
   string(REPLACE "/" ";" _parts "${_path}")

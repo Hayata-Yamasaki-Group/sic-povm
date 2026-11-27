@@ -5,17 +5,17 @@ Code, documentation, script, schema and test contributions are accepted under
 GitHub Release assets are accepted under the [ODbL v1.0](LICENSE-ODbL), with any rights in their
 individual contents licensed under the [DbCL v1.0](LICENSE-DbCL).
 
-Write code, comments and documentation in English. Implement algorithms and
-experiments in C++20; use CMake, CTest and the repository `.clang-format`
-(CI uses clang-format 14). Exact arithmetic uses FLINT 3 with Arb: preserve
+Code, comments and documentation are written in English. The code is C++20, built with CMake and
+tested with CTest; format C++ sources with the repository `.clang-format` (the continuous
+integration uses clang-format 14). Exact arithmetic uses FLINT 3 with Arb; changes keep the
 certified ball bounds, recognition checks and quadrature fallbacks.
 
-Start with the [documentation index](README.md),
-[conventions](docs/sicx.md#mathematical-conventions) and [verification
-guarantees](docs/verification.md). Use `sic-construct` for construction and
-[SICX](docs/sicx.md#spec-sicx-10-final-exact-weylheisenberg-sic-fiducial-format) for exact data; see
-the [data guide](docs/data.md#data-guide) and [download
-instructions](docs/data.md#transport-getting-the-exact-data).
+Start with the [README](README.md), the
+[mathematical conventions](docs/sicx.md#mathematical-conventions) and
+[verification](docs/verification.md). `sic-construct` constructs the exact data, the
+[SICX specification](docs/sicx.md#spec-sicx-10-final-exact-weylheisenberg-sic-fiducial-format)
+defines its format, and the [data guide](docs/data.md#data-guide) describes the released files and
+their [downloads](docs/data.md#transport-getting-the-exact-data).
 
 ## Design rules
 
@@ -38,7 +38,7 @@ The checks below enforce specific parts; review covers the rest of each rule.
    | C++ types/type aliases; CMake module files | `PascalCase` |
    | Named constants | `kPascalCase` |
    | Macros, CMake options, environment variables | `SIC_UPPER_SNAKE_CASE` |
-   | Executable targets, CLI commands/options, frozen external identities and files named for them | `lower-kebab-case` |
+   | Executable targets, command-line commands and options, frozen external identities and files named for them | `lower-kebab-case` |
 
    CMake scripts, `.mjs` scripts and documentation paths use `lower_snake_case`.
    Keep mathematical letters and external/platform spellings. Frozen identities
@@ -86,10 +86,10 @@ The checks below enforce specific parts; review covers the rest of each rule.
 
 7. **Scalability is measured and canonical bytes never move.** Accept runtime or
    memory changes only with recorded A/B measurements on physical cores and
-   identical d4–d256 exact roots, BALL/FP64 digests and native SICX whole-file SHA.
+   identical exact roots in dimensions 4 to 256, BALL and binary64 digests and native SICX whole-file SHA-256.
    Never silently rebaseline canonical bytes in fixtures or goldens.
    Keep certification, precision, retries and fallback policy fixed. Measure
-   d512 peak memory and parallel efficiency alongside wall time. Checked in review.
+   the peak memory and parallel efficiency in dimension 512 alongside the wall time. Checked in review.
 
 8. **Documentation and tests follow the code.** Check every documented path,
    command, option, default, test name and label against the code; prefer generated
@@ -109,16 +109,15 @@ define the hook macro manually. Run `ctest -L test_hooks` without excluding heav
 
 ## Changes and evidence
 
-Keep pull requests focused and report validation commands and results. Get
-independent review for nontrivial code, mathematical arguments and computational
-results. Preserve recorded data and logs; record inputs/checksums, dimension,
-precision, seed, threads, hardware, command and certification status for benchmarks.
+Keep pull requests focused and report the validation commands and their results. Nontrivial code,
+mathematical arguments and computational results need an independent review. For benchmarks,
+record the inputs and their checksums, the dimension, precision, seed, threads, hardware, command
+and certification status.
 
-Follow the [WH convention](docs/sicx.md#mathematical-conventions) and distinguish proved bounds,
+Follow the [Weyl–Heisenberg convention](docs/sicx.md#mathematical-conventions) and distinguish proved bounds,
 conditional results, certified numerical bounds, exact-zero certificates and
 empirical measurements. State premises, cite external mathematical claims and
-update the relevant `docs/` pages. General dimensions and compact exact output
-remain research goals; see [verification](docs/verification.md) for current limits.
+update the relevant `docs/` pages; [verification](docs/verification.md) defines the status words.
 
 ## Offline documentation checks
 
@@ -159,7 +158,7 @@ membership below. The `crt` selector in `docs/` requires FLINT; `hoggar`
 is available in plain builds too. Cross-mode hook registration and stale
 enrollment checks require a full FLINT configuration (`SIC_BUILD_APPS=ON`,
 `SIC_BUILD_REGRESSION=ON`): the policy configures the opposite hook mode and
-the optional GP registration without building or running either. This covers
+the optional PARI/GP registration without building or running either. This covers
 entries absent from a plain or reduced registry; every mode validates the
 properties of its registered tests.
 
@@ -176,19 +175,19 @@ isolation, compiler and install policy checks run in their applicable modes.
 
 <!-- test-heavy -->
 - `^sic_test_search_clifford_fiducials_d(128|256)$`: Large Clifford collections
-- `^sic_test_search_produce_d256$`: Exact production for the d256 Clifford collection
-- `^sic_test_construct_native_s6_phased_(default_t(1|4)(_repeat_2)?|standard_t4)$`: d64 construction
-  controls
-- `^sic_test_construct_native_s7_(phased_default_t4(_repeat_2)?|auto_standard_t4)$`: d128
-  construction controls
+- `^sic_test_search_produce_d256$`: Exact production for the Clifford collection in dimension 256
+- `^sic_test_construct_native_s6_phased_(default_t(1|4)(_repeat_2)?|standard_t4)$`: construction controls
+  in dimension 64
+- `^sic_test_construct_native_s7_(phased_default_t4(_repeat_2)?|auto_standard_t4)$`: construction
+  controls in dimension 128
 - `^sic_test_construct_memory_strategy_identity_(s[2-6]|reduced)$`: Retention identity controls
-- `^sic_test_sicx_exact_gp_d16$`: Opt-in GP verification
+- `^sic_test_sicx_exact_gp_d16$`: Opt-in PARI/GP verification
 <!-- /test-heavy -->
 
 Ordinary tests, including policy tests and default heavy controls, have a
 positive timeout of at most 120 seconds. The sole long-test exemption is
 `sic_test_sicx_exact_gp_d16`: explicitly opt in with `SIC_SICX_GP_D16=ON`;
-it is heavy and retains a 3600-second timeout (one GP shift takes several
+it is heavy and retains a 3600-second timeout (one PARI/GP shift takes several
 minutes empirically). Its registration is checked without requiring the long
 computation. Use `ctest -L independence` for checker boundaries, or
 `ctest -LE heavy` for the ordinary suite. The publication manifest pins the
@@ -214,11 +213,71 @@ are not CTests. Research programs are not required to build or test the producti
 
 One bounded integration regression exceeds the per-test CTest limit and is
 run by hand: `cpp/tests/construct/canonical/run_trace_band_identity.cmake`
-builds d256 maximal order (the smallest mixed-radix tower) unbanded and with a
+builds the maximal order in dimension 256 (the smallest mixed-radix tower) unbanded and with a
 forced representative band, and requires identical bytes. Run it with a
 `SIC_ENABLE_TEST_HOOKS=ON` FLINT producer as `cmake -DPROGRAM=<sic-construct>
 -DWORK=<fresh directory> -P cpp/tests/construct/canonical/run_trace_band_identity.cmake`
 (about 6 minutes on 32 CPUs).
+
+<a id="independent-checker-tests"></a>
+## Independent checker tests
+
+The independent checkers ([verification](docs/verification.md#independent-checker-contracts)) have
+their own test suites and test-only writers implemented from the specification.
+
+### Chinese remainder theorem certificate
+
+`ctest -L crt` exercises eleven input groups (valid, rejection mutations, boundaries/regrouping,
+partial trust/scope, amendments, primitive guards, mixed odd/quadratic branches, targeted guards,
+general dimensions, deterministic fuzz mutations, and public command-line interface), five fixture CRT proofs,
+bound-only diagnostics, strict command-line option and error cases, help/parser defaults, help, source
+independence, a shift retry, and three deliberate mathematical negative controls. The independent
+executables are enrolled in the repository’s independence audit. Rehashed negative fixtures pin
+rejection categories so a different later failure cannot silently substitute for the intended check.
+Five additional `sic-test-crt-faults` cases interpose OS/FLINT failures to test otherwise rare
+fail-closed paths; interposition is test-only.
+
+`test_writer.hpp` is a test-only writer implemented from the final specification. It uses OpenSSL
+SHA-256 independently of the reader's hash implementation and emits synthetic general-dimension exact-only
+containers and d=4/d=8 finalized container controls. Tests include multi-leaf elements in different
+physical groupings, unchanged exact-prefix/LDIR bytes on finalization, odd-degree/action grammar,
+exact rounding ties of both signs, and a minimum-precision-256 branch construction. These are
+container controls, not new SIC-POVM claims. d=2 balanced pairs are also covered.
+
+`sic-test-crt-input --write-fixtures DIR` saves eight reviewable d=4/d=8 fixtures.
+`sic-test-crt-external OUTDIR FILE...` verifies an executable-produced corpus, reproduces every byte
+with the independent OpenSSL writer, checks both roots and whole-file hashes, rejects raw and
+independently rehashed corruptions, and exercises partial trust/completion. `sic-test-crt-input
+--write-general-fixtures DIR` saves the general-dimension fixtures for d=2,3,5,6,7,9,12,16.
+Exhaustive unit-group/entry oracles include faithful C4/C6 factors, composite CRT lifts, full
+exponent digits, both real integral bases, rational pair rejection and the first-coordinate-first
+Smith label rule. The selection of CRT, input and independence tests includes 19 mixed-branch
+checks, signed initially nonexact half ties, unresolved singleton fallback and low-degree admission
+controls.
+
+### Norm certificate
+
+`sic-test-norm-reader SCRATCH_DIRECTORY [4|8]` writes its own fixtures and mutation corpus.
+`test_writer.hpp` uses the SHA-256 primitive but implements its own JSON serialization, encodings,
+directories, domain messages and RFC tree. Known SHA and an externally computed tagged-leaf hash
+constrain that shared primitive. The generated `d4.sicx` and `d8.sicx` use the genuine quadratic
+extension `K(sqrt(2))/K` and its nontrivial C2 action. Their representatives are constant, their
+BALLs enclose the uniform unit vector, and they are **not SIC-POVM fixtures**. The larger grouping
+fixtures deliberately exercise container checks with a synthetic tower; they do not establish the
+imported field and group premises. These synthetic fixtures make no SIC-POVM claim.
+
+### Second reader
+
+`cpp/checkers/verifier/tests/writer.cpp` contains a spec-derived test-only writer with separate byte, integer, hash-domain
+and RFC tree encoders; its hashes use OpenSSL. The fixture suite in `cpp/checkers/verifier/tests/tests.cpp` and
+`cpp/checkers/verifier/tests/conformance_*.cpp` uses it to create small synthetic containers at d=4 and d=8, finalization
+pairs, a 65,536-coordinate support for physical regrouping, odd cyclic towers, negative-D0 pairs and
+mutations. These are format/decoder controls, not newly constructed SIC-POVM fiducial vectors. The fixture suite uses no
+production producer or production fixtures. `cpp/checkers/verifier/tests/general_tests.cpp` compares entries with
+exhaustive direct-product enumeration and smallest-lift scans, covering d=2,3,5,6,7,9,12 and powers
+of two, plus additional CRT cases. `cpp/checkers/verifier/tests/guard_tests.cpp` checks allocation admission, protected
+JSON input spans and test-only one-shot libc/FLINT failures. These are specification/conformance
+controls, separate from actual SIC-POVM proof runs.
 
 ## Adding fixtures
 
@@ -238,11 +297,11 @@ than silently disabling coverage.
 
 Register source/include/link independence checks in CMake/CTest for new independent-checker fixture
 writers and add rehashed mutation controls that fail at the intended gate. Container fixtures need
-not be SICs; say so. Exact certificates must identify the exact root actually checked and report
+not be SIC-POVM fiducial vectors; say so. Exact certificates must identify the exact root actually checked and report
 refusal, estimate and partial modes separately from a proof. Obtain independent review for
 nontrivial fixture or certificate changes.
 
-The policy checks also enforce the [CLI contract inventory](docs/cli_contract.json),
+The policy checks also enforce the [command-line contract inventory](docs/cli_contract.json),
 [configuration census](docs/configuration.md) and
 [install inventory](docs/install_contract.json). `sic_test_policy_help_contract`
 checks each selected subcommand's option operands/repeatability and grammar;
@@ -274,6 +333,6 @@ locator specifications in `scripts/docs/contracts/contract_sources.json` and
 `scripts/docs/contracts/default_sources.json` classify parser owners and prose authorities;
 new owners or claims need explicit enrollment. Semantic comparisons in
 `scripts/docs/contracts/default_values.mjs` bind numeric prose to source expressions with
-unit conversion. The generated CLI inventory contains grammar metadata;
+unit conversion. The generated command-line inventory contains grammar metadata;
 [command help](docs/tools.md) remains the generated help reference. Regenerate
 that reference with `scripts/docs/help.mjs --write` and the installed prefix.

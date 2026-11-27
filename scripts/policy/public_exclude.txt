@@ -4,7 +4,6 @@ notes
 paper
 ROADMAP.md
 PROGRESS-library.md
-CITATION.cff
 archive
 tmp
 output

@@ -4,7 +4,7 @@
 This document is the normative SICX 1.0 format specification.
 
 A SICX file stores one exact, embedded number-field presentation of a
-Weyl–Heisenberg (WH) SIC multiplet. It may contain zero published rays (exact-only),
+Weyl–Heisenberg SIC-POVM multiplet. It may contain zero published rays (exact-only),
 one ray, or many rays. The exact root identifies that presentation, including its
 embedding and entry rule, independently of physical chunk grouping, codec,
 provenance, transport parts and finalization. It is not an invariant of abstract
@@ -25,8 +25,8 @@ and flattened displacement indices are below `d² ≤ 2^40`; products and offset
 use checked 64-bit arithmetic (§5.0). It is not a restriction to powers of two
 or a promise of feasible computation at the cap. Tower and resource bounds
 apply independently. The current producer constructs only `d = 2^s`;
-general-d reader paths require synthetic conformance fixtures. This specification
-claims neither a general-d producer nor new SIC data. The base-field cases
+general-dimension reader paths require synthetic conformance fixtures. This specification
+claims neither a general-dimension producer nor new SIC-POVM data. The base-field cases
 at `d = 2,3` (§2) use the same entry, encoding and finalization rules as all dimensions.
 
 ## Identity registry
@@ -47,7 +47,7 @@ sidecar schema. Neither the sidecar nor RAYS has a `schema` field naming that de
 | `sic-decode-provenance/1.0` | textual identity (`sic[x]-<name>/1.0`) | Decode provenance sidecar schema; document has a decoder field, no schema field | No |
 | `sic-exact-json/1.0` | textual identity (`sic[x]-<name>/1.0`) | Exact multiplet export and schema | No |
 | `sic-fiducial-fp64/1.0` | textual identity (`sic[x]-<name>/1.0`) | Numeric fixture metadata.json and schema | No |
-| `sic-fiducial-json/1.0` | textual identity (`sic[x]-<name>/1.0`) | WH ray export and schema | No |
+| `sic-fiducial-json/1.0` | textual identity (`sic[x]-<name>/1.0`) | Weyl–Heisenberg ray export and schema | No |
 | `sic-fiducial-json-all/1.0` | textual identity (`sic[x]-<name>/1.0`) | All-ray export and schema | No |
 | `sic-hoggar-exact-json/1.0` | textual identity (`sic[x]-<name>/1.0`) | data/d8/hoggar/exact.json and schema | No |
 | `sic-hoggar-fiducial-json/1.0` | textual identity (`sic[x]-<name>/1.0`) | data/d8/hoggar/c0.json and schema | No |
@@ -56,7 +56,7 @@ sidecar schema. Neither the sidecar nor RAYS has a `schema` field naming that de
 | `sic-npz-bundle/1.0` | textual identity (`sic[x]-<name>/1.0`) | NPZ ZIP archive comment and schema | No |
 | `sic-ray-selection-receipt/1.0` | textual identity (`sic[x]-<name>/1.0`) | Ray selection receipt | No |
 | `sic-release-catalogue/1.0` | textual identity (`sic[x]-<name>/1.0`) | release/catalogue.json and schema | No |
-| `sic-tool-version/1.0` | textual identity (`sic[x]-<name>/1.0`) | CLI --version output and schema | No |
+| `sic-tool-version/1.0` | textual identity (`sic[x]-<name>/1.0`) | Tool `--version` output and schema | No |
 | `sicx-text-json/1.0` | textual identity (`sic[x]-<name>/1.0`) | JSONL header and schema | No; text representation |
 | `sicx-text-json-parts/1.0` | textual identity (`sic[x]-<name>/1.0`) | JSONL parts index and schema | No; text representation |
 | `sicx-transport-parts/1.0` | textual identity (`sic[x]-<name>/1.0`) | Transport manifest and schema | No; sidecar |
@@ -104,7 +104,7 @@ readers MUST NOT silently adopt different logical boundaries.
 ## 1. Status of the mathematical content (premises)
 
 SICX is a container. It stores exact algebraic data and certified numbers; it does not by itself
-prove that the stored vector is a SIC. The following are stated honestly:
+prove that the stored vector is a SIC-POVM fiducial vector. The following statements define its scope:
 
 1. **Exact data.** Every stored integer is exact. Tower, Galois action and representative elements are
    the producer's exact elements after the canonical generator rescaling (§3.7): each leaf equals the
@@ -115,7 +115,7 @@ prove that the stored vector is a SIC. The following are stated honestly:
    decoded enclosures (§5.2). Container verification (§6) checks the specified encoding, integrity and
    BALL-only constraints; its success alone establishes neither BALL containment of the exact decoded
    values nor equality of their binary64 roundings. A separate decode check reports its own result.
-   Both are distinct from an exact SIC certificate.
+   Both are distinct from an exact SIC-POVM certificate.
 3. **Premises inherited from the producer** (not re-proved by a SICX reader):
    - the minimal polynomials are irreducible and define the stated extension degrees and field tower;
      §6 nevertheless checks the chosen-base simple nonzero roots, root selection and canonical
@@ -123,20 +123,25 @@ prove that the stored vector is a SIC. The following are stated honestly:
    - the action records are genuine automorphisms (`τ_l` acts as stated on every generator) and commute;
    - the entry-action homomorphism and representative kernel-fixity premises of §3.5 hold;
      their exact algebraic verification is separate from container verification;
-   - **integrality:** the stored coordinates divided by the stored scale are integral in `O_K` — this is
-     how they are stored, but the statement that the trace coordinates of the representatives lie in
-     `(1/N) O_K` with the recorded scale is checked per file, not proved in general;
-   - the exact SIC property rests on the [construction theorems and stated
-     premises](verification.md#verification-1-claims-and-their-status); a numerical overlap check
+   - **integrality:** the stored coordinates divided by the stored scale are integral in `O_K`. For
+     the producer's presentations this follows from the integrality of the representatives and of
+     the generators, since trace coordinates of integral elements are integral; a SICX reader does not
+     re-prove it;
+   - the exact SIC-POVM property of the stored vectors and its status are stated in
+     [verification](verification.md#verification-1-claims-and-their-status): it rests on exact
+     certificates for `4 ≤ d ≤ 256`, on a closed form for `d = 2`, and for `d ≥ 512` on the
+     [construction theorem](verification.md#verification-construction-theorem) through the
+     certified computations of each run; a numerical overlap check
      (`sic-verify --sic-check`) is a diagnostic, never an exact proof.
-4. **Empirical facts used as rules** (checked on every packed file, fail-closed):
-   - agreement of the §3.5 entry rule with the producer's exported coordinates — checked against
-     every entry line of every packed export (powers of two, d = 4 … 1024, 0 mismatches), not proved
-     in general. The general-d rule is a presentation requirement, with no general-d empirical
+4. **Empirical facts used as rules** (not proved in general; the evidence is stated per item):
+   - agreement of the §3.5 entry rule with the producer's exported coordinates — compared on every
+     entry line of the packed power-of-two exports in dimensions 4 to 1024, without a mismatch, and
+     not proved in general. The producer checks the representative indices of every file it writes;
+     dimension 2 uses its closed-form writer. The general-dimension rule is a presentation requirement, with no general-dimension empirical
      evidence claimed;
    - ray records are pure Galois elements with no Clifford correction
-     ([reproducibility.md](reproduce.md#reproducing-the-published-results), recorded entry-rule
-     checks; four published non-identity selectors match, a wrong-word control fails).
+     ([verification](verification.md#verification-1-claims-and-their-status)); a wrong-word control
+     fails.
 
    Recorded format descriptions and run observations in this specification are informative
    background; every rule a reader needs is stated here.
@@ -150,14 +155,14 @@ prove that the stored vector is a SIC. The following are stated honestly:
 
 - **Weyl–Heisenberg group.** `X|j⟩ = |j+1⟩`, `Z|j⟩ = ω_d^j |j⟩`, `ω_d = e^{2πi/d}`, indices mod `d`;
   `D_p = τ^{p_1 p_2} X^{p_1} Z^{p_2}`, `τ = -e^{πi/d}`, `p ∈ (Z/d̄)^2`, `d̄ = 2d` for even `d`, `d̄
-  = d` for odd `d`. Here `τ² = ω_d`, and `τ` has order `d̄` for both parities. A SIC fiducial is a
+  = d` for odd `d`. Here `τ² = ω_d`, and `τ` has order `d̄` for both parities. A SIC-POVM fiducial vector is a
   unit vector `ψ` with `|⟨ψ, D_p ψ⟩|^2 = 1/(d+1)` for all `p ≠ (0,0) (mod d)`, checked on `p ∈
   {0,…,d−1}²`. For even `d`, labels nonzero mod `2d` but zero mod `d` are scalar identities and are
   excluded.
 - **Base field derived from d.** For `d ≥ 4`, let `D0` be the squarefree kernel of `(d−3)(d+1)`: the
   unique squarefree positive integer for which `(d−3)(d+1) = D0 h²`, `h` a positive integer. Then `K
-  = Q(√D0)`. This is the standard SIC quadratic field. Its use here is a format convention, not a
-  theorem that arbitrary SIC coordinates satisfy this presentation. For `d ≥ 4`, `(d−2)² <
+  = Q(√D0)`. This is the standard real quadratic field of Weyl–Heisenberg SIC-POVMs. Its use here is a format convention, not a
+  theorem that arbitrary SIC-POVM coordinates satisfy this presentation. For `d ≥ 4`, `(d−2)² <
   (d−3)(d+1) < (d−1)²`, so `D0 > 1`. At `d = 2`, `D0 = −3` and `K = Q(√−3)`; at `d = 3`, `K = Q` and
   `D0 = 1` is a format sentinel (not the squarefree kernel of zero). Readers MUST derive the case
   and `D0` from `d`; neither is stored in EXMT.
@@ -241,9 +246,9 @@ Let `H_g = {σ ∈ G : σ(η_g) = η_g}` and `E_g = L^{H_g}`. The general facts 
 and, under §3.5's premises, `ρ(ker π_g) ⊆ H_g`. The orbit under `ρ(U_d)` has size `[ρ(U_d) : ρ(U_d)
 ∩ H_g]` dividing `φ(d/g)`, where `φ(1) = 1`. If `ρ(U_d) = G`, this gives `[E_g:K] | φ(d/g)`. Without
 surjectivity, no such bound for `[E_g:K]` follows from the entry rule alone. There is no
-dimension-only formula for `|H_g|`: `G` may contain actions not in `ρ(U_d)`. Recorded power-of-two
-measurements `|H_g| = g` for `0 < g < d/2`, and `|H_d| = |H_(d/2)| = d`, are informative only
-([reproducibility.md](reproduce.md#reproducing-the-published-results)), not acceptance criteria.
+dimension-only formula for `|H_g|`: `G` may contain actions not in `ρ(U_d)`. Power-of-two
+measurements `|H_g| = g` for `0 < g < d/2`, and `|H_d| = |H_(d/2)| = d`, are informative only,
+not acceptance criteria.
 Readers do not rely on them.
 
 <a id="spec-35-entries-and-rays"></a>
@@ -261,13 +266,13 @@ give independent cyclic factors, not necessarily in Smith order:
 | `2^e`, `e ≥ 3` | `−1 mod 2^e`, `5 mod 2^e` | `2`, `2^(e−2)` |
 | odd `p^e` | the smallest integer `a ∈ [1,p^e)` of multiplicative order `φ(p^e)` | `φ(p^e) = (p−1)p^(e−1)` |
 
-For each local generator take the unique CRT lift `u_j ∈ [1,d)` equal to that
+For each local generator take the unique Chinese remainder theorem lift `u_j ∈ [1,d)` equal to that
 generator on its prime-power component and `1` on every other component.
 Concatenate in the above order; call the orders `o_j`, `j = 0,…,h−1`.
 Primitive roots exist for odd prime powers. Their minimality is checkable by
 testing candidates in increasing order: a unit `a` is primitive iff
 `a^(φ(p^e)/q) ≠ 1 (mod p^e)` for every prime `q | φ(p^e)`.
-The CRT decomposition and these local cyclic decompositions prove that every
+The Chinese remainder theorem decomposition and these local cyclic decompositions prove that every
 `u ∈ U_d` has a **unique** tuple `0 ≤ a_j < o_j` with `u = Π u_j^a_j`.
 At `d = 2` the generator list and tuple are empty and `U_d = {1}`.
 
@@ -285,7 +290,7 @@ Define `tilde k` to be the **smallest positive** `u < d` with `gcd(u,d) = 1`
 and `u ≡ k (mod n)` (the congruence is vacuous at `n = 1`, so `tilde k = 1`).
 This set is nonempty: on prime-power components dividing `n`, any lift of a
 unit stays a unit; on components absent from `n`, choose residue `1`, then use
-CRT. Thus `π_g` is surjective. Compute the unique tuple of `tilde k` above and set
+the Chinese remainder theorem. Thus `π_g` is surjective. Compute the unique tuple of `tilde k` above and set
 `word(m) = Σ_j a_j W_j`, reduced componentwise modulo the Smith factors. The
 **base vector** is `ψ_m = σ_(word(m))(η_g) = ρ(tilde k)(η_g)`.
 In particular `m = 0`, and every positive proper divisor `m | d`, has entry word zero.
@@ -507,8 +512,8 @@ writes the same rescaled exact data.
   dual basis of `{g'^k}` scales inversely), so `λ'_e Π_i b'_{i,e_i} = λ_e Π_i b_{i,e_i}` term by
   term; the transported roots, action quotients `A'/r'` and `(Σ (δa_k)' r'^k)/δ'` are the old ones
   times `2^{−J_s}`. In ball arithmetic all these factors are exact exponent shifts. (Measured: the
-  reference decoder gives bit-identical raw balls for the fixtures before and after rescaling; see
-  [reproducibility.md](reproduce.md#reproducing-the-published-results).)
+  reference decoder gives bit-identical raw balls for the test fixtures before and after
+  rescaling.)
 - *Idempotent.* The rule applied to a file in canonical form gives `J = 0`: after the greedy no
   level of positive gain can be raised, feasibility only decreases, and the transform keeps the
   nonzero pattern and the gains. Full verifiers MUST check this; partial readers may defer it until
@@ -725,7 +730,7 @@ Physical choices are expressed by PDIR; free catalogue labels belong in the
 release catalogue or PROV. Multiplet numbers are release names, not EXMT data.
 
 **Entry metadata validation.** Readers MUST factor the bounded `d`, derive the
-ordered local generators/orders and CRT lifts of §3.5, and compare the
+ordered local generators/orders and Chinese remainder theorem lifts of §3.5, and compare the
 representative array with the complete ordered divisor-position list. They
 MUST check word count/rank/residues and `o_j W_j = 0` modulo every Smith
 factor; a failed relation is rejection. These checks use integer arithmetic
@@ -898,9 +903,9 @@ contain 0. (3) Form `ρ = v_j/v_k` and `β = w_j/w_k` in ball arithmetic. (4) Re
 overlap in both the real and the imaginary part; disjoint balls prove that BALL is inconsistent with
 the exact data, and the file MUST then be rejected. The check tests consistency of one ratio only;
 overlap proves neither exact equality nor containment. It does not check the exact norm, phase or
-other coordinates; BALL-only gauge/norm checks remain as in §5.2. (The second reader ran it with
-`(0, d/2)` on ray `c0` at `d = 256 … 1024`; see
-[reproducibility.md](reproduce.md#reproducing-the-published-results).)
+other coordinates; BALL-only gauge/norm checks remain as in §5.2. (For the release, the second
+reader ran it on every fiducial vector of `d512-m1`, `d512-m2` and `d1024-m1`; see
+[verification](verification.md#verification-1-claims-and-their-status).)
 
 **Cost of the anchor.** The anchor `a` (RAYS) defines the gauge but is generally not a cheap
 coordinate: unless `a` is 0 or a positive proper divisor of `d`, its entry word `Σ_j a_j W_j` has
@@ -1220,7 +1225,7 @@ A full verifier MUST perform all of these checks:
 6. If an expected exact root, file root or whole-file SHA-256 was supplied,
    compare it exactly and reject any mismatch. Report separately which roots
    were trusted and which were merely recomputed. Compute whole-file SHA-256
-   only by reading the whole file. Rechecking SIC identities or BALL against
+   only by reading the whole file. Rechecking SIC-POVM identities or BALL against
    exact decoding is a separate mathematical/numerical check (§1, §11).
 
 This establishes **container** conformance and integrity; authentication
@@ -1233,9 +1238,9 @@ identities/commutativity, or representative kernel fixity (§3.5). The checked
 word-order congruences define a homomorphism into the declared Smith group;
 they alone do not certify an action on the stored field elements.
 Those field/group/entry premises require a separate
-algebraic verifier such as the CRT certificate; a successful certificate
+algebraic verifier such as the Chinese remainder theorem certificate; a successful certificate
 must identify the same exact root. Container success alone also establishes
-neither BALL-to-exact containment/overlap nor binary64 agreement or the SIC
+neither BALL-to-exact containment/overlap nor binary64 agreement or the SIC-POVM
 property. Inability to finish a required root identification MUST be reported
 as refusal, not a passed check.
 
@@ -1479,16 +1484,16 @@ No external publication-ball file is an input to finalization or needed for thes
   exact coordinate enclosed by the finalizer's certified decode. Overlap with a separate enclosure
   would not imply containment.
 
-Ordering, normalization, phase and the WH convention are those of §2 and are fixed by the schema version.
+Ordering, normalization, phase and the Weyl–Heisenberg convention are those of §2 and are fixed by the schema version.
 
 <a id="spec-9a-exactjson-power-basis-of-a-multiplet-sic-exact-json10"></a>
 ## 9a. `exact.json`: power basis of a multiplet (`sic-exact-json/1.0`)
 
 One document per multiplet, generated **on demand** (not stored in git;
 `build/data/d<d>/m<N>/exact.json` by the `exact-data` build target), only where the power basis is
-feasible (measured, d ≤ 16; [reproducibility.md](reproduce.md#reproducing-the-published-results)).
+feasible (measured, `d ≤ 16`).
 Generated by `sic-inspect --exact-json IN.sicx OUT.json --multiplet mN` (output via `OUT.partial`
-and rename; memory is the document, 28 MB peak RSS at d = 16) (`sic::sicx::exact::DocumentBuilder`,
+and rename; memory is the document, 28 MB peak resident set size at d = 16) (`sic::sicx::exact::DocumentBuilder`,
 `cpp/include/sic/sicx/exact.hpp`) from a **finalized** file; schema
 `docs/schemas/sic-exact-json-1.schema.json`. Every number is a decimal string.
 
@@ -1506,7 +1511,7 @@ and rename; memory is the document, 28 MB peak RSS at d = 16) (`sic::sicx::exact
   (closed form for quadratic levels).
 - `tower[i]`: `variable`, `degree`, `polynomial` (monic, low to high, coefficients elements of
   `F_i`; for a quadratic level `g_i² − c_i` with `c_i` the `wsq` element) and `polynomial_infix`
-  (GP/Sage/Mathematica syntax in `omega, g0, …`); `root`: decimal boxes `[mid, radius]` for `re` and
+  (PARI/GP, SageMath and Mathematica syntax in `omega, g0, …`); `root`: decimal boxes `[mid, radius]` for `re` and
   `im`; `branch`: the EXMT rectangle.
 - **Root selection by isolating ball.** The box is certified at generation by interval Newton: with
   the lower levels at their published boxes, `N = x0 − f(x0)/f'(B)` lies inside the box `B`, so `B`
@@ -1520,15 +1525,14 @@ and rename; memory is the document, 28 MB peak RSS at d = 16) (`sic::sicx::exact
 - `conjugation`: complex conjugation as an exact ring automorphism of `L` (images of `ω` and of
   every `g_i`), with its Smith word when it fixes `K`. It is identified by ball arithmetic (exactly
   one Smith word maps every root box to the conjugate box) and its images are checked to satisfy
-  every relation. It is stored because the exact SIC test uses `conj(ψ_k)`.
+  every relation. It is stored because the exact SIC-POVM test uses `conj(ψ_k)`.
 - **Generation checks (fail-closed):** root isolation; the conjugation identification; and a
   numerical check that the power-basis coordinates, evaluated at the published root boxes with
   768-bit balls, normalized and gauged as in §2, overlap the BALL record of every coordinate of
   every ray. The check is a consistency check of the conversion against the file, not a proof of the
-  SIC property.
-- **GP reference script** `cpp/checkers/gp/sicx_exact_verify.gp` (independent of the C++ code;
-  PARI/GP ≥ 2.13, tested with 2.13.3; it uses only GP language features, so it also runs in Sage's
-  bundled GP, untested here). It parses the file with its own JSON reader, rebuilds `L` with nested
+  SIC-POVM property.
+- **PARI/GP reference script** `cpp/checkers/gp/sicx_exact_verify.gp` (independent of the C++
+  code; PARI/GP ≥ 2.13, tested with 2.13.3). It parses the file with its own JSON reader, rebuilds `L` with nested
   polmods, rebuilds every `ψ`, and verifies **exactly** that `ν = Σ ψ_k conj(ψ_k)` is
   conjugation-invariant and `|⟨ψ|D_p ψ⟩|² = 1/(d+1)` for every `p ≠ 0` (homogeneous autocorrelation
   form, no roots of unity), plus a 150-digit floating point check of the definition for all `p`.
@@ -1545,7 +1549,7 @@ entry-rule or finalization branch. At `d = 2`, `U_2` is trivial,
 `U_3` has generator `2` of order `2`, positions are `[0,1]`, and all pair
 second components vanish. Its entries follow §3.5 (`m = 0,1` have word zero;
 `m = 2` has the generator word), subject to the same premises. No `d = 3`
-producer or SIC data is claimed here.
+producer or SIC-POVM data is claimed here.
 
 `d = 2` has `K = Q(√−3)`, `ω = (1 + √−3)/2`, `ι(ω) = (1 − i√3)/2`. Tower: one quadratic level `g_0²
 = −1` (`ι(g_0) = i`, branch rectangle exactly `[0, 1]`), `L = Q(i, √3)`, Smith `[2]`, `τ_0: g_0 ↦
@@ -1571,7 +1575,7 @@ branch rectangle `["0 0 0 0", "1 0 0 0"]` (§7a). A decoder evaluates `ι(ω) = 
 `sic-decode` supports `D0 < 0` : its `d = 2` decode overlaps the BALL with identical certified
 binary64 values (recorded goldens in `cpp/tests/decode/goldens/`). The `d = 2` BALL is derived
 directly from the exact leaves, and admitted only after decoder finalization. Readers imposing a
-power-of-two or `d ≥ 4` restriction are not conforming to this general-d 1.0 specification.
+power-of-two or `d ≥ 4` restriction are not conforming to this general-dimension 1.0 specification.
 
 An optional all-in-one export for small `d` (`sic-inspect FILE --json-all OUT --multiplet mN`, schema id
 `sic-fiducial-json-all/1.0`: `{"rays":[ray documents]}`) is not a release file.
@@ -1579,10 +1583,10 @@ An optional all-in-one export for small `d` (`sic-inspect FILE --json-all OUT --
 <a id="spec-10a-release-tree-and-catalogue"></a>
 ## 10a. Release tree and catalogue
 
-Release layout ([data-guide.md](data.md#data-guide)): numerical data and manifests in git, every
-SICX a GitHub Release asset transported as parts (§10b,
-[data-download.md](data.md#transport-getting-the-exact-data)). The conductor appears in no public
-name.
+Release layout ([data guide](data.md#data-guide)): numerical data and manifests in the
+repository folder `data/`, every SICX file a GitHub Release asset transported as parts (§10b,
+[exact data downloads](data.md#transport-getting-the-exact-data)). The conductor appears in no
+public name.
 
 The producer selects native Smith words for the exact presentation. The
 finalizer checks the exact-root binding and records certified anchors. The
@@ -1590,9 +1594,9 @@ per-ray records and generated `catalogue.json` preserve the checked exact root a
 authenticated file association. See [selecting and finalizing rays](reproduce.md#selecting-and-finalizing-rays).
 
 ```
-release/catalogue.json
-release/d<d>/all.npz, stabilizers.txt                         (other writers)
-release/d<d>/m<N>/manifest.json, multiplet.sicx.parts.json, c<N>.json (+ c<N>.npy/.mat/.h5/.csv from other writers)
+data/catalogue.json
+data/d<d>/all.npz, stabilizers.txt                         (other writers)
+data/d<d>/m<N>/manifest.json, multiplet.sicx.parts.json, c<N>.json (+ c<N>.npy/.mat/.h5/.csv from other writers)
 ```
 
 `m<N>` numbers follow increasing construction conductor within a dimension; N is given on the
@@ -1777,7 +1781,7 @@ contracted for all requested restriction classes. Block results are combined in
 block order. Precision retries may reread leaves. The base path is certified
 against the canonical branch rectangles; other paths start at `target + delta`
 and outputs failing the accuracy gate are retried within configured limits.
-The CLI writes raw balls for subsets and normalized balls plus certified
+The command-line tool writes raw balls for subsets and normalized balls plus certified
 binary64 values for complete rays.
 
 Implementation notes (`cpp/include/sic/decode/decoder.hpp`, `sic-decode`):
@@ -1795,7 +1799,7 @@ Implementation notes (`cpp/include/sic/decode/decoder.hpp`, `sic-decode`):
   class value is produced by the same operation sequence either way, so outputs are byte-identical
   for any worker count (checked: d1024 maximal raw balls identical at 8, 32 and 64 workers).
 - **Acceptance.** An output is kept only if it is finite and has absolute radius ≤ 2^−target (both
-  parts) or relative accuracy ≥ target; others are re-decoded alone at doubled precision. The CLI
+  parts) or relative accuracy ≥ target; others are re-decoded alone at doubled precision. The command-line tool
   normalizes with the ray's anchor, certifies binary64 rounding, and requires overlap with every
   BALL record and identical binary64 values when checking an existing BALL snapshot. This separate
   decode consistency check does not prove containment in an arbitrary preexisting BALL. Finalization
@@ -1805,7 +1809,7 @@ Implementation notes (`cpp/include/sic/decode/decoder.hpp`, `sic-decode`):
   be checked against BALL through ratios, §5.2a).
 - **Resources.** With pinning enabled, workers are pinned once, ordered by NUMA node; `--memory-mib`
   sets a shared admission budget for decoding, including BODY blocks and tower fit. It is not a hard
-  RSS cap.
+  resident set size cap.
 
 <a id="spec-12-worked-examples"></a>
 ## 12. Worked examples
@@ -1912,14 +1916,14 @@ Representative positions are `[0,1]`, for `η_5,η_1`.
 | 4 | 1 | 5 | 4 | 4 | 2 | 1 | `2W` |
 
 Kernel fixity requires `ρ(U_5)` to fix `η_5`; the kernel for `η_1` is trivial.
-This table defines indices/words only, with no constructed field tower or SIC asserted.
+This table defines indices/words only, with no constructed field tower or SIC-POVM asserted.
 
 <a id="spec-123-d--6-structural-entry-table-only"></a>
 ### 12.3 `d = 6` (structural entry table only)
 
 `K = Q(√21)`, `ω = (1+√21)/2`, `ι(ω) = (1−√21)/2`.
 The `2` component has no generator. The smallest primitive root on the `3`
-component is `2`, whose CRT lift is `5 mod 6`, of order `2`; let its word
+component is `2`, whose Chinese remainder theorem lift is `5 mod 6`, of order `2`; let its word
 be `W`, `2W = 0`. Positions `[0,1,2,3]` represent `η_6,η_1,η_2,η_3`.
 
 | `m` | `g = gcd(m,6)` | `n = 6/g` | `k` in `U_n` | canonical lift | exponent of `5` | position | entry word |
@@ -1933,15 +1937,15 @@ be `W`, `2W = 0`. Positions `[0,1,2,3]` represent `η_6,η_1,η_2,η_3`.
 
 Here `m = 4` demonstrates why the cofactor `2` itself cannot be used as a
 unit mod `6`. Kernel fixity requires `ρ(5)` to fix `η_6` and `η_3`;
-the kernels for `η_1` and `η_2` are trivial. There is no general-d producer
-or actual SIC claim behind either structural table.
+the kernels for `η_1` and `η_2` are trivial. There is no general-dimension producer
+or actual SIC-POVM claim behind either structural table.
 
 
 
 ## Mathematical conventions
 
 <a id="mathematical-conventions"></a>
-The following conventions are normative for the interpretation of the WH data. Sections 2–3 above
+The following conventions are normative for the interpretation of the Weyl–Heisenberg data. Sections 2–3 above
 define the exact embedding and entry rule.
 
 <a id="basis"></a>
@@ -1963,7 +1967,7 @@ define the exact embedding and entry rule.
   - Qiskit is little-endian: qubit `k` is bit `b_k`, so `Statevector(psi)` is correct as is.
   - QuTiP and Cirq are big-endian: tensor factor 0 is `b_{s−1}`, so factor `k` is Qiskit qubit `s−1−k`.
     Bit-reverse the index to relabel.
-- The WH group below uses the cyclic shift on `Z_d` (`|j⟩ ↦ |j+1 mod d⟩`). For `s > 1`,
+- The Weyl–Heisenberg group below uses the cyclic shift on `Z_d` (`|j⟩ ↦ |j+1 mod d⟩`). For `s > 1`,
   it differs from the tensor-product `s`-qubit Pauli group.
 
 <a id="conventions-2-shift-and-clock"></a>
@@ -2001,14 +2005,14 @@ D_p = τ^(p1·p2) X^p1 Z^p2,      p = (p1, p2).
   a_p = ⟨ψ|D_p ψ⟩ = τ^(p1·p2) Σ_j conj(ψ_(j+p1)) ψ_j ω^(p2·j).
   ```
 
-  For fixed `p1` this is one length-`d` DFT with kernel `exp(+2πi·p2·j/d)`, so all `d²` overlaps cost
+  For fixed `p1` this is one length-`d` discrete Fourier transform with kernel `exp(+2πi·p2·j/d)`, so all `d²` overlaps cost
   `O(d² log d)`. The phase `τ^n` should be evaluated as `exp(πi·(n(d+1) mod 2d)/d)` with the exponent reduced in
   exact integers; evaluating `τ**n` in floating point loses phase accuracy at large `d`.
 
 <a id="conventions-4-sic-condition-normalization-and-phase"></a>
-### SIC condition, normalization and phase
+### SIC-POVM condition, normalization and phase
 
-- **SIC fiducial.** A unit vector `ψ ∈ C^d` is a WH SIC fiducial if
+- **Fiducial vector.** A unit vector `ψ ∈ C^d` is a Weyl–Heisenberg SIC-POVM fiducial vector if
 
   ```
   |⟨ψ|D_p ψ⟩|² = 1/(d+1)     for every p ≠ 0 (mod d).
@@ -2017,7 +2021,7 @@ D_p = τ^(p1·p2) X^p1 Z^p2,      p = (p1, p2).
   The `d²` vectors `D_p ψ`, `p ∈ {0, …, d−1}²`, then give the SIC-POVM `{ (1/d) |D_p ψ⟩⟨D_p ψ| }`.
   Since `|a_p|` depends only on `p mod d`, the condition is checked on the `d² − 1` labels `p ≠ (0, 0)` with
   `p1, p2 ∈ {0, …, d−1}`.
-- **Normalization and phase (anchor rule).** A fiducial is fixed only up to a global phase. The published
+- **Normalization and phase (anchor rule).** A fiducial vector is fixed only up to a global phase. The published
   vector of a ray is
 
   ```
@@ -2055,39 +2059,44 @@ The unitary convention below is the one used by the implementation.
 - **Extended Clifford group.** Its elements are `U = D_χ U_F` with `χ ∈ (Z/d)²` and `F ∈ ESL(2,
   Z/d̄)`, up to a phase. `PEC(d)` denotes the projective extended Clifford group (elements modulo
   phases), as in Scott–Grassl (2010).
-- **Stabilizer.** The stabilizer of a fiducial `ψ` is `S(ψ) = { [U] ∈ PEC(d) : U ψ ∝ ψ }`, i.e.
+- **Stabilizer.** The stabilizer of a fiducial vector `ψ` is `S(ψ) = { [U] ∈ PEC(d) : U ψ ∝ ψ }`, i.e.
   `|⟨ψ|U ψ⟩| = 1` for unit `ψ`. The symmetry tables list each element as `(det, F, χ)` with `F` the
   lexicographically smallest lift to `[0, d̄)` with the right determinant.
 - **Zauner symmetry.** An element of the symmetry tables is flagged `zauner` (Zauner type) if it is
   unitary (`det F = 1`), has order 3 in `PEC(d)` and `tr F ≡ −1 (mod d)`: Appleby's canonical
   order-3 elements (Scott–Grassl §4); `F_z = [[0, −1], [1, −1]]` is one. Zauner's conjecture (every
-  dimension has a fiducial with such a symmetry) is open; the symmetry tables record which released
+  dimension has a fiducial vector with such a symmetry) is open; the symmetry tables record which released
   rays have Zauner-type elements (see [verification.md](verification.md) for the status of those
   tables).
 
 <a id="conventions-6-equivalence-rays-and-multiplets"></a>
 ### Equivalence, rays and multiplets
 
-- **Equivalence.** Two fiducials `ψ, φ` are **equivalent** if `φ ∝ U ψ` for some `U` in the extended
+- **Equivalence.** Two fiducial vectors `ψ, φ` are **equivalent** if `φ ∝ U ψ` for some `U` in the extended
   Clifford group (unitary or anti-unitary); otherwise they are **inequivalent**. Equivalent
-  fiducials give the same SIC up to a Clifford transformation.
-- **Ray.** In this project a **ray** is one extended-Clifford orbit (one `PEC(d)` orbit) of SIC
-  fiducials. The data publish one representative fiducial vector per ray, normalized and phased as
-  in [convention 4](#conventions-4-sic-condition-normalization-and-phase). (This is the usage of the
-  catalogue; it is broader than "a vector up to phase".)
-- **Multiplet.** A multiplet `m<N>` is the set of rays published from one exact SICX file. All its
-  rays share one number field `L` (an abelian extension of the base field `K` of [convention
-  8](#conventions-8-exact-data-summary-of-sicx-spec-2)), and each ray is the image of the base
-  vector defined by the entry rule under a Galois automorphism `σ ∈ Gal(L/K)`, applied to every
-  coordinate and evaluated in the fixed embedding. The ray file records this automorphism as
-  `galois_element` (Smith invariant factors and exponents). The name follows the Galois multiplets
-  of the SIC literature; that each `m<N>` is exactly one such multiplet is not claimed beyond the
-  conjectural classification below. Which rays a multiplet contains is catalogue data and is not
+  fiducial vectors give the same SIC-POVM up to a Clifford transformation.
+- **Ray and orbit.** A ray is a one-dimensional subspace of `C^d`, equivalently a unit vector modulo
+  a phase.
+  The data publish one fiducial vector for each extended Clifford orbit they cover (one `PEC(d)`
+  orbit of SIC-POVM fiducial vectors), normalized and phased as in
+  [convention 4](#conventions-4-sic-condition-normalization-and-phase). The identifiers `c<N>`, the
+  ray files and the field names `ray`, `rays` and `ray_count` refer to these published fiducial
+  vectors.
+- **Multiplet.** A multiplet `m<N>` is the set of fiducial vectors published from one exact SICX
+  file. They share one number field `L` (an abelian extension of the base field `K` of [convention
+  8](#conventions-8-exact-data-summary-of-sicx-spec-2)), and each is the image of the base vector
+  defined by the entry rule under a Galois automorphism `σ ∈ Gal(L/K)`, applied to every coordinate
+  and evaluated in the fixed embedding. The ray file records this automorphism as `galois_element`
+  (Smith invariant factors and exponents). The name follows the Galois multiplets of the SIC-POVM
+  literature; that each `m<N>` is exactly one such multiplet is not claimed beyond the conjectural
+  classification below. Which fiducial vectors a multiplet contains is catalogue data and is not
   derived by readers.
-- **The order ↔ multiplet correspondence is conjectural.** Each multiplet was constructed from a real
-  quadratic order. The proposed correspondence between real quadratic orders and SIC multiplets, and the
-  resulting count of 174 rays for `d = 2^s ≤ 2048`, rest on a conjectural classification (Kopp–Lagarias,
-  Conjecture 1.2). The data structure does not assume it, and no file states it as fact.
+- **The correspondence of orders and multiplets is conjectural.** Each multiplet was constructed from
+  a real quadratic order. The proposed correspondence between real quadratic orders and Galois
+  multiplets of SIC-POVMs, and the resulting count of 174 extended Clifford orbits (geometric
+  equivalence classes) for `d = 2^s ≤ 2048`, rest on a conjectural classification (Kopp and
+  Lagarias, "SIC-POVMs and orders of real quadratic fields" (2024), Conjecture 1.2). The data
+  structure does not assume it, and no file states it as fact.
 
 <a id="conventions-7-labels"></a>
 ### Labels
@@ -2108,7 +2117,7 @@ The unitary convention below is the one used by the implementation.
 ### Exact data (summary of sicx-spec §2)
 
 - **Base field.** For `d ≥ 4`, `K = Q(√D0)`, where `D0 > 1` is the squarefree kernel of
-  `(d−3)(d+1)`. This is the standard SIC quadratic field of Appleby–Flammia–McConnell–Yard,
+  `(d−3)(d+1)`. This is the standard real quadratic field of Weyl–Heisenberg SIC-POVMs of Appleby–Flammia–McConnell–Yard,
   [*Generating ray class fields of real quadratic fields via complex equiangular lines*,
   §1](https://arxiv.org/pdf/1604.06098); its use here is a format convention. At `d = 2`, `D0 = −3`,
   `K = Q(√−3)`; at `d = 3`, `K = Q` and `D0 = 1` is a sentinel. Readers derive the case from `d`; it
@@ -2126,10 +2135,10 @@ The unitary convention below is the one used by the implementation.
 - **Entry convention.** There is one representative per divisor `g | d`, at position `g` except
   `g = d` at position `0`. For coordinate `m`, use `g = gcd(m,d)` and the smallest positive unit
   lift of `m/g mod d/g`, with the trivial quotient at `m = 0`. Words are formed from the canonical
-  prime-power generators, CRT lifted in increasing prime order. The representatives' kernel fixity is
-  an explicit algebraic premise; [sicx-spec.md §3.5](sicx.md#spec-35-entries-and-rays) gives the proof,
+  prime-power generators, lifted by the Chinese remainder theorem in increasing prime order. The representatives' kernel fixity is
+  an explicit algebraic premise; [section 3.5](#spec-35-entries-and-rays) gives the proof,
   full generator order, EXMT words and verification procedure. These rules introduce no special entry
-  or finalization case at `d = 2,3` and claim no general-d producer.
+  or finalization case at `d = 2,3` and claim no general-dimension producer.
 - Normalization and phase of decoded vectors are those of [convention
   4](#conventions-4-sic-condition-normalization-and-phase).
 
@@ -2149,7 +2158,7 @@ M_b T_a = ω^(ab) T_a M_b.
 So `D_(a,b)` equals the time-frequency shift `M_b T_a` up to a phase, which does not affect `|⟨ψ|D
 ψ⟩|²` or the projectors. The SIC condition says that the discrete ambiguity function `A(a, b) =
 |⟨ψ|M_b T_a ψ⟩|²` equals `1/(d+1)` off the origin, i.e. the Gabor system `{M_b T_a ψ}` with all `d`
-translations and all `d` modulations is an equiangular tight frame. A fiducial given in Gabor
+translations and all `d` modulations is an equiangular tight frame. A fiducial vector given in Gabor
 notation can be used as is.
 
 <a id="conventions-10-worked-examples"></a>
@@ -2196,7 +2205,7 @@ elements; for example `F = [[1, 1], [1, 2]]` (mod 4), `χ = (0, 1)`, `det = +1`,
 
 Illustrative fixture ray `d4-c0` (fixture `cpp/tests/fixtures/sicx/d4-c0.json`; release id
 `d4-m1-c0`), anchor 1. Exact data: `D0 = 5`, `K = Q(√5)`, `[L:K] = 8`, Smith factors `[2, 2, 2]`
-([sicx-spec.md](sicx.md#spec-sicx-10-final-exact-weylheisenberg-sic-fiducial-format) §12). Binary64
+(section 12). Binary64
 values:
 
 ```

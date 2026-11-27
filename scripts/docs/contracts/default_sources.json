@@ -27,7 +27,7 @@
   },
   {
     "file": "docs/data.md",
-    "starts": "All tools support `--help` (stdout, exit 0). See the [complete CLI reference](library.md#command-arg",
+    "starts": "All tools support `--help` (stdout, exit 0). See the [complete command-line reference](library.md#command-arg",
     "kind": "value",
     "authority": [
       {
@@ -279,7 +279,7 @@
   },
   {
     "file": "docs/library.md",
-    "starts": "Explicit SIC_THREADS in the library and --threads in the producer CLI",
+    "starts": "Explicit SIC_THREADS in the library and --threads in the producer command-line tool",
     "kind": "value",
     "authority": [
       {
@@ -375,7 +375,7 @@
     "reason": "The complete generated norm-checker help owns option defaults; this paragraph links to it and describes estimate/exit scope. Semantic default comparisons use that generated help, and compiled omitted-option controls remain enrolled."
   },
   {
-    "file": "docs/verification.md",
+    "file": "CONTRIBUTING.md",
     "starts": "`ctest -L crt` exercises eleven input groups (valid, rejection mutations, boundaries/regrouping, par",
     "kind": "reference",
     "authority": [
@@ -385,13 +385,6 @@
       }
     ],
     "reason": "Lists default-check test coverage; no numeric default is stated."
-  },
-  {
-    "file": "docs/verification.md",
-    "starts": "**SICX 1.0 measurements.** Measurements on a shared AMD EPYC",
-    "kind": "recorded",
-    "authority": [],
-    "reason": "Recorded input-specific measurement context rather than a current configurable default."
   },
   {
     "file": "docs/verification.md",
@@ -468,7 +461,7 @@
   },
   {
     "file": "CONTRIBUTING.md",
-    "starts": "The policy checks also enforce the [CLI contract inventory](docs/cli_contract.json),",
+    "starts": "The policy checks also enforce the [command-line contract inventory](docs/cli_contract.json),",
     "kind": "reference",
     "authority": [
       {

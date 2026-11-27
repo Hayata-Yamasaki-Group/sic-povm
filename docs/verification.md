@@ -1,12 +1,10 @@
 <a id="verification-verification-and-status-of-the-claims"></a>
 # Verification and claim scope
 
-This page states, for every claim the project makes about its data, whether it is proved, certified,
-conditional, empirical or conjectural, and how you can check it yourself. Interpret the numerical
-files using the normative [mathematical conventions](sicx.md#mathematical-conventions). Status
-attaches to a statement and identified input, not just a dimension or filename.
-
-**Audience:** everyone; researchers who want to know exactly what is claimed.
+This page states, for every claim about the released data, whether it is proved, certified,
+conditional, empirical or conjectural, on what basis, and how to check it. Interpret the numerical
+files with the normative [mathematical conventions](sicx.md#mathematical-conventions). A status
+attaches to a statement about identified input data, not to a dimension or a file name alone.
 
 <a id="verification-status-words"></a>
 ## Status words
@@ -15,271 +13,461 @@ attaches to a statement and identified input, not just a dimension or filename.
 | --- | --- |
 | **proved** | follows from a mathematical proof, or from a certificate whose success implies the statement: exact arithmetic, possibly with certified (outward-rounded) ball arithmetic, but no unverified floating point and no imported premise beyond those named |
 | **certified** | established by rigorous ball (interval) arithmetic with outward rounding in the recorded run; a certified *numerical bound* bounds a quantity, it does not show that the quantity is exactly zero |
-| **conditional** | holds relative to stated imported results and premises that this project has not independently proved |
+| **conditional** | rests on a premise that is not proved in this documentation or in a cited source |
 | **empirical** | observed in every case checked, used as a rule and checked again on each file, but not proved |
 | **conjectural** | rests on a published conjecture |
 
-Byte-level checks (SHA-256, Merkle roots, canonical encoding) establish which data were saved and
-that copies agree. They say nothing about the SIC property.
+Byte-level checks (SHA-256 digests, Merkle roots, canonical encoding) establish which data were
+saved and that copies agree. They say nothing about the SIC-POVM property.
 
-[SICX 1.0](sicx.md#spec-sicx-10-final-exact-weylheisenberg-sic-fiducial-format) accepts every
-integer `2 ≤ d ≤ 2^20`; this is a format scope, while the current producer and collected data remain
-restricted to powers of two. General-d support and synthetic reader conformance tests are
-implementation work, not evidence of general-dimension SIC production.
+The [SICX 1.0 format](sicx.md#spec-sicx-10-final-exact-weylheisenberg-sic-fiducial-format) accepts
+every integer dimension `2 ≤ d ≤ 2^20`; this is the scope of the format. The producer and the
+released data concern the dimensions `d = 2^s`. The reader paths for other dimensions are tested with
+synthetic conformance fixtures, which are not SIC-POVM data.
 
-The final [SICX 1.0
-specification](sicx.md#spec-sicx-10-final-exact-weylheisenberg-sic-fiducial-format) separates two
-identities. The **exact root** commits EXMT and canonical logical coordinate leaves: the embedded
-tower, 2-adic shifts, Galois action, entry rule and representatives. It identifies an exact
-presentation, not an isomorphism class or a list of published rays. Rechunking, codecs, PROV,
-transport and finalization preserve it. RAYS selects words from that presentation and is bound by
-the **file root**, together with BALL/PREC, provenance and the physical directory. The trusted
-catalogue binds ray labels → words → exact root and the relevant file root. A certificate covering
-all Galois words can therefore cover every catalogue selection with that exact root; the root itself
-is no SIC proof. SICX 1.0 readers reject every undefined chunk type regardless of flags; extensions
-require `required_features` bits in a later version.
+The SICX specification separates two identities. The **exact root** commits EXMT and the canonical
+logical coordinate leaves: the embedded tower, the 2-adic shifts, the Galois action, the entry rule
+and the representatives. It identifies an exact presentation, not an isomorphism class or a list of
+published fiducial vectors. Rechunking, codecs, PROV, transport and finalization preserve it. RAYS
+selects words from that presentation and is bound by the **file root**, together with BALL, PREC,
+the provenance and the physical directory. The catalogue binds the labels of the fiducial vectors to
+their words, the exact root and the file root. A certificate covering all Galois words therefore
+covers every fiducial vector selected from a file with that exact root; the root itself is no
+proof. SICX 1.0 readers reject every undefined chunk type regardless of flags; extensions require
+`required_features` bits in a later version.
 
-Full **container** verification checks the chosen-base simple nonzero roots
-and canonical branch rectangles, including exact singleton components. It
-does not certify irreducibility, extension degrees, the declared Galois group
-or action identities, or the representative kernel-fixity premise needed for
-lift independence. Container checks derive the canonical unit generators from
-`d`, validate divisor positions and word count/rank/residues, and check each
-generator-order congruence. A separate algebraic verifier must certify the
-field/group/actions and exact fixity under every reduction kernel (a kernel
-generating set suffices; [spec §3.5](sicx.md#spec-35-entries-and-rays)). Without
-those checks, decoding remains conditional on those explicit premises.
-The CRT proof scope is recorded in §2.8; no general-d extension is claimed.
-Nor does container success alone establish BALL containment of the exact
-decoded coordinates or equality of their binary64 roundings. Certified
-finalization and independent decode checks are separate results.
+Full **container** verification checks the simple nonzero roots of the chosen base field and the
+canonical branch rectangles, including exact singleton components. It does not certify
+irreducibility, extension degrees, the declared Galois group or the action identities, or the
+kernel-fixity premise of the representatives needed for lift independence. Container checks derive
+the canonical unit generators from `d`, validate the divisor positions, the word count, rank and
+residues, and check each generator-order congruence. A separate algebraic verifier certifies the
+field, the group, the actions and exact fixity under every reduction kernel (a generating set of the
+kernel suffices; [specification section 3.5](sicx.md#spec-35-entries-and-rays)). The exact
+certificates of section 2.8 verify these premises for the files they check. Container success alone
+does not establish that the stored balls contain the exact decoded coordinates or that their
+binary64 roundings agree; certified finalization and independent decoding are separate results.
 
-The rescaling undo/reapply check relates the stored data to the presentation
-reconstructed from the recorded shifts. It does not authenticate recorded
-producer inputs; that association needs independently authenticated provenance.
+The rescaling check relates the stored data to the presentation reconstructed from the recorded
+shifts. It does not authenticate recorded producer inputs; that association needs independently
+authenticated provenance.
 
-**Root binding.** Recorded certificates cover nine presentations through d256 (35 rays), and the d2
-radical certificate gives 36 proved rays. The norm method also covered d4, both d8 orders and d16
-(five rays). These computations do not certify a newly generated release file unless its exact root
-and ray selection match the recorded proof. Current release-production bindings will be generated
-into `catalogue.json` with the per-ray records. No current binding is supplied by this manual,
-and no certificate at d512 or above is claimed.
+**Root binding.** The catalogue records the exact root and the file root of every released SICX
+file. The exact certificates of section 2.8 were computed on the released files of dimensions 4 to
+256, and the exact root printed by each successful certificate equals the exact root in the
+catalogue. A certificate applies to another file only if its exact root matches.
 
 <a id="verification-1-claims-and-their-status"></a>
 ## 1. Claims and their status
 
+The release contains 174 Weyl–Heisenberg fiducial vectors in 15 multiplets (dimensions 2 to 2048)
+and the Hoggar lines ([data guide](data.md)). The checks below were run on the released files,
+except where a row cites other evidence.
+
 | claim | status | scope and qualification |
 | --- | --- | --- |
-| Existence of WH SICs in every `d ≥ 4` (existence part of Zauner's conjecture) | **conditional** (on RW26 Thm 3 at real τ only; not a project result) | Proof: "Stark units for real quadratic fields and reciprocity laws" (4 Oct 2026) Prop. 7 + RW26 Thm 7 + the argument of AFK25 Thm 1.46. This project checked every algebraic, arithmetic and analytic step (review scope: the explicit unresolved identities in this row) except the finite Fourier/five-term identities RW26 (6)–(7) for c ≥ 2: their written proof is incomplete, and a repaired residue argument needs the contour closure and real-τ continuation of RW26 Thm 3. Does not prove the count 174, exhaustiveness, Zauner symmetry, or that our decoded vectors are those SICs. |
-| Exact SIC property of the recorded rays with `4 ≤ d ≤ 256`: the 9 multiplets d4, d8 maximal, d8 standard, d16, d32, d64, d128 maximal, d128 standard, d256 standard (35 rays; in fact every Galois word of each multiplet) | **proved** | By the CRT exactness certificate `sic-certify-crt` (§2.8; [checker description](verification.md#crt-what-a-proved-run-establishes)), an independent tool with its own SICX reader. No analytic input (no special values, RW26, AFK25, Artin) and no SICX premise; no integrality hypothesis. The statement is about the vectors defined by each multiplet's exact SICX data (identified by the exact root printed by the successful certificate) in the embedding fixed by the branch rectangles. The certificate does not establish BALL containment. Final 1.0 finalization must construct BALL outward from its own certified decode; recorded overlap checks alone do not establish containment (rows below). |
-| The construction yields exact WH SIC fiducials for the 34 collected rays with `d ≥ 512` | **conditional** | Relative to the imported mathematical inputs (finite quantum dilogarithm identities; algebraicity, reciprocity and unitary-conjugate results of the Stark-reciprocity preprint; order class field theory) and the premises recorded with the run data (Artin, exact-recognition, field/trace-rank, action/branch and commuting-K premises). Their full proofs have not all been independently reviewed in this project. **A uniform Newton nonsingularity theorem and transported-decoding precision bounds remain open** (each accepted Newton inclusion certifies nonsingularity of its selected Jacobian on its own box). For `d ≥ 512` the CRT certificate is projected (estimate) at ≈ 4·10^3 CPU-h (d512) and ≈ 2·10^5 CPU-h (d1024); not run. |
-| Exact SIC property of the 6 rays at `d = 2, 4, 8, 16` ("independently exact") | **proved** | By exact-arithmetic certificates that do not use the imported analytic SIC theorems (`d = 16` through certificate transport). Executed only on these small instances. Re-proved for the five `d ≥ 4` rays by two further independent methods: the high-precision norm-argument certificate `sic-certify-norm` ([checker description](verification.md#norm-independent-sicx-input-and-exact-certificate)) and the CRT certificate (row above). |
-| Per-run identification of the exact data (quadrature enclosures, Newton inclusion tests, recognition, root isolation and branch choices) | **certified** | The current producer always uses certified Arb entries and enforces these acceptance conditions. A successful run identifies its output relative to the imported theorems. Recorded runs must be assessed from their recorded entry modes and evidence; no all-70 recorded entry-mode audit is claimed here. |
-| WH overlap bound: `| |⟨ψ|D_p ψ⟩|² − 1/(d+1) | < 2^−100` for all `d² − 1` labels `p ≠ 0` | **certified** (numerical bound) | For every collected ray with `d ≥ 16` (d = 4 and 8: recorded constructor checks; d = 2 is exact, all overlaps equal 1/3, with no ball bound needed; see [reproducibility.md](reproduce.md#reproducing-the-published-results)), for every vector in its certified enclosure. An interval containing zero still permits a small nonzero value: this is not an exact-zero certificate and not the exactness proof. |
-| Pairwise inequivalence of the decoded vectors under the extended Clifford group, within each dimension | **certified** | Disjoint certified enclosures of a moment invariant under nonzero scalars and the projective extended Clifford group, unitary and antiunitary elements included (PEC separation). Any two vectors inside the compared certified enclosures lie in distinct extended-Clifford orbits. This uses no SIC premise; that the enclosures contain SIC fiducials is subject to the applicable SIC status above. Compared: every same-dimension pair of collected rays (`d = 8, 16, 32`: 1 pair each; `d = 64`: 6; `d = 128, 256`: 66 each; `d = 1024` maximal: 45) including at `d = 512` the within-order pairs (maximal 15, standard 153) and the 6 × 18 = 108 maximal-against-standard pairs (all separated at moment 1; [reproducibility.md](reproduce.md#reproducing-the-published-results)). An undetermined (overlapping) result proves nothing. Separation does not prove novelty relative to published catalogues, exhaustion of the classification, or a class label. |
-| The classification count: 174 rays for `d = 2^s ≤ 2048`, and the order ↔ multiplet correspondence | **conjectural** | Kopp–Lagarias, Conjecture 1.2 (`Kopp2024orders`), plus the base case `d = 2`. 70 rays are collected (36 proved: d = 2 by its radical certificate and the 35 rays with 4 ≤ d ≤ 256 by the CRT certificate; 34 conditional); `d = 1024` standard order (40 rays) and `d = 2048` (64 rays) are pending and no fiducial is claimed for them. |
-| Numerical values in `c<N>.json`: `fp64`, `fp32` are correct roundings and `hp` balls contain the exact coordinate | **certified by conforming finalization and export** (final 1.0 requirement; not a newly reproduced run) | Finalizers construct BALL by outward rounding their own certified normalized/gauged decoded enclosures, then certify containment and identical binary64 rounding. Export checks unique binary32/binary64 rounding from BALL and rounds `hp` outward to contain BALL, hence the exact coordinate (§§5.2, 9 of the spec). Recorded overlap checks alone do not prove this containment chain. The SIC status of the exact data remains separate (conditional at `d ≥ 512`; proved through `d = 256` for the recorded certificate inputs). See [data-guide.md §2.2](data.md#data-22-numerical-levels-and-what-each-guarantees). |
-| Consistency of the stored balls with the exact SICX data | **certified** (recorded overlap/rounding checks); stronger containment required for final 1.0 | The recorded reference decoder decoded every coordinate of every ray (`d ≥ 256`: recorded full-coordinate decode, [reproducibility.md](reproduce.md#reproducing-the-published-results)), required overlap with each stored ball and identical binary64 values; the independent second reader decoded small fixtures fully and spot-checked ratios on large files. These establish the reported consistency checks, not containment of exact points in arbitrary overlapping BALL intervals. Final 1.0 instead constructs BALL from the finalizer's own certified decode (§2.2); recorded consistency checks do not establish that gate. |
-| Symmetry data (stabilizer tables): each listed element fixes the ray | **certified** (numerical bound); **proved** only at `d = 2` | Each non-identity element has a certified bound `|1 − |⟨φ|Uφ⟩|²| ≤ 3.5·10^−73` over the ray's enclosure (384-bit balls). The six `d = 2` elements are verified exactly (FLINT `qqbar`). No exact verification for `d ≥ 4`. |
-| Symmetry data: the tables list the whole stabilizer | **empirical** (numerical) | Binary64 exhaustive search; exhaustive under an a priori floating-point error bound in the standard rounding model, not interval arithmetic. |
-| Agreement of the SICX entry rule with producer coordinates, and pure-Galois ray records | **empirical** (recorded power-of-two exports only) | General-d divisor/unit-lift decoding is a format rule. Lift independence is proved assuming a genuine unit-group action and representative kernel fixity; those are separate algebraic checks/premises, not empirical consequences or container checks ([sicx-spec.md](sicx.md#spec-sicx-10-final-exact-weylheisenberg-sic-fiducial-format) §§1, 3.5). No general-d producer agreement is claimed. |
-| Literature labels (`4a`, `8a`, `8b`, …) | see note | Matched ray by ray at `d = 2, 4, 8`; at `d = 16, 32, 64` matched at the multiplet level only (uses the conjectural correspondence), orbit letters open; no labels exist for `d ≥ 128`. |
-| Which solutions are new | not claimed | "Not found in the literature" is an inference from a search that was not exhaustive. |
+| Exact SIC-POVM property of the fiducial vector in dimension 2 | **proved** | By the exact identities of the radical input in `Q(√3)` (positivity, `A+2B=1`, `4AB=1/3`, `(A−2B)²=1/3`; [radical input](data.md#dimension-two-radical-input)), independently of the [construction theorem](#verification-construction-theorem). The six stabilizer elements in dimension 2 are also verified exactly. |
+| Exact SIC-POVM property of the fiducial vectors with `4 ≤ d ≤ 256`: the 9 multiplets `d4-m1`, `d8-m1`, `d8-m2`, `d16-m1`, `d32-m1`, `d64-m1`, `d128-m1`, `d128-m2`, `d256-m1` (35 fiducial vectors; in fact every Galois conjugate of each multiplet) | **proved** | By the Chinese remainder theorem certificate `sic-certify-crt` (section 2.8; [what a proved run establishes](#crt-what-a-proved-run-establishes)), an independent tool with its own SICX reader, run on the released files. It uses no analytic input (no special values of L-functions, no theorem of Radchenko and Wheeler or of Appleby, Flammia and Kopp, no Artin reciprocity) and no premise of the SICX format, and no integrality hypothesis. The statement concerns the vectors defined by each multiplet's exact SICX data, identified by the exact root printed by the certificate, in the embedding fixed by the branch rectangles. |
+| Exact SIC-POVM property of the fiducial vectors with `d = 512, 1024, 2048`: the 5 multiplets `d512-m1`, `d512-m2`, `d1024-m1`, `d1024-m2`, `d2048-m1` (138 fiducial vectors) | **proved** (by the construction theorem; not by exact computation) | By the [construction theorem](#verification-construction-theorem) of section 1.1. For the standard order (`d512-m2`, `d1024-m2`, `d2048-m1`) it follows from Radchenko and Wheeler, arXiv:2609.21892v2, Theorems 1 and 7, and Radchenko and Wheeler, Hexagon 2610.00186v1, Proposition 7. For the maximal order (`d512-m1`, `d1024-m1`) the quadratic relation is derived in section 1.1 from the statements of Section 3 of the latter, which hold for every lattice. The stored exact data, including the action records and the entry rule, are identified with the constructed vectors by the certified computations of each run (row below); the empirical row on the entry rule is not a premise of this claim. No exact certificate of the stored data was computed for these multiplets; the certified numerical bound below holds for each of them. |
+| Identification of the exact data in each construction run (quadrature enclosures, Newton inclusion tests, recognition of the entries, tower polynomials and action records, root isolation and branch choices) | **certified** | The producer evaluates the special values by the [formulas of section 1.1](#verification-construction-evaluation) with certified ball arithmetic and enforces these acceptance conditions; a successful run identifies its output with the [stored vectors](#verification-construction-stored-data) of the construction. Each accepted Newton inclusion certifies that the selected subsystem has exactly one zero in its box; the analytic values are such a zero, since the conjugate ghost gives an idempotent of rank one (the relation of section 1.1) and its coefficients satisfy `E(x)E(−x) = ⟨x⟩^{−1}` for `x ∉ I` (Hexagon 2610.00186v1, Proposition 1). Recognition accepts an exact coefficient, of an entry, a tower polynomial or an action record, only under the integrality of the trace coordinates, which holds because the special values are algebraic units (ibid., Theorem 1), and under bounds on their conjugates at the embeddings that reverse `K`, where the special values have modulus one (ibid., Proposition 7); the conjugates over `K` of the special values are the special values of the other lattice classes under the Artin automorphisms of ibid., Theorem 2. |
+| Overlap bound: `| |⟨ψ|D_p ψ⟩|² − 1/(d+1) | < 2^−129` for all `d² − 1` labels `p ≠ 0` | **certified** (numerical bound) | For each of the 174 fiducial vectors and every vector in its certified enclosure decoded from the exact data (`sic-check-balls`, threshold `2^−100`; the largest certified bound in the release is below `2^−129.5`, in `d1024-m2`). An interval containing zero still permits a small nonzero value: this bound is not an exact-zero certificate. |
+| Numerical values in `c<N>.json`: `fp64` and `fp32` are correct roundings and the `hp` balls contain the exact coordinate | **certified** (finalization and export) | The finalizer constructs BALL by outward rounding of its own certified normalized enclosures with the phase fixed, then certifies containment and identical binary64 rounding. The export checks unique binary32 and binary64 rounding from BALL and rounds `hp` outward to contain BALL, hence the exact coordinate (specification sections [5.2](sicx.md#spec-52-ball-one-required-chunk-per-ray) and [9](sicx.md#spec-9-ray-files-sic-fiducial-json10-cjson)). See [numerical levels](data.md#data-22-numerical-levels-and-what-each-guarantees). The SIC-POVM status of the exact data is stated in the rows above. |
+| Container integrity of every released SICX file | **certified** (format checks) | Full container verification (`sic-verify --rescaling`) passed for all 15 files: canonical encoding, both directories and roots, all digests, rescaling, branch rectangles, BALL normalization and phase. It is not a statement about the SIC-POVM property. |
+| Stored balls contain the exact coordinates, with the stored binary64 values | **certified** (finalization) | For all 15 files the finalizer (`sic-decode --finalize`) decoded every coordinate of every fiducial vector from the exact data and constructed BALL by outward rounding of its own certified enclosures, with certified binary64 agreement. |
+| Independent decoding agrees with the stored balls | **certified** for the stated scope | The second reader (`sic-verify-independent --release`) decoded every coordinate of every fiducial vector of the 10 multiplets with `d ≤ 256` and compared it with BALL, and passed the ratio spot check for every fiducial vector of `d512-m1`, `d512-m2` and `d1024-m1`. For `d1024-m2` and `d2048-m1` it refused at its fixed resource limit of `2^24` rescaling weight keys (exit status 3, `RESULT: REFUSED: rescaling weight-table resource limit`), so these two files have no independent decoding result. |
+| Pairwise inequivalence of the fiducial vectors under the extended Clifford group, within each dimension | **certified** | Every same-dimension pair was compared: 1 pair each in dimensions 8, 16 and 32, 6 in dimension 64, 66 each in dimensions 128 and 256, 276 in dimension 512, 1,225 in dimension 1024 and 2,016 in dimension 2048 (3,658 pairs). Each pair is separated by disjoint certified enclosures of a moment of `z_p = (a_p/|a_p|)^(2d)` ([fingerprint](#clifford-invariant-and-its-status)), which is invariant under nonzero scalars and the projective extended Clifford group, unitary and antiunitary elements included. The comparison program used for the release is not part of this repository. Separation uses no SIC-POVM premise; that the enclosures contain SIC-POVM fiducial vectors is subject to the rows above. |
+| Symmetry data (`stabilizers.txt`): certified bound on the stabilizer residual of each listed element | **certified** (numerical bound); **proved** in dimension 2 | `sic-certify-stabilizer` encloses the residual `1 − |⟨φ|Uφ⟩|²/⟨φ|φ⟩²` with 384-bit balls for every non-identity element ([table format](data.md#stab)); every bound in the release is at most `1.9·10^−37`, below the threshold `2^−100`. A small residual bound is not an exact proof that `U` fixes the ray of `φ`. The elements in dimension 2 are verified exactly with FLINT algebraic numbers (`qqbar`). |
+| Symmetry data: the tables list the whole stabilizer | **empirical** (numerical) | Exhaustive binary64 search, exhaustive under an a priori floating-point error bound in the standard rounding model (not interval arithmetic). |
+| Agreement of the SICX entry rule with the producer coordinates, and pure Galois records of the fiducial vectors | **empirical** | Compared on every entry line of the packed power-of-two exports in dimensions 4 to 1024; the producer checks the representative indices of every file it writes ([specification section 1](sicx.md#spec-1-status-of-the-mathematical-content-premises)). Lift independence is proved assuming a genuine unit-group action and kernel fixity of the representatives, which the exact certificates verify for the files they check. For `d ≥ 512` this row is not a premise: [section 1.1](#verification-construction-stored-data) derives the entry rule and kernel fixity from the Artin action. |
+| The count of 174 extended Clifford orbits for `d = 2^s ≤ 2048`, and the correspondence of real quadratic orders and multiplets | **conjectural** | Kopp and Lagarias, "SIC-POVMs and orders of real quadratic fields" (2024), Conjecture 1.2, with the base case `d = 2`. The release contains 174 pairwise inequivalent fiducial vectors, the number the conjecture predicts; pairwise inequivalence does not show that the list of orbits is complete. |
+| SIC-POVM property of the Hoggar lines (`data/d8/hoggar/`, three-qubit Pauli group, not Weyl–Heisenberg covariant) | **proved** | Exact integer arithmetic over `Z[i]` ([Hoggar lines](data.md#data-8-the-hoggar-lines-datad8hoggar)). |
+| Which fiducial vectors are new | not claimed | "Not found in the literature" would be an inference from a search that was not exhaustive. |
+
+<a id="verification-construction-theorem"></a>
+### 1.1 The construction theorem for `d ≥ 512`
+
+The multiplets with `d ≥ 512` have no exact certificate. Their exact SIC-POVM property rests on the
+construction below and on the certified computations of each construction run (section 1). The
+same producer constructed the multiplets with `4 ≤ d ≤ 256`, whose exact certificates
+(section 2.8) use neither this construction nor the results cited here. The sources are:
+
+- RW-I: D. Radchenko and C. Wheeler, "Real quadratic fields and finite quantum dilogarithms I",
+  arXiv:2609.21892v2;
+- RW-S: D. Radchenko and C. Wheeler, "Stark units for real quadratic fields and reciprocity laws",
+  Hexagon 2610.00186v1, <https://hexagonmath.org/2610.00186>;
+- AFK25: M. Appleby, S. T. Flammia and G. S. Kopp, "A constructive approach to Zauner's conjecture
+  via the Stark conjectures", arXiv:2501.03970v2;
+- AFK26: M. Appleby, S. T. Flammia and G. S. Kopp, "The twisted convolution identity and ghost
+  r-SICs from finite quantum dilogarithms", arXiv:2609.39192v1.
+
+**Data.** Let `d = 2^s ≥ 4`, let `K = Q(√D0)` be the
+[base field](sicx.md#spec-2-fixed-conventions-never-stored), and write `(d − 3)(d + 1) = f²·D0`
+with an integer `f ≥ 1`, which is odd. Put `λ_d = (d − 1 + f√D0)/2`, a totally positive unit of
+`K` with `λ_d + λ_d^{−1} = d − 1`, `r_d = √λ_d > 0` and `ε = λ_d³`. A multiplet whose order is
+listed as standard uses the lattice `I = Z[λ_d]` and `φ = 1`; one listed as maximal uses the ring
+of integers `I = O_K` and `φ = f`. In the release `f = 3` for `d = 512` and `f = 5` for
+`d = 1024`; for `d = 2048`, `f = 1`, the two orders coincide and only the standard multiplet
+exists.
+
+**Special values.** For `x ∈ K` with `(ε − 1)x ∈ I`, `E(x) = E_{I,ε}(x)` is the value of RW-S,
+Definition 1, which is the function `F_γ` at the end of RW-I, Section 4.3. Choose a basis
+`(β1, β2)` of `I` with `β1β2' − β1'β2 > 0` and `β2` totally positive (the prime denotes the
+conjugate in `K`), let `γ = [[γ11, γ12], [γ21, γ22]] ∈ SL(2, Z)` be the matrix of multiplication by `ε` in
+this basis (RW-S, Section 3) and put `τ = β1/β2`. Then `E(x) = μ_γ Φ_{γ,u,0}(x/β2; τ)` with integers
+`u, v` such that `(ε^{−1} − 1)x = uβ1 + vβ2`, and `E(x) = √ε > 0` for `x ∈ I`. Here `Φ_{γ,m,n}` is
+Faddeev's modular quantum dilogarithm (RW-I, Section 2.2) and `μ_γ = η(γz)/(η(z)√(γ21·z + γ22))` is
+the multiplier of the Dedekind eta function `η`. The value does not depend on the basis (RW-S,
+Appendix B). We use the Gaussian `⟨x⟩`, the pairing `⟨x; y⟩` and the alternating form `ω_I` of
+RW-S, Section 3, on the group `G = (ε − 1)^{−1}I/I` of order `|N(ε − 1)| = d²(d − 3)`.
+
+**Ghost matrix.** With `e(t) = exp(2πit)`, the shift `X` and clock `Z` of the
+[conventions](sicx.md#conventions-2-shift-and-clock), and scalars standing for multiples of the
+identity matrix,
+
+```text
+P = (1/d) Σ_{i,j=0}^{d−1} E((i·λ_d + j)/d) · (−1)^(i+j) · e(φ(i² + j²)/(2d)) · Z^(φi) X^(−j),
+Q = (r_d − P)/√(d+1).
+```
+
+**Theorem.** For both lattices, `(P − r_d)(P + r_d^{−1}) = 0` and `tr P = r_d³`, so `Q` is an
+idempotent of rank one and trace one. Let `L` be a number field that contains `K`, `r_d`,
+`e(1/(2d))` and the values `E((iλ_d + j)/d)`, and let `σ: L → C` be an embedding with
+`σ(√D0) = −√D0`. Then `Π = σ(Q)` is a Hermitian projector of rank one with
+`|tr(Π D_p)|² = 1/(d+1)` for every `p ≢ 0 (mod d)`. Hence every nonzero column `Π e_k` spans the
+image of `Π`, and `Π e_k/‖Π e_k‖` is a Weyl–Heisenberg SIC-POVM fiducial vector.
+
+**Trace.** Only the identity matrix has a nonzero trace among the `Z^{φi} X^{−j}`, and the argument
+`(iλ_d + j)/d` lies in `I` only for `i ≡ j ≡ 0 (mod d)` because `f` is odd, so
+`tr P = E(0) = λ_d^{3/2} = r_d³`.
+
+**Quadratic relation, standard order.** For `φ = 1` the relation is RW-I, Theorem 7, with `M = d`
+and its `ε` equal to `λ_d`; its operators are `q = Z` and `p = X^{−1}`.
+
+**Quadratic relation, maximal order.** For `φ = f` the proof of RW-I, Theorem 7, carries over to
+`I = O_K` when the averaging over a cyclic group in that proof is replaced by a sum over the whole
+annihilator of `H = d^{−1}O_K/O_K`. Every statement of RW-S, Section 3, used here holds for every
+lattice and every period.
+
+1. With the oriented bases `(λ_d, 1)` of `Z[λ_d]` and `(τ_0, 1)` of `O_K`, `λ_d = fτ_0 + c` for an
+   integer `c`, so `ω_{O_K} = f·ω_{Z[λ_d]}`. Since the index `[O_K : Z[λ_d]] = f` is odd,
+   `Z[λ_d] ∩ 2O_K = 2Z[λ_d]`, so the signs `s_{O_K}` and `s_{Z[λ_d]}` of the Gaussian agree on
+   `Z[λ_d]`.
+2. Because `f` is odd, the labels `(kλ_d + l)/d`, `k, l` modulo `d`, run once through `H`, and
+   `(ε − 1)u ∈ Z[λ_d]` for `u ∈ H`, since `ε − 1 = dλ_d(λ_d − 1)`. By (1), the Gaussian of `O_K`
+   on `H` and its pairing are the `f`-th powers of those of `Z[λ_d]` computed in RW-I, Section 4.4:
+   `⟨(kλ_d + l)/d⟩ = e(f(k² − kl + l²)/d)` and `⟨w; (iλ_d + j)/d⟩ = e(f(a_1 j − a_2 i)/d)` for
+   `w = (a_1λ_d + a_2)/(λ_d^{−3} − 1)`.
+3. Since `X^{−j} Z^{φk} = e(φjk/d) Z^{φk} X^{−j}` and `r_d − r_d^{−1} = √(d − 3)`, the
+   coefficient of `Z^{fr} X^{−s}` in `(P − r_d)(P + r_d^{−1})` vanishes exactly when, for
+   `v = (rλ_d + s)/d` and `w = ((r − s)λ_d + r)/(λ_d^{−3} − 1)`,
+   `(1/d) Σ_{u∈H} E(u)⟨u⟩E(v − u)⟨w; u⟩ = √(d − 3)·E(v) + d·δ(v)`, as in RW-I's proof.
+4. The annihilator `H^⊥ = (λ_d − 1)^{−1}O_K/O_K ⊂ G` has `|N(λ_d − 1)| = d − 3 = |G/H|`
+   elements. For `h = ξ/(λ_d − 1)`, `ξ ∈ O_K`, `(1 − ε)h = −dλ_d ξ`, so
+   `⟨h; u⟩ = e(−d·ω_{O_K}(λ_d ξ, u))`, which is 1 for all `ξ` exactly when `du ∈ O_K`, because
+   `λ_d O_K = O_K` and `ω_{O_K}` is unimodular on `O_K`. The pairing is nondegenerate on `G`
+   (RW-S, Section 3), so `h ↦ ⟨h; ·⟩` identifies `H^⊥` with the characters of `G/H`, and
+   `Σ_{h∈H^⊥} ⟨h; u⟩ = (d − 3)·1_H(u)` for `u ∈ G`. The left side of (3) is therefore
+   `(1/(d(d − 3))) Σ_{h∈H^⊥} Σ_{u∈G} E(u)⟨u⟩E(v − u)⟨w + h; u⟩`.
+5. Let `v ∉ O_K` and `y = w + h`. The product form of the pentagon relation (RW-S, Section 3,
+   which is RW-I, eq. (36)) gives `Σ_{u∈G} E(u)⟨u⟩E(v − u)⟨y; u⟩ = d√(d − 3)·⟨v + y⟩E(−v − y)E(v)E(y)`.
+   RW-I's computation gives `(λ_d − 1)w ≡ v` modulo `Z[λ_d] ⊂ O_K`, and `(λ_d − 1)h ∈ O_K`, so
+   `λ_d y ≡ y + v` and `E(y) = E(λ_d y) = E(v + y)` (RW-S, Proposition 2, for the period `λ_d`
+   and `r = 3`). If `v + y ∈ O_K`, then `λ_d v ≡ (λ_d − 1)(v + y) ∈ O_K` and `v ∈ O_K`, which is excluded; so the
+   reflection formula `E(z)E(−z) = ⟨z⟩^{−1}` for `z ∉ O_K` (RW-S, Proposition 1) makes every
+   term equal to `d√(d − 3)·E(v)`, and the left side equals `√(d − 3)·E(v)`.
+6. For `v = 0`, `w = 0` and the reflection formula give `(1/d)(ε + d² − 1)` on the left, and the
+   identity reduces to `(ε − 1)/d = λ_d² − λ_d = √(d − 3)·λ_d^{3/2}`, which holds because
+   `(λ_d − 1)² = (d − 3)λ_d` and `λ_d > 1`.
+
+**Projector.** The values are algebraic (RW-I, Theorem 1), so `L` exists. Since
+`d·r_d − r_d³ = r_d + r_d^{−1} = √(d+1)`, the coefficient of the identity matrix in `Q` is `1/d`. By
+RW-S, Proposition 7, `|σ(E(x))| = 1` for every `x ∉ I`, for both lattices. The embedding `σ` maps
+each matrix `Z^a X^b` to some `Z^{a'} X^b`, and `(i, j) ↦ (φi, −j)` is a bijection modulo `d`
+because `φ` is odd, so the other `d² − 1` coefficients of `Π` in the trace-orthogonal basis
+`Z^a X^b` have modulus `1/(d√(d+1))`. Then `‖Π‖_F² = 1/d + (d² − 1)/(d(d + 1)) = 1`. A rank-one
+idempotent `uv*` with `v*u = 1` has Frobenius norm `‖u‖‖v‖ ≥ 1`, with equality only for
+`v = u/‖u‖²`; so `Π` is a Hermitian projector, and its coefficients give the overlaps. RW-S draws
+this conclusion for the ghost of RW-I, Theorem 7, in the paragraph after Proposition 7, by the
+argument of AFK25, Theorem 1.46. AFK26, Theorem 1.2, proves the twisted convolution identity, the
+counterpart of the quadratic relation, for every admissible tuple of AFK25, including the tuple of
+`O_K`, in the normalization of AFK25.
+
+<a id="verification-construction-evaluation"></a>
+**Evaluation of the special values.** The producer evaluates `E` at all lattice classes by
+formulas printed in RW-I. With `b = √t` for `t > 1`,
+
+```text
+Φ_S(z; t) = exp ∫_{R + ih} exp(2νw) / (4 sinh(bw) sinh(w/b) w) dw,   ν = (z + (1 − t)/2)/b,
+```
+
+for `−1 < z < t` and `0 < h < π·min(b, 1/b)`. This is Faddeev's integral of RW-I, Section 2.1,
+under the substitution `Φ_{S,0,0}(z; t) = φ_b(iz/b − ib/2 + i/(2b))` given there; the shift of
+the contour `R + i0` to the height `h` crosses no pole. Other real `z` are reached by
+`Φ_S(z + 1; t) = Φ_S(z; t)/(1 − e((z + 1)/t))` and by the reflection formula of the same section.
+A lattice class has a reduced continued-fraction cycle `(b_1, …, b_n)`, all `b_l ≥ 2`, with reduced
+generators `τ_1, …, τ_n`; the cycle is repeated until the product `γ` of the matrices
+`[[b_l, −1], [1, 0]]` is the matrix of multiplication by `ε`. For the argument
+`x = (x_1 τ_1 + y_1)/d`, with integers `1 ≤ x_1 ≤ d` and `0 ≤ y_1 < d`, the labels follow
+`(x_{l+1}, y_{l+1}) = (b_l x_l + y_l, −x_l)`, reduced to `1 ≤ x_{l+1} ≤ d`, `0 ≤ y_{l+1} < d`, and
+`E(x)` is `μ_γ` times the product of the values `Φ_S((x_l τ_l + y_l)/d − 1; τ_l)` along the
+repeated cycle: RW-I, Proposition 2(ii), with the integers `m_j` chosen as in the proof of
+Proposition 5 and the periodicity relation of Section 2.2. The producer uses
+`μ_γ = exp(πi Σ_l (b_l − 3)/12)`, summed over the repeated cycle: `η(z + 1) = e^{πi/12} η(z)` and
+`η(−1/z) = √(−iz) η(z)` give `exp(πi(b − 3)/12)` for one factor `[[b, −1], [1, 0]]`, and since every
+partial product has a positive lower-left entry, the principal square roots in the definition of
+`μ` compose and the multipliers of the factors multiply. The quadrature carries explicit error
+bounds in ball arithmetic. The producer evaluates no instance of the integral identities of RW-I,
+Theorem 3, and no distribution relation.
+
+<a id="verification-construction-stored-data"></a>
+**What the stored data are.** For a run with lattice `I`, the producer computes the entries
+`κ_m = d√(d+1)·Q_{m,0}` of column 0 of `Q`, at all conjugates of `Q` over `K`, at the
+representative positions `m` of the [entry rule](sicx.md#spec-35-entries-and-rays): one position
+for each divisor of `d`. These entries are sums of special values times roots of unity, plus
+`√(d+1)` for `m = 0`, hence algebraic integers (RW-S, Theorem 1).
+
+- *Galois group.* The run generates its group `G'` by the Artin symbols of totally positive
+  principal ideals and of split prime ideals prime to the conductor. By RW-S, Theorem 2, each acts
+  on the special values by the corresponding homothety or change of lattice; it acts on
+  `e(1/(2d))` by the power `N(𝔞)` and on `√(d+1)` by the Kronecker symbol of `N(𝔞)`.
+- *Tower and action records.* The stored data are the exact trace coordinates of the entries, the
+  tower generators with their polynomials, and the action records, which give the images of the
+  tower generators under the Smith generators of `G'`. All are recognized from certified
+  enclosures computed from the special values of all lattice classes, under the bounds of the
+  identification row of section 1. Each tower generator is certified to differ from one of its
+  conjugates. Before it builds the tower, the run requires `|G'| = h·d²/2`, where `h` is the
+  narrow class number of the order `O` of `I` (`Z[λ_d]` or `O_K`), and requires the characters of
+  `G'` certified to occur in the entries to generate its dual group. The number `h·d²/2` is the
+  degree over `K` of the narrow ray class field of `O` modulo `2dO`: 2 is inert in `K`, and `λ_d`
+  generates the totally positive units of `O` (for `O_K` with `d = 512, 1024`, no unit of `O_K`
+  has a smaller coefficient of `√D0`) and has order 6 modulo `2dO`. By RW-S, Theorem 2, that
+  field contains the special values at the labels of `H` divided by `√ε`; it also contains
+  `e(1/(2d))` and `√(d+1)`. The certified support and the certified distinctness make `G'` act
+  faithfully, so `G'` is the Galois group over `K` of the field `F` of the entries. Every
+  `G'`-invariant quantity lies in `K`, which recognition requires, and each recorded polynomial
+  (the product of `X − v` over the conjugates of a tower generator) is a minimal polynomial.
+- *Entry rule.* The unit words of the entry rule are the Artin symbols `σ_(a)` of the principal
+  ideals `(a)`, for the odd residues modulo `2d` represented by positive integers `a` prime to the
+  discriminant of the order (`(d − 3)(d + 1)` for `Z[λ_d]`, `D0` for `O_K`). This contains the
+  condition "prime to `cd`" of RW-S, Theorem 2, with `c = f` for `Z[λ_d]` and `c = 1` for `O_K`,
+  and the conductor of `Q(√(d+1))` divides `D0`. Then `σ_(a)` acts on `e(1/(2d))` by `a² = N((a))`, and its
+  restriction to `Q(√(d+1))` is the Artin symbol of `a²` over `Q`, which is trivial, so it fixes
+  `√(d+1)`, `√(d−3)`, `r_d` and `√ε = r_d³`. With RW-S, Theorem 2, and the homothety relation
+  `E_{cI}(cx) = E_I(x)` of RW-S, Section 3, it maps `E(x)` to `E(ax)`, hence `P` to
+  `U_a P U_a^{−1}` and `Q` to `U_a Q U_a^{−1}`, where `(U_a v)(m) = v(am)`. Therefore
+  `σ_(a)(κ_m) = κ_{am}`. This gives the kernel fixity of the representatives and the agreement of
+  the entry rule with column 0 for every Galois word; the empirical row on the entry rule in
+  section 1 is not a premise of the claims for `d ≥ 512`.
+
+A Galois word `c` of the file thus gives the vector with coordinates
+`ι(σ_c(κ_m)) = d·σ(√(d+1))·σ(Q)_{m,0}`, where `ι` is the embedding fixed by the branch rectangles,
+which maps `√D0` to `−√D0`, and `σ = ι ∘ σ_c`. The column `Π e_0` of `Π = σ(Q)` is nonzero, since
+the certified enclosure of its anchor coordinate excludes zero, and the fiducial vector of the word
+is `Π e_0/‖Π e_0‖` up to a phase, to which the theorem applies.
+
+**Machine-checked proofs.** Two public Lean 4 formalizations, checked by the Lean kernel with only
+the standard axioms `propext`, `Classical.choice` and `Quot.sound`, prove that SIC-POVMs exist in
+every dimension; their constructions are Weyl–Heisenberg covariant. They are M. Ozols, "SIC
+existence in Lean", <https://github.com/marozols/SIC-existence>, commit 91e3a43 (theorem
+`SIC.exists_SIC` in `MainResults.lean`), and Y. Yang, "SIC-POVMs exist in every dimension (Open
+Quantum Problem 23): a Lean 4 formalization", <https://github.com/Hertaspace/sic-povm-lean>,
+release v1.1 (theorem `SICLean.FinalAssembly.zaunerExistence`). Both build on RW-I, RW-S and
+AFK25 and check the imported identities: the first proves the identity of RW-I, Theorem 7, in the
+principal case (`principalRealShiftTCC` in `SICs/Principal/Dilogarithm/TwistedConvolution.lean`,
+in the finite form of `SICs/Principal/Construction/TCCFiniteForm.lean`) and RW-S, Proposition 7,
+for every lattice and every period (`pseudolatticeDilog_norm_map_eq_one` in
+`SICs/Dilogarithm/Reciprocity/UnitaryConjugates.lean`); the second proves the Fourier and
+five-term identities of RW-I, Theorem 2 (`attracting_fourier` and `attracting_pentagon` in
+`SICLean/L4/G2AttractingIdentities.lean`, with the hypothesis `G1RealConclusion`, proved in
+`SICLean/L4/G1RealConclusion.lean`). The first obtains the fiducial projector of `SIC.exists_SIC`
+as the image, under an automorphism of `C` that maps `√D0` to `−√D0`, of the candidate ghost of
+AFK25, Definition 1.43, for the form `x² + (1 − d)xy + y²` of the standard order, and it also
+proves, through AFK26, that the candidate of every admissible tuple of AFK25
+with a positive leading coefficient gives a fiducial projector (`SIC.AdmissibleTuple.exists_liveFiducial`
+in `SICs/Construction.lean`); the tuples include forms of discriminant `D0`, so this covers the
+maximal-order construction in the normalization of AFK25. Its theorem `SIC.exists_RSIC` with
+`r = 1` uses the form of conductor one, so it is a kernel-checked existence result through the
+maximal order. Neither formalization states the
+theorem above for the matrix `P`, the evaluation of the special values or the stored data.
 
 <a id="verification-2-how-to-check"></a>
 ## 2. How to check
 
-Commands below use `build/`, configured from the repository root with
-`cmake -S cpp -B build -DSIC_ENABLE_FLINT=ON`. Tool names and options follow
-the [current CLI reference](library.md#command-argument-contract).
+The commands below use `build/`, configured from the repository root with
+`cmake -S cpp -B build -DSIC_ENABLE_FLINT=ON`. Tool names and options follow the
+[command reference](library.md#command-argument-contract).
 
 <a id="verification-21-hashes-and-merkle-roots-integrity"></a>
-### 2.1 Hashes and Merkle roots (integrity)
+### 2.1 Digests and Merkle roots (integrity)
 
-- `(cd data && sha256sum -c sha256sums.txt)` checks every listed data file when the optional
-  release checksum sidecar is present. `catalogue.json` records hashes of all release records;
-  the checksum sidecar additionally covers the catalogue and excludes itself.
-- `sic-container fetch d<d>/m<N>` (or the `exact-data` build target) verifies each Release part, the
-  whole-file SHA-256 of the reassembled SICX file and its self-check, and fails closed on any
-  mismatch ([data-download.md](data.md#transport-getting-the-exact-data)).
-- `sic-verify FILE` checks the container: canonical encoding, LDIR/PDIR, both
-  Merkle roots, chunk digests, canonical `BALL` records, the anchor gauge, that
+- `(cd data && sha256sum -c sha256sums.txt)` checks every file of the numerical data tree.
+  `catalogue.json` records the digests of all listed files; `sha256sums.txt` additionally covers the
+  catalogue and excludes itself.
+- `sic-container fetch d<d>/m<N> --data-root data` (or the `exact-data` build target) verifies each
+  release part, the whole-file SHA-256 of the reassembled SICX file and its container checks, and
+  fails closed on any mismatch ([exact data downloads](data.md#transport-getting-the-exact-data)).
+- `sic-verify FILE` checks the container: canonical encoding, LDIR and PDIR, both
+  Merkle roots, chunk digests, canonical `BALL` records, the anchor phase, that
   the enclosure of `Σ|w_j|²` contains 1, and `accuracy_bits`. It does not
   establish the whole-file SHA-256.
   Full verification also checks canonical leaf boundaries, rescaling and branch
   rectangles.
 
-For authenticated partial access, read the file header/footer and complete LDIR/PDIR chunks,
-recompute both roots, then authenticate EXMT and derive the logical layout. Defer each ordinary
-chunk header until its chunk is read; directory validation already checks its declared geometry and
-the finalization skeleton. Defer RAYS-dependent counts/widths and payload semantics until the
-required payloads are read. A trusted exact root authenticates exact leaves; a trusted file root
-with its LDIR binding verified also makes the recomputed exact root trusted transitively. A trusted
-whole-file SHA-256 makes both roots trusted only after all bytes of the same snapshot have been
-hashed. Finalization needs file-level trust. Hash each consumed encoded payload and all its logical
-leaves before use
-([sicx-spec.md](sicx.md#spec-sicx-10-final-exact-weylheisenberg-sic-fiducial-format) §6.2). Report
-direct/transitive trust, unread headers/payloads and unchecked invariants explicitly. A root in the
-same untrusted footer is self-consistency only. Exact-only files have zero rays and remain valid,
-with distinct exact and file roots.
+For authenticated partial access, read the file header and footer and the complete LDIR and PDIR
+chunks, recompute both roots, then authenticate EXMT and derive the logical layout. Each ordinary
+chunk header is checked when its chunk is read; directory validation already checks its declared
+geometry and the finalization skeleton. Checks that depend on RAYS and on payload semantics wait
+until the required payloads are read. A trusted exact root authenticates exact leaves; a trusted
+file root with its LDIR binding verified also makes the recomputed exact root trusted transitively.
+A trusted whole-file SHA-256 makes both roots trusted only after all bytes of the same snapshot have
+been hashed. Finalization needs file-level trust. Hash each consumed encoded payload and all its
+logical leaves before use ([specification section 6.2](sicx.md#spec-62-partial-verification)).
+Report direct and transitive trust, unread headers and payloads and unchecked invariants explicitly.
+A root in the same untrusted footer is self-consistency only. Exact-only files have zero fiducial
+vectors and remain valid, with distinct exact and file roots.
 
 <a id="verification-22-decoding-and-comparing-with-the-stored-balls"></a>
 ### 2.2 Decoding and comparing with the stored balls
 
-`sic-decode` decodes coordinates of chosen rays from the exact data with certified balls, normalizes
-them with the ray's anchor, and requires overlap with every stored ball and identical binary64
-values. This separate consistency result does not by itself prove containment. Final 1.0
-finalization instead writes BALL from that decoder's own certified normalized/gauged enclosure,
-rounded outward to the stored width, certifies enclosure containment, and checks all coordinates'
-binary64 rounding before admission. External publication balls are not an input. This is the
-finalizer contract; regenerating files and proving their current roots are separate production
-gates.
+`sic-decode` decodes coordinates of chosen fiducial vectors from the exact data with certified
+balls, normalizes them with the anchor rule, and requires overlap with every stored ball and
+identical binary64 values. This consistency result does not by itself prove containment.
+Finalization (`sic-decode --finalize`) writes BALL from the decoder's own certified normalized
+enclosure, rounded outward to the stored width, certifies enclosure containment and checks the
+binary64 rounding of all coordinates before the file is published. External balls are never an
+input.
 
 A cheaper portable check compares one ratio `w_j / w_k` of decoded and stored values
-([sicx-spec.md](sicx.md#spec-sicx-10-final-exact-weylheisenberg-sic-fiducial-format) §5.2a). It is
-optional, including in full container mode; a performed check that proves inconsistency must reject
-the file. It cannot replace the finalizer's all-coordinate checks.
+([specification section 5.2a](sicx.md#spec-52a-portable-spot-check-of-ball-against-the-exact-data)).
+It is optional, including in full container mode; a performed check that proves inconsistency must
+reject the file. It cannot replace the finalizer's all-coordinate checks.
 
 <a id="verification-23-sic-check"></a>
-### 2.3 SIC check
+### 2.3 SIC-POVM overlap check
 
-- **Diagnostic (binary64):** `sic-verify FILE --sic-check`, `sic-overlaps FILE`, or the NumPy recipe in
-  [data-guide.md §5](data.md#data-5-checking-a-fiducial-yourself). These are floating-point diagnostics.
+- **Diagnostic (binary64):** `sic-verify FILE --sic-check`, `sic-overlaps FILE`, or the NumPy recipe
+  in the [data guide](data.md#data-5-checking-a-fiducial-yourself). These are floating-point
+  diagnostics.
 - **Certified bound:** the library component `sic::bounds` (`bound_wh_overlap_deviations`) returns
-  rigorous enclosures of the squared norm and of the maximum WH overlap deviation over a ball
-  vector. A small upper bound remains a numerical tolerance statement.
+  rigorous enclosures of the squared norm and of the maximum overlap deviation over a ball vector.
+  A small upper bound remains a numerical statement.
 
-`sic-check-balls VECTOR.normalized.balls --bits 100` checks a certified
-normalized ball vector and fails unless the rigorous deviation bound is below
-`2^-100`. This is a numerical bound, with the exact SIC status assessed separately.
+`sic-check-balls VECTOR.normalized.balls --bits 100` checks a certified normalized ball vector and
+fails unless the rigorous deviation bound is below `2^−100`. This is a numerical bound; the exact
+SIC-POVM status is stated separately (section 1).
 
 <a id="verification-24-independent-second-reader"></a>
 ### 2.4 Independent second reader
 
 `cpp/checkers/verifier` is implemented independently from the specification, without production SICX
-code. The independent reader implements the final EXMT/LDIR/PDIR layout and 112-byte footer, with
-full and scoped partial verification, trusted-root binding and certified decoding. See its
-[CLI](tools.md#sic-verify-independent) and [implementation
-scope](verification.md#reader-independent-sicx-10-reader). Small fixtures are fully decoded;
-large-file ratio checks have the limited scope stated below, and are not all-coordinate proofs.
+code. It implements the EXMT, LDIR and PDIR layout and the 112-byte footer, with full and scoped
+partial verification, trusted-root binding and certified decoding. See its
+[command line](tools.md#sic-verify-independent) and [implementation
+scope](#reader-independent-sicx-10-reader). `--decode full` compares every coordinate of every
+requested fiducial vector with BALL; `--decode ratio` is a spot check and not an all-coordinate
+comparison. The release results are stated in section 1.
 
 <a id="verification-25-exact-checks-with-parigp-small-d"></a>
 ### 2.5 Exact checks with PARI/GP (small `d`)
 
 After generating `exact.json` (`exact-data` target,
-[data-download.md](data.md#transport-getting-the-exact-data)), the GP reference script, independent
-of the C++ code, rebuilds the field and every coordinate and verifies exactly that `|⟨ψ|D_p ψ⟩|² =
-1/(d+1)` for every `p ≠ 0`:
+[exact data downloads](data.md#transport-getting-the-exact-data)), the PARI/GP reference script,
+independent of the C++ code, rebuilds the field and every coordinate and verifies exactly that
+`|⟨ψ|D_p ψ⟩|² = 1/(d+1)` for every `p ≠ 0`:
 
 ```
 SIC_EXACT_JSON=build/data/d8/m1/exact.json gp -q -s 2G cpp/checkers/gp/sicx_exact_verify.gp < /dev/null
 ```
 
-Recorded results: PASS for `d = 2, 4` and both `d = 8` multiplets. At `d = 16` only the shifts `a =
-0` and `a = 1` (of 16) were checked before a time cap, with no failure; a complete `d = 16` run has
-not been recorded. `exact.json` is practical only for `d ≤ 16`. The script's positivity check and
-its identification of complex conjugation use a floating-point embedding and are not certified by
-the script.
+`exact.json` is practical only for `d ≤ 16`; the complete check in dimension 16 is the opt-in test
+`sic_test_sicx_exact_gp_d16` (`SIC_SICX_GP_D16=ON`), and one autocorrelation shift takes several
+minutes there. The script's positivity check and its identification of complex conjugation use a
+floating-point embedding and are not certified by the script.
 
 <a id="verification-26-inequivalence-certificates"></a>
 ### 2.6 Inequivalence certificates
 
-The PEC separation records (certified moment enclosures per pair) are kept with the run provenance
-(`provenance/inequivalence/` in the release). A disjoint pair of enclosures proves inequivalence of
-any rays inside the given vector enclosures; an overlapping pair is undetermined.
-
-These are recorded separation results; construction alone does not regenerate a PEC certificate.
+The release pairs were compared with certified enclosures of the moments of the fingerprint `z_p`
+(section 1). A disjoint pair of enclosures proves inequivalence of any vectors inside the two
+vector enclosures; an overlapping pair is undetermined. `sic-identify` computes the same invariant in
+binary64 and searches explicitly for an equivalence ([identification](#clifford-3-identification-sic-identify)).
 
 <a id="verification-27-symmetry-tables"></a>
 ### 2.7 Symmetry tables
 
-`sic-stabilizer --dim D --catalogue FILE` recomputes the stabilizer table of a dimension (binary64).
-`sic-certify-stabilizer STABFILE --catalogue FILE` certifies each element with ball arithmetic, and with `--d2-exact`
-verifies the `d = 2` elements exactly.
+`sic-stabilizer --dim D --catalogue data/catalogue.json` recomputes the symmetry table of a dimension
+(binary64). `sic-certify-stabilizer STABFILE --catalogue data/catalogue.json --dim D` certifies each
+element with ball arithmetic, and with `--d2-exact data/d2/d2.sicrad` verifies the elements in
+dimension 2 exactly ([table format](data.md#stab)).
 
 <a id="verification-28-unconditional-exactness-certificate-crt"></a>
-### 2.8 Unconditional exactness certificate (CRT)
+### 2.8 Exact certificate by the Chinese remainder theorem method
 
 `sic-certify-crt FILE.sicx --threads T` (source `cpp/checkers/crt`, built with
-`-DSIC_ENABLE_FLINT=ON`; [recorded run scope](reproduce.md#reproducing-the-published-results))
-proves that every Galois word of the multiplet in `FILE.sicx`, hence every ray, is an exact WH SIC
-fiducial. A run ending in `RESULT: EXACT SIC for every Galois word … [PROVED]` (exit code 0) means:
-the tower algebra is a field `L`; the action records are automorphisms and `L/K` is Galois with the
-stored group; the printed word `c*` is complex conjugation for the embedding fixed by the branch
-rectangles; and every quartic residual `R_{a,k}` of every ray is exactly zero in `L`, the vector
-being nonzero. Each identity is checked at all degree-one points modulo distinct completely split
-primes `p > 2^61`, and a norm lemma with a **proved** conjugate bound and a **proved** denominator
-bound turns these checks into exact equalities. Here **proved** means: a mathematical proof whose
+`-DSIC_ENABLE_FLINT=ON`) proves that every Galois word of the multiplet in `FILE.sicx`, hence every
+fiducial vector, is an exact Weyl–Heisenberg SIC-POVM fiducial vector. A run ending in
+`RESULT: EXACT SIC for every Galois word … [PROVED]` (exit code 0) means: the tower algebra is a
+field `L`; the action records are automorphisms and `L/K` is Galois with the stored group; the
+printed word `c*` is complex conjugation for the embedding fixed by the branch rectangles; and every
+quartic residual `R_{a,k}` of every fiducial vector is exactly zero in `L`, the vector being nonzero.
+Each identity is checked at all degree-one points modulo distinct completely split primes
+`p > 2^61`, and a norm lemma with a **proved** conjugate bound and a **proved** denominator bound
+turns these checks into exact equalities. Here **proved** means a mathematical proof whose
 computational steps are exact modular arithmetic and certified ball arithmetic, with no imported
-premise. Trusted are only FLINT/Arb, the compiler and the tool. The tool has its own SICX reader
+premise. Only FLINT with Arb, the compiler and the tool are trusted. The tool has its own SICX reader
 (written from the specification) and does not link the production code.
 
-To rerun (example, `d = 16`, a few seconds; the recorded `d = 128`
-standard run took 229.43 s on 120 threads):
+To run it with the exact tools installed and on `PATH` ([installation](install.md)), for example in
+dimension 16 (well under a second):
 
 ```
-cmake -S cpp -B build -DCMAKE_BUILD_TYPE=Release -DSIC_ENABLE_FLINT=ON -DCMAKE_PREFIX_PATH=<flint-install>
-cmake --build build --target sic-certify-crt
-sic-certify-crt FILE.sicx --threads 16       # FILE.sicx: e.g. from `sic-container fetch d16/m1`
-ctest --test-dir build -L crt                                                # includes negative controls
+sic-container fetch d16/m1 --data-root data   # writes build/data/d16/m1/multiplet.sicx
+sic-certify-crt build/data/d16/m1/multiplet.sicx --threads 16
 ```
 
-The certified data are identified by the printed `exact root` (finalization preserves it within a
-given exact presentation). The recorded proof scope is nine multiplets: d4 (1 ray), d8 maximal (1),
-d8 standard (1), d16 (2), d32 (2), d64 (4), d128 maximal (2), d128 standard (10), and d256 standard
-(12). Proofs cover every Galois word of each checked presentation. Release production must bind the
-current exact roots to a successful certificate; none of the prior roots is printed as a current
-root here.
+Its own tests, including negative controls, run with `ctest --test-dir BUILD -L crt` in a
+FLINT-enabled build with tests.
 
-#### Recorded certificate input identities
+The certified data are identified by the printed `exact root`. The certificates of the release cover
+the nine multiplets with `4 ≤ d ≤ 256` and every Galois word of each:
 
-These exact roots identify the successful CRT certificate inputs. They are **not current
-release-production bindings**. The recorded proof applies to a supplied file only when its exact
-root matches the checked input and the selected rays are covered. Release production must establish
-and publish the current association in its generated manifest; a changed presentation requires a
-fresh proof. The norm runs at d4, both d8 orders and d16 used the corresponding recorded roots
-below.
+| multiplet | exact root (equal to the catalogue) | Galois words `[L:K]` | fiducial vectors |
+| --- | --- | ---: | ---: |
+| `d4-m1` | `616f89361d9a0646ddcd169e7a59a63cdcc7adead9990ca8882ae424f5b846a1` | 8 | 1 |
+| `d8-m1` | `24a5215393dc338c412c2ce9645e93d3985fea868b624e85e63c1a4db7f9e463` | 16 | 1 |
+| `d8-m2` | `71e665d53173ce0a692dd13d5dc274a39741c7360895cd23dd28aad8f848674a` | 64 | 1 |
+| `d16-m1` | `4512ae607c93f442b785ff1aa90c557f2661ad67c68a720a88bf65a393271359` | 512 | 2 |
+| `d32-m1` | `9592d2782badfaad160450456868322bf0454c8d7523d21208f0600c33e5d053` | 2,048 | 2 |
+| `d64-m1` | `4dc3c9a2ffd642ca3403817151b33758c4926f2b12212daea02a537dcb52c162` | 16,384 | 4 |
+| `d128-m1` | `39d53a036a3715097a19b5a753a5a7267934a27578075130e4f5441489471cda` | 32,768 | 2 |
+| `d128-m2` | `5d2d6ace4b175889306f6e9d2930c3dde35a95e2490ef87a6b22aefbea1972a9` | 163,840 | 10 |
+| `d256-m1` | `bb20c2bcaaffc0818709be72be713c6371be9a3f8f28ecbc61099c9348846bdd` | 786,432 | 12 |
 
-| multiplet | recorded certificate input exact root | rays |
-| --- | --- | ---: |
-| d4 | `3cae1d4bdaaa4a2c7a66a634c112a3294aa9b3bcdeb0c386357c209d2cd5514d` | 1 |
-| d8 maximal | `fc010f50bba52dedcf42f7faf27b6a2bcd727ff3e0b87781254948b58d7e6480` | 1 |
-| d8 standard | `5db07b2ba35e84bc8a87700bbdde2bac55893aa2257a70b314e7a664c5f57772` | 1 |
-| d16 | `1bbac1760fda36045860c0ebcb5447a107c145d0fa12bdba82dfc8bc6b2e3a81` | 2 |
-| d32 | `b90ac0b11810a8d6965969a6a4791c9d13c1a41adf521bc1b70b60fa1a120450` | 2 |
-| d64 | `75a764d6d482df7e67d6b834febb6e2126f908a1229a86a3173c2b7e9bb4f360` | 4 |
-| d128 maximal | `5e4296344cd2ecf84b86446c30424f879026234689cf274123ddf27bd4acf374` | 2 |
-| d128 standard | `5992c4a54f72aa781d9e3f04ef50b424dc31f82c526e834f083e6f94b0b1b8f5` | 10 |
-| d256 standard | `bce51bd03834a83526928b71566fd8b2d4712c1e50b265bba4e0fe3af30184c8` | 12 |
-
-
-`d ≥ 512`: no exact certificate was run (projected cost is given below).
+The measured cost is given in [cost of the certificates](#crt-measured-cost).
 
 <a id="verification-29-high-precision-exactness-certificate-norm-argument-second-method"></a>
-### 2.9 High-precision exactness certificate (norm argument, second method)
+### 2.9 Exact certificate by the norm method (second method)
 
 `sic-certify-norm FILE.sicx --threads T` is a second, independent method with its own SICX reader
 and exact tower arithmetic in `cpp/checkers/norm`, written from `docs/sicx.md`. It links only FLINT
 3 (including Arb) and the platform thread library. The
 `sic_test_support_independence_sic_certify_norm` CTest checks its include and link dependencies and
-checks for copied production code. Certificate runs proved the five catalogue rays in d4, d8
-standard, d8 maximal and d16, using their separately recorded exact roots. All four runs exited 0.
-Current reader tests also include synthetic conformance fixtures, which are not SICs. The quartic
-residuals are algebraic integers after an exact power-basis scaling `q`, all their conjugates are
-bounded by `2^m`, and a ball computation shows `|R_{a,k}| < 2^{−(2[L:K]−1)m}` at the branch
-embedding. Its working precision grows like `[L:K]·h` bits and its exact power-basis preprocessing
-like `[L:K]²`; practical for `d ≤ 16` (executed: five rays, all agreeing with §2.8). Status of a
-PASS: **proved** (certified computation of an exact statement).
+checks for copied production code. Its reader tests also include synthetic conformance fixtures,
+which are not SIC-POVM data. The quartic residuals are algebraic integers after an exact power-basis
+scaling `q`, all their conjugates are bounded by `2^m`, and a ball computation shows
+`|R_{a,k}| < 2^{−(2[L:K]−1)m}` at the branch embedding. Its working precision grows like `[L:K]·h`
+bits and its exact power-basis preprocessing like `[L:K]²`, so it is practical for `d ≤ 16`. Status
+of a PASS: **proved** (certified computation of an exact statement).
 
 Build with `cmake -S cpp -B cpp/build -DSIC_ENABLE_FLINT=ON`, then `cmake --build cpp/build --target
 sic-certify-norm`; the binary is `cpp/build/sic-certify-norm`. Use
 `-DCMAKE_PREFIX_PATH=FLINT_INSTALL` if FLINT is installed outside the system search path.
 See the complete [norm checker options](tools.md#sic-certify-norm) for syntax and defaults.
-`--estimate` performs exact preprocessing and a precision estimate without a SIC verdict;
-`--leaf-estimate` gives a heuristic feasibility estimate without exact preprocessing or a SIC
+`--estimate` performs exact preprocessing and a precision estimate without a SIC-POVM verdict;
+`--leaf-estimate` gives a heuristic feasibility estimate without exact preprocessing or a SIC-POVM
 verdict. Exit codes are 0 for all selected rays certified (or a completed estimate), 1 for an
 inconclusive certificate or BALL mismatch, 2 for usage errors, and 3 for a refused input or
-computation. Numeric CLI values must be full-string unsigned decimals with checked overflow;
+computation. Numeric command-line values must be full-string unsigned decimals with checked overflow;
 malformed values, missing values and out-of-range options exit 2 before certification. `--max-bits`
 accepts
 1..9223372036854775807, `--ray` accepts a zero-based index, and `--threads` must be positive.
@@ -291,50 +479,43 @@ high-precision stage. Odd levels can be used for estimates, but final certificat
 Exact-only files can be read for estimates; certification requires finalized rays and balls.
 
 <a id="verification-3-what-is-not-verified"></a>
-## 3. What is not verified
+## 3. Scope of the claims
 
-- All steps of the imported mathematical inputs except one analytic lemma (RW26 Thm 3 at real τ)
-  have been checked (the unresolved Fourier/five-term step stated in §1); construction-based
-  exactness for `d ≥ 512` is relative to that lemma and to the recorded premises (the listed roots
-  through `d = 256` are proved independently, §2.8).
-- Newton nonsingularity is certified per accepted run (Krawczyk inclusion on the box `B0`: every
-  Jacobian of the selected subsystem on `B0` is nonsingular and the subsystem has exactly one zero
-  there), but not uniformly. Open: full Jacobian rank `2d − 2` at the ghost for every `d = 2^s` and
-  class; a well-conditioned square subsystem (amplification `2^{O(P_1)}`) that the selection
-  procedure finds; an a priori seed precision for the `B0` test. Transported-decoding precision
-  bounds are not proved in general.
-- The unconditional CRT certificate (§2.8) covers 9 multiplets through `d = 256` (35 rays); the 34 rays
-  with `d ≥ 512` stay conditional on the imported results and premises until a certificate is run.
-- The classification is not proved: the count 174 and the order ↔ multiplet correspondence are
-  conjectural, and pairwise inequivalence of the collected rays does not show that the collection is
-  exhaustive.
-- Orbit letters at `d = 16, 32, 64` are not determined.
-- The stabilizer tables are exact only at `d = 2`.
-- `d = 1024` standard order and `d = 2048` are pending; no fiducial is claimed there.
-- A real download from GitHub Releases has not been tested (only offline tests).
+- In dimensions 512, 1024 and 2048 the exact SIC-POVM property rests on the
+  [construction theorem](#verification-construction-theorem) and on the certified computations of
+  each run; the release contains no exact certificate of the stored data for these multiplets.
+  Their overlap bound is certified.
+- The second reader has no result for `d1024-m2` and `d2048-m1` (resource refusal, section 1).
+- The symmetry tables are certified numerical bounds; they are exact only in dimension 2, and their
+  completeness is empirical.
+- The classification is not proved: the count 174 and the correspondence of orders and multiplets
+  are conjectural, and pairwise inequivalence does not show that the list of orbits is complete.
+- A floating-point overlap deviation, a digest or a root is never an exact SIC-POVM proof.
 
 ## Independent checker contracts
 
 The checkers have separate parsers, arithmetic and readers. Their source/build paths are
-[CRT](../cpp/checkers/crt/CMakeLists.txt), [norm](../cpp/checkers/norm/CMakeLists.txt),
+[Chinese remainder theorem certificate](../cpp/checkers/crt/CMakeLists.txt), [norm](../cpp/checkers/norm/CMakeLists.txt),
 [reader](../cpp/checkers/verifier/CMakeLists.txt),
-[stabilizer](../cpp/checkers/stabilizer/CMakeLists.txt) and GP
+[stabilizer](../cpp/checkers/stabilizer/CMakeLists.txt) and PARI/GP
 ([SICX](../cpp/checkers/gp/sicx_exact_verify.gp), [Hoggar](../cpp/checkers/gp/hoggar_verify.gp)).
 The root FLINT build enrolls their tests; CMake and CTest enforce include, link and copied-source
-independence. Help and CLI exit modes are in [tools](tools.md).
+independence. Help texts and exit codes are in [command-line tools](tools.md).
 
 <a id="crt-sic-certify-crt-unconditional-crt-exactness-certificate"></a>
-## CRT exactness method
+## Chinese remainder theorem certificate
 
 `sic-certify-crt FILE.sicx` proves, with no unproved hypothesis, that every Galois word of the
-multiplet stored in a SICX 1.0 file is an exact Weyl–Heisenberg SIC fiducial. Every published ray of
-a multiplet is a Galois word of its file, so the proof covers every ray. Nothing analytic is used:
-no special values, no RW26/AFK25 theorem, no Artin reciprocity. The SICX premises of the
-specification (`docs/sicx.md` §1) are not used either; each one is either verified or not needed:
-genuine automorphisms, commuting actions, integrality, the entry rule, pure Galois rays.
+multiplet stored in a SICX 1.0 file is an exact Weyl–Heisenberg SIC-POVM fiducial vector. Every
+published fiducial vector of a multiplet is a Galois word of its file, so the proof covers every
+fiducial vector. Nothing analytic is used: no special values of L-functions, no theorem of
+Radchenko and Wheeler or of Appleby, Flammia and Kopp, and no Artin reciprocity. The SICX premises
+of the specification (`docs/sicx.md` section 1) are not used either; each one is either verified or
+not needed: genuine automorphisms, commuting actions, integrality, the entry rule and pure Galois
+records.
 
-See the [recorded costs](#crt-measured-cost) and [certificate scope and
-roots](#verification-28-unconditional-exactness-certificate-crt).
+See the [measured cost](#crt-measured-cost) and the [certificates of the
+release](#verification-28-unconditional-exactness-certificate-crt).
 
 <a id="crt-what-a-proved-run-establishes"></a>
 ### What a PROVED run establishes
@@ -353,7 +534,7 @@ Let `A = K[g_0, …, g_{t−1}]/(f_j)` be the tower algebra of the file, with `K
    Here `x_j = σ_c σ_{word(j)}(η_{r(j)})` and `N = Σ_j x_j C(x_j)`.
 5. The ray vector is nonzero.
 
-Together these give: for every ray `v = ι(x)`, `v/‖v‖` is an exact WH SIC fiducial. "Proved" means
+Together these give: for every ray `v = ι(x)`, `v/‖v‖` is an exact Weyl–Heisenberg SIC-POVM fiducial vector. "Proved" means
 exactly this.
 
 The certified vector is the one defined by the file's exact data and `ι`. Its agreement with the
@@ -370,7 +551,7 @@ bounds every conjugate (certified ball arithmetic at all embeddings), and `2^T` 
 proved denominator ideal.
 - **Lemma D** bounds `T` from the trace-dual leaf representation and needs no integrality assumption.
 - **Lemma I** sharpens Lemma D level by level. It proves that `G_j = 2^{J_j} g_j` is an algebraic
-  integer by an exact integer characteristic polynomial, reconstructed by CRT and verified against
+  integer by an exact integer characteristic polynomial, reconstructed by the Chinese remainder theorem and verified against
   the proved denominator bound. The shift `J_j` is taken from authenticated EXMT
   `generator_rescaling` only as a candidate integral-generator hint. If any recorded shift
   exceeds 64, all shift hints are discarded. On quadratic levels, a failed integrality
@@ -379,9 +560,9 @@ proved denominator ideal.
 Complex conjugation and the base embedding are certified by root isolation.
 
 <a id="crt-usage"></a>
-### CRT input, output and resource contract
+### Input, output and resource contract of the Chinese remainder theorem certificate
 
-See [generated CRT help](tools.md#sic-certify-crt) for options and exit codes. A bound-only success
+See the [generated help of `sic-certify-crt`](tools.md#sic-certify-crt) for options and exit codes. A bound-only success
 is not a proof; a prime override is an incomplete diagnostic. Usage errors exit 2 and prove nothing.
 Numeric options require full-string unsigned decimals with checked overflow: `--seed` accepts
 0..18446744073709551615, `--integral-max-dim` accepts
@@ -393,9 +574,9 @@ Numeric options require full-string unsigned decimals with checked overflow: `--
 **Input.** Final SICX 1.0 only, with logical leaf limit **L = 14** (16 MiB physical profile target).
 The input layer implements the general-dimension grammar for every `2 ≤ d ≤ 2^20`, including the
 imaginary quadratic base at d=2 and the rational base at d=3. It derives the squarefree base,
-divisor positions, canonical CRT unit generators and their orders; it checks `unit_generator_words`
-and uses the smallest positive unit lift for entries. The CRT mathematics and certificate remain
-explicitly limited to `d = 2^s ≥ 4`; general-d container conformance is not a general-d SIC
+divisor positions, the canonical unit generators lifted by the Chinese remainder theorem and their orders; it checks `unit_generator_words`
+and uses the smallest positive unit lift for entries. The mathematics of the certificate remains
+explicitly limited to `d = 2^s ≥ 4`; general-dimension container conformance is not a general-dimension SIC-POVM
 certificate.
 
 The certificate performs full container verification before mathematical work: header/features, the
@@ -403,7 +584,7 @@ The certificate performs full container verification before mathematical work: h
 domain-separated logical digests, EXMT and the closed grammar, canonical leaf encoding, element
 primitivity/minimality/attained bit bounds, authenticated greedy rescaling, exact canonical branch
 rectangles and their minimum precision, optional JSON, and finalized BALL gauge/norm/tight accuracy.
-BALL agreement with exact decoding and the SIC identities remain separate mathematical checks.
+BALL agreement with exact decoding and the SIC-POVM identities remain separate mathematical checks.
 
 Optional `--exact-root HEX`, `--file-root HEX` and `--sha256 HEX` bind the input to a trusted
 external identity. The output distinguishes supplied trusted roots from roots merely recomputed from
@@ -452,7 +633,7 @@ use exact rounding. All root families are checked for the minimum common precisi
 strings. Non-axis or inconclusive cases retain the exact FLINT Qbar fallback, including singleton
 equality, with a conservative algebraic degree admission of 4,096; the same Qbar limits apply to the
 odd prefix. Larger valid inputs may be refused. Limits can be raised explicitly by an API caller; no
-refusal is reported as conformance. The CRT hint ceiling remains 64 independently of authenticated
+refusal is reported as conformance. The hint ceiling of the certificate remains 64 independently of authenticated
 EXMT shifts, which may have 18 decimal digits and are checked by valuation arithmetic without
 integer expansion.
 
@@ -468,8 +649,7 @@ integer expansion.
   [PROVED]` or one of `RESULT: FAILED`, `REFUSED: …`, `RESULT: INCOMPLETE`, `RESULT:
   NEGATIVE-CONTROL`.
 
-Example, for a finalized file with a checked current exact-root binding: `sic-certify-crt
-multiplet.sicx --threads 120 --seed 1`.
+Example, as run for the release: `sic-certify-crt multiplet.sicx --threads 188 --seed 1`.
 
 RAYS labels follow increasing numeric suffixes and increasing lexicographic numeric Smith tuples
 (first coordinate first, §5.1a); `c0` may have a nonzero word. The top-level PROV
@@ -481,7 +661,7 @@ division.
 
 The optional BALL/exact ratio check is not performed; scope output says so. Outward BALL
 construction and binary64 agreement are finalizer obligations, not container checks. Container
-success and an exact SIC certificate do not by themselves establish BALL containment.
+success and an exact SIC-POVM certificate do not by themselves establish BALL containment.
 
 <a id="crt-trusted-components"></a>
 ### Trusted components
@@ -489,7 +669,7 @@ success and an exact SIC certificate do not by themselves establish BALL contain
 The proof is complete given the correctness of:
 - FLINT 3 / Arb: ball arithmetic, including the certified root isolation of `acb_poly_find_roots`;
   `n_is_prime` (deterministic below `2^64`); `nmod_poly` root finding and irreducibility; `fmpz`
-  CRT;
+  Chinese remainder reconstruction;
 - the C++ compiler and standard library;
 - this tool's code.
 
@@ -505,67 +685,32 @@ Two checks enforce this:
 - `CMakeLists.txt` refuses production link targets and include paths at configure time;
 - the CTest `sic_test_support_crt_independent_sources` rejects `#include <sic/…>`.
 
-The high-precision certificate `sic-certify-norm` (the norm argument; recorded proof examples
-through `d = 16`) is a second, different method with its own reader.
-
-<a id="crt-tests"></a>
-### Tests
-
-`ctest -L crt` exercises eleven input groups (valid, rejection mutations, boundaries/regrouping,
-partial trust/scope, amendments, primitive guards, mixed odd/quadratic branches, targeted guards,
-general dimensions, deterministic fuzz mutations, and public CLI), five fixture CRT proofs,
-bound-only diagnostics, strict CLI option/error cases, help/parser defaults, help, source
-independence, a shift retry, and three deliberate mathematical negative controls. The independent
-executables are enrolled in the repository’s independence audit. Rehashed negative fixtures pin
-rejection categories so a different later failure cannot silently substitute for the intended check.
-Five additional `sic-test-crt-faults` cases interpose OS/FLINT failures to test otherwise rare
-fail-closed paths; interposition is test-only.
-
-`test_writer.hpp` is a test-only writer implemented from the final specification. It uses OpenSSL
-SHA-256 independently of the reader's hash implementation and emits synthetic general-d exact-only
-containers and d=4/d=8 finalized container controls. Tests include multi-leaf elements in different
-physical groupings, unchanged exact-prefix/LDIR bytes on finalization, odd-degree/action grammar,
-exact rounding ties of both signs, and a minimum-precision-256 branch construction. These are
-container controls, not new SIC claims. d=2 balanced pairs are also covered.
-
-`sic-test-crt-input --write-fixtures DIR` saves eight reviewable d=4/d=8 fixtures.
-`sic-test-crt-external OUTDIR FILE...` verifies an executable-produced corpus, reproduces every byte
-with the independent OpenSSL writer, checks both roots and whole-file hashes, rejects raw and
-independently rehashed corruptions, and exercises partial trust/completion. `sic-test-crt-input
---write-general-fixtures DIR` saves the general-dimension fixtures for d=2,3,5,6,7,9,12,16.
-Exhaustive unit-group/entry oracles include faithful C4/C6 factors, composite CRT lifts, full
-exponent digits, both real integral bases, rational pair rejection and the first-coordinate-first
-Smith label rule. Recorded CRT runs cover nine multiplets through d256; current release production
-must bind any proof to its actual root. The CRT/input/independence selection passed 37 tests,
-including 19 mixed-branch checks, signed initially nonexact half ties, unresolved singleton fallback
-and low-degree admission controls. An external corpus of five finalized files passed 467 checks and
-rejected 452 mutated copies.
+The high-precision certificate `sic-certify-norm` (the norm argument, practical for `d ≤ 16`) is a
+second, different method with its own reader.
 
 <a id="crt-measured-cost"></a>
-### Recorded CRT cost
+### Cost of the Chinese remainder theorem certificates
 
-**SICX 1.0 measurements.** Measurements on a shared AMD EPYC 7763 host with FLINT 3.6.0, GCC 11.4
-and `-O3`. All runs used 120 threads, the default proved bound, no prime-count override, and their
-recorded exact presentations. These are measurements of those inputs; they are not current
-release-production certificates. Every run finished `[PROVED]`. Wall time and peak RSS are GNU
-time's whole-process measurements, including input admission. Shared-host timings are approximate.
-Lemma I covers levels with `2[F_j:K] ≤ 8192`.
+The certificates of the release ran on the release machine (192 AMD EPYC 9B45 cores, about 1.4 TiB
+of memory, Ubuntu 24.04, GCC 13.3, FLINT 3.6.0, Release build with link-time optimization) with
+`--threads 188 --seed 1`. Every run finished `[PROVED]`. Wall time and peak resident memory are the
+whole-process measurements of GNU `time`, including input admission.
 
-| file | [L:K] | levels with Lemma I | primes | wall (s) | threads | peak RSS (MiB) |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| d4 | 8 | 3/3 | 1 | 0.05 | 120 | 6.00 |
-| d8 maximal | 16 | 4/4 | 2 | 0.06 | 120 | 6.00 |
-| d8 standard | 64 | 6/6 | 8 | 0.10 | 120 | 4.00 |
-| d16 | 512 | 9/9 | 25 | 0.30 | 120 | 6.00 |
-| d32 | 2,048 | 11/11 | 95 | 1.34 | 120 | 65.93 |
-| d64 | 16,384 | 13/14 | 349 | 12.61 | 120 | 1003.71 |
-| d128 maximal | 32,768 | 13/15 | 627 | 20.70 | 120 | 1626.95 |
-| d128 standard | 163,840 | 11/16 | 3,293 | 229.43 | 120 | 6370.90 |
-| d256 standard | 786,432 | 12/19 | 17,210 | 5911 | 120 | 31129.82 |
+| multiplet | `[L:K]` | certificate primes | wall time | peak resident memory |
+| --- | ---: | ---: | ---: | ---: |
+| `d4-m1` | 8 | 1 | 0.03 s | 10.5 MiB |
+| `d8-m1` | 16 | 2 | 0.04 s | 10.5 MiB |
+| `d8-m2` | 64 | 8 | 0.06 s | 10.7 MiB |
+| `d16-m1` | 512 | 25 | 0.20 s | 10.5 MiB |
+| `d32-m1` | 2,048 | 95 | 0.94 s | 12.3 MiB |
+| `d64-m1` | 16,384 | 349 | 9.6 s | 833 MiB |
+| `d128-m1` | 32,768 | 627 | 14.2 s | 1.71 GiB |
+| `d128-m2` | 163,840 | 3,293 | 85.5 s | 9.00 GiB |
+| `d256-m1` | 786,432 | 17,210 | 1,542 s | 45.9 GiB |
 
-Cost per prime is dominated by the residual tables, about `4[L:K]·d·log d` modular operations. Prime
-counts depend on the exact generator presentation and its proved height/denominator bounds. These
-are measurements for the checked presentations; a changed exact root requires a fresh certificate.
+The cost per prime is dominated by the residual tables, about `4[L:K]·d·log d` modular operations.
+Prime counts depend on the exact generator presentation and its proved height and denominator
+bounds; a changed exact root requires a new certificate.
 
 <a id="crt-limits"></a>
 ### Limits
@@ -574,8 +719,6 @@ are measurements for the checked presentations; a changed exact root requires a 
 - The proved bound is pessimistic at levels where Lemma I is not run. There Lemma D grows by about
   ×1.5 per level, and the residual bound carries a factor `4d`. With Lemma I the prime count is `≈
   4d·Σ_j (1 + J_j + ½·avg log2|c_j|)/61`.
-- Projections (estimates, not measurements): d512 ≈ 8·10^4 primes ≈ 4·10^3 CPU-h; d1024 ≈ 4·10^5
-  primes ≈ 2·10^5 CPU-h; d2048 out of reach. A full d2048 certificate is not a release requirement.
 
 <a id="norm-independent-sicx-input-and-exact-certificate"></a>
 ## Norm checker input and admission
@@ -655,19 +798,8 @@ requires `d,D <= 4096` and real-base-field restrictions; input-only
 verification accepts `d=2`. No mathematical algorithm or precision policy is
 changed by raising an input limit.
 
-`sic-test-norm-reader SCRATCH_DIRECTORY [4|8]` writes its own fixtures and mutation corpus.
-`test_writer.hpp` uses the SHA-256 primitive but implements its own JSON serialization, encodings,
-directories, domain messages and RFC tree. Known SHA and an externally computed tagged-leaf hash
-constrain that shared primitive. The generated `d4.sicx` and `d8.sicx` use the genuine quadratic
-extension `K(sqrt(2))/K` and its nontrivial C2 action. Their representatives are constant, their
-BALLs enclose the uniform unit vector, and they are **not SIC fixtures**. The larger grouping
-fixtures deliberately exercise container checks with a synthetic tower; they do not establish the
-imported field/group premises. These synthetic fixtures make no SIC claim. Separate norm-certificate
-computations succeeded on d4, both d8 orders and d16; the scope is five rays and their recorded
-exact presentations, subject to current-root binding before release.
-
 Full container verification checks the mandatory input invariants, not the
-imported irreducibility/group premises or exact SIC identities. BALL-to-exact
+imported irreducibility/group premises or exact SIC-POVM identities. BALL-to-exact
 comparison is separate, as specified by section 6.1. Text interchange, release
 catalogues, parts manifests, network transport and persistent caches are not
 inputs of this local binary reader. A transport implementation must enforce its
@@ -675,7 +807,7 @@ own conditional requirements before supplying a stable local file.
 
 The optional BALL/exact ratio spot check is not performed by this input
 layer, and the verification summary says so. Container success establishes no
-BALL/exact agreement, binary64 agreement or SIC property. Exact singleton branch
+BALL/exact agreement, binary64 agreement or SIC-POVM property. Exact singleton branch
 components are decided algebraically, including zero and nonzero dyadics, without
 waiting for a numerical enclosure to become a singleton.
 
@@ -694,17 +826,17 @@ this input layer verifies the stored BALL-only invariants and reports its scope.
 
 Only the EXMT schema specified in [SICX 1.0](sicx.md#spec-51-exmt-required-exact-metadata) is accepted. The
 reader derives the base field for every dimension, including rational K at d=3, the divisor
-representatives and the prime-power unit generators with their canonical CRT lifts.
+representatives and the prime-power unit generators with their canonical lifts by the Chinese remainder theorem.
 `galois.unit_generator_words` must have the derived count, canonical Smith residues and the
 specified order relations. Entry lookup uses local inverse tables and the smallest positive unit
 lift. Nonzero second components are rejected in the rational case. The summary identifies
 field/group/action and representative kernel fixity as premises; it does not certify them.
 
-General-d support here is container and branch validation. The norm-certificate
+Support for general dimensions here is container and branch validation. The norm-certificate
 implementation supports power-of-two dimensions
 and explicitly refuses other dimensions before constructing its exact algebra.
 Finalization constructs BALL from its own certified decode; this tool requires
-no external ball input. Synthetic fixtures are conformance data, not SICs.
+no external ball input. Synthetic fixtures are conformance data, not SIC-POVM fiducial vectors.
 
 The quadratic path admits at most 512 MiB of estimated live ball workspace
 and precision at most 2^20 before allocation. Rounding-to-integer admission
@@ -714,7 +846,7 @@ separately bounds the exponent before materializing an integer midpoint.
 ## Independent reader behavior
 
 The independent reader implements SICX 1.0 for all integer dimensions 2 through 2^20, divisor
-representatives, canonical prime-power unit generators with CRT lifts and generator words. The
+representatives, canonical prime-power unit generators with their lifts by the Chinese remainder theorem and the generator words. The
 frozen constants are logical exponent L=14 and canonical raw payload target 16 MiB. The target is a
 writer profile choice; other physical groupings remain valid. Numeric ray labels and their Smith
 words increase together in lexicographic numeric Smith-tuple order (first coordinate first); c0 may
@@ -797,7 +929,7 @@ and text checks require full mode. Expected roots must come from a trusted exter
 Normal full-mode output states which identities were recomputed and which matched supplied trusted
 values or became trusted transitively. Whole-file SHA-256 trust requires hashing all bytes of the
 same stable snapshot; source inode, size and modification/change timestamps are checked for changes.
-Full container verification is not a field, automorphism, classification or exact SIC proof. BALL
+Full container verification is not a field, automorphism, classification or exact SIC-POVM proof. BALL
 versus exact decoding is a separate check: `full` checks overlap and certified binary64 agreement
 for all normalized coordinates. Binary64 uniqueness compares IEEE encodings, including the sign of
 underflowed zero. This does not prove containment of an independent enclosure in arbitrary stored
@@ -811,88 +943,61 @@ Exit status is 0 for `RESULT: PASS` or explicitly scoped `RESULT: PARTIAL PASS`,
 2 for `RESULT: REJECT`, 3 for `RESULT: REFUSED` (precision/resource limit), and
 2 for usage errors. Partial PASS is never full-file verification.
 
-`cpp/checkers/verifier/tests/writer.cpp` contains a spec-derived test-only writer with separate byte, integer, hash-domain
-and RFC tree encoders; its hashes use OpenSSL. The fixture suite in `cpp/checkers/verifier/tests/tests.cpp` and
-`cpp/checkers/verifier/tests/conformance_*.cpp` uses it to create small synthetic containers at d=4 and d=8, finalization
-pairs, a 65,536-coordinate support for physical regrouping, odd cyclic towers, negative-D0 pairs and
-mutations. These are format/decoder controls, not newly constructed SICs. The fixture suite uses no
-production producer or production fixtures. `cpp/checkers/verifier/tests/general_tests.cpp` compares entries with
-exhaustive direct-product enumeration and smallest-lift scans, covering d=2,3,5,6,7,9,12 and powers
-of two, plus additional CRT cases. `cpp/checkers/verifier/tests/guard_tests.cpp` checks allocation admission, protected
-JSON input spans and test-only one-shot libc/FLINT failures. These are specification/conformance
-controls, separate from actual SIC proof runs.
-
 <a id="clifford-3-identification-sic-identify"></a>
 ## Identifying a numerical vector
 
 ```
 sic-identify FILE --catalogue JSON|TSV [--repo DIR] [--tol T=1e-6] [--entry-error E=2^-50] [--moments K=4] [--unitary-only]
 ```
-Input in the repository WH convention (the Gabor-frame section of `docs/sicx.md` converts Gabor
-notation: the time-frequency shift `M_b T_a` equals `D_(a,b)` up to a phase, so a fiducial in that
-convention is used as is). An explicit JSON catalogue uses `sic-release-catalogue/1.0`,
-generated from the available release tree. The source tree contains the d2 base-case
-ray and the exceptional Hoggar object; Hoggar is excluded from WH searches.
-Explicit TSV input (`d label order status csv_path`, paths relative to `--repo`)
-is supported explicitly for independent reference fixtures. Catalogue
-metadata alone does not certify any newly generated ray.
+The input is a vector in the Weyl–Heisenberg convention of this repository. The
+[Gabor-frame section of the specification](sicx.md#mathematical-conventions) converts Gabor
+notation: the time-frequency shift `M_b T_a` equals `D_(a,b)` up to a phase, so a fiducial vector in
+that convention is used as is. A JSON catalogue uses `sic-release-catalogue/1.0`;
+`data/catalogue.json` is such a catalogue, and its Hoggar entry is excluded from Weyl–Heisenberg
+searches. Explicit TSV input (`d label order status csv_path`, paths relative to `--repo`) is
+supported for independent reference fixtures. Catalogue metadata alone does not certify any newly
+generated vector.
 
-Output: input check, fingerprint `M_1..M_K`, one line per catalogued ray of the same dimension, then
-`MATCH label (...) psi = c D_chi U_F phi, F = [[a,b],[c,e]] mod dbar (det +-1), chi = (x, y),
-residual, z_deviation` or `NO_MATCH among N catalogued rays`. Exit 0 match, 1 no match or not a SIC
-(`max deviation > 1e-8`) or input/runtime error, 2 usage error. A reported element is a numerical
-equivalence witness at the stated tolerance.
+Output: the input check, the fingerprint `M_1..M_K`, one line per catalogued fiducial vector of the
+same dimension, then `MATCH label (...) psi = c D_chi U_F phi, F = [[a,b],[c,e]] mod dbar (det +-1),
+chi = (x, y), residual, z_deviation` or `NO_MATCH among N catalogued rays`. Exit 0 for a match, 1 for
+no match, not a SIC-POVM fiducial vector (`max deviation > 1e-8`) or an input or runtime error, 2 for
+a usage error. A reported element is a numerical equivalence witness at the stated tolerance.
 
 <a id="clifford-invariant-and-its-status"></a>
 ### Clifford fingerprint and equivalence-search scope
 
-* **Fingerprint (proved).** `z_p = (a_p/|a_p|)^(2d)` with `a_p = <psi|D_p psi>`, a function of `p
-  mod d`; `M_k = sum_{p != 0} Re(z_p^k)/(d^2-1)`. For any extended Clifford `U`, `U D_p U^dagger =
-  mu_p D_(Gp)` with `mu_p^(2d) = 1` and `G` symplectic mod d, so `z` is permuted (and conjugated for
-  antiunitaries). This is the moment invariant used for certified PEC separation; here it is
+* **Fingerprint (proved invariance).** `z_p = (a_p/|a_p|)^(2d)` with `a_p = ⟨ψ|D_p ψ⟩`, a function of
+  `p mod d`; `M_k = Σ_{p ≠ 0} Re(z_p^k)/(d²−1)`. For an element `U` of the extended Clifford group,
+  `U D_p U^(−1) = μ_p D_(Gp)` with `μ_p^(2d) = 1` and `G ∈ ESL(2, Z_d)`. For a unitary element
+  (`det G = +1`) the values `z_p` are permuted; for an antiunitary element (`det G = −1`) they are
+  permuted and complex conjugated. The real parts `Re(z_p^k)`, and hence the moments `M_k`, are
+  invariant in both cases. This is the moment invariant used for certified inequivalence; here it is
   computed in binary64 and used only for display. Equal fingerprints do not prove equivalence.
-* **Explicit equivalence (numerical, exhaustive search).** If `psi = c U phi` then
-  `z_psi(p) = z_phi(G p)` for all p, with `G = F^(-1) mod d` in SL(2, Z_d) (after replacing `phi` by
-  `conj(phi)` for antiunitaries). `G` is fixed by `G e1`, `G e2`, which must lie in the level sets
-  of `z_phi` at the values `z_psi(e1)`, `z_psi(e2)`; enumerating those pairs (det 1) and testing all
-  d^2 labels is exhaustive over the extended Clifford group **provided `z_tol` exceeds the sum of
-  the z errors of both inputs**. `z_error_bound(d, e)` gives an a priori bound in the standard
-  floating-point rounding model (not interval arithmetic): for the released data (`e = 2^-50`)
-  it is 6.4e-9 at d = 1024, against `z_tol = 1e-6`; observed deviations of accepted elements are
-  <= 5e-12. Each surviving `G` is then confirmed on the vectors: the canonical lift `F`, `u = U_F phi`,
-  and `chi = argmax |<D_chi u|psi>|` over all `chi` (d FFTs); a match requires
-  `1 - |<psi|D_chi U_F phi>| <= 1e-6`. When the ray has a nontrivial stabilizer, several elements
-map `phi` to `psi`; the first one found (unitary first) is printed. The bound is derived only in the
-comment of `z_error_bound` and assumes the documented entry error (2^-50 for the released CSVs).
-A match is a numerical statement about the binary64 points;
-  `NO_MATCH` means that no available catalogued ray of that dimension matched within
-  these tolerances. Missing catalogue files are reported as unavailable and skipped.
-  It does not establish non-equivalence to those unsearched rays or a new orbit.
+* **Explicit equivalence (numerical, exhaustive search).** If `ψ = c U φ` then
+  `z_ψ(p) = z_φ(G p)` for all `p`, with `G = F^(−1) mod d` in `SL(2, Z_d)` (after replacing `φ` by
+  `conj(φ)` for antiunitary elements). `G` is fixed by `G e1` and `G e2`, which must lie in the level
+  sets of `z_φ` at the values `z_ψ(e1)` and `z_ψ(e2)`; enumerating those pairs (determinant 1) and
+  testing all `d²` labels is exhaustive over the extended Clifford group **provided `z_tol` exceeds
+  the sum of the `z` errors of both inputs**. `z_error_bound(d, e)` gives an a priori bound in the
+  standard floating-point rounding model (not interval arithmetic): for an entry error `e = 2^−50` it
+  is `6.4·10^−9` at `d = 1024`, against `z_tol = 10^−6`. Each surviving `G` is then confirmed on the
+  vectors: the canonical lift `F`, `u = U_F φ`, and `χ = argmax |⟨D_χ u|ψ⟩|` over all `χ` (`d` fast
+  Fourier transforms); a match requires `1 − |⟨ψ|D_χ U_F φ⟩| ≤ 10^−6`. When the fiducial vector has a
+  nontrivial stabilizer, several elements map `φ` to `ψ`; the first one found (unitary first) is
+  printed. The bound is derived in the comment of `z_error_bound` and assumes the stated entry
+  error. A match is a numerical statement about the binary64 points; `NO_MATCH` means that no
+  catalogued fiducial vector of that dimension matched within these tolerances. Missing catalogue
+  files are reported as unavailable and skipped. The search does not establish inequivalence to
+  vectors outside the catalogue.
 
 The Clifford fixture tests identify unitary and antiunitary images of the enrolled numerical
-fixtures through d256, using random `F` in ESL(2, Z_dbar), random `chi`, a varying phase and
-fixed scale 1.7. The returned element reproduces the image. The recorded same-dimension pair
-checks distinguished all 1 + 1 + 1 + 6 + 66 + 66 = 141 pairs at d = 8..256.
+fixtures through dimension 256, using random `F` in `ESL(2, Z_d̄)`, random `χ`, a varying phase and
+the fixed scale 1.7; the returned element reproduces the image.
 
-<a id="recorded-numerical-evidence"></a>
-## Recorded numerical evidence
+## Identity names
 
-| dimension | rays | numerical scope |
-| --- | ---: | --- |
-| 2,4,8,16,32,64 | 12 distinct (15 records with aliases) | complex FP64 error at most 2^-50 in pinned numerical fixtures |
-| 128 | 12 | 1,536 coordinates, 66 PEC pairs separated |
-| 256 | 12 | 3,072 coordinates, 786,420 WH bounds, 66 PEC pairs separated |
-| 512 | 24 | 6 maximal and 18 standard; 15 + 153 within-order and 108 cross-order PEC pairs separated |
-| 1024 maximal | 10 | 10,485,750 WH bounds below 2^-100 at 2210 bits; 45 PEC pairs separated |
-
-Recorded field meanings remain distinct: `strict_deviation_bound 2^-100` is a numerical WH bound
-over `d^2-1` nonidentity labels; `reference_mode raw-intersection` and reference-intersection counts
-indicate overlapping raw reference decodes, not exact-point containment; `PEC_INEQUIVALENT
-separating_moment=K` records disjoint K-th invariant-moment enclosures. `basis` and `scope` fields
-retain the premises and the bound’s limits. A metadata status string cannot replace a root-bound
-proof. At d512 cross-order all 108 pairs separated at moment 1.
-
-Textual format, algorithm and checkpoint identities use `sic-<name>/1.0` or
-`sicx-<name>/1.0`. Readers require the identities in the
-[identity registry](sicx.md#identity-registry). Fixed-width binary signatures
-and record tags retain their specified widths; the header carries the container version.
+Textual format, algorithm and checkpoint identities use `sic-<name>/1.0` or `sicx-<name>/1.0`.
+Readers require the identities in the [identity registry](sicx.md#identity-registry). Fixed-width
+binary signatures and record tags retain their specified widths; the header carries the container
+version.

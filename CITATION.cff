@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software or its data, please cite it using the metadata from this file."
+type: software
+title: "A scalable algorithm for SIC-POVMs"
+abstract: >-
+  Software and data for Weyl–Heisenberg covariant symmetric informationally complete
+  positive operator-valued measures (SIC-POVMs) in power-of-two dimensions: exact construction
+  of Galois multiplets of fiducial vectors, certified evaluation and verification, and the
+  fiducial vectors in the dimensions 2 to 2048 as floating-point and exact data.
+authors:
+  - family-names: "Yamasaki"
+    given-names: "Hayata"
+version: "1.0.0"
+repository-code: "https://github.com/Hayata-Yamasaki-Group/sic-povm"
+license: AGPL-3.0-or-later
+keywords:
+  - "SIC-POVM"
+  - "Weyl–Heisenberg group"
+  - "equiangular lines"
+  - "fiducial vectors"
+  - "exact computation"
+  - "certified numerics"

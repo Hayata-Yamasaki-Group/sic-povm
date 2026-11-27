@@ -14,12 +14,29 @@ const cmakeSourceData = /\$\{(?:CMAKE_(?:CURRENT_)?SOURCE_DIR|CMAKE_CURRENT_LIST
 const shellInput = /(?:^\s*|[;&|]\s*|\$\(\s*|\b(?:if|then|do)\s+)(?:cat|head|tail|jq|awk|sed|grep|cut|sha256sum)\s+[^\n;|]*?(?<!\S)["']?(?:\.\/)?(?:catalogue\.json|stabilizers\.txt)["']?(?=\s|[)>&;|]|$)|(?<![<])<\s*(?![<&])["']?(?:\.\/)?(?:catalogue\.json|stabilizers\.txt)["']?(?=\s|[);]|$)/m;
 const shellSourceData = /(?:^|[\s="'<])((?:(?:\.\/)?data|\$(?:\{(?:REPO|SIC_REPO_ROOT|SOURCE_DIR)\}|REPO|SIC_REPO_ROOT|SOURCE_DIR)\/data)\/[^\s"'<>;|()]+)/gm;
 
-function rejectBundle(file, source) {
+// A release tree carries data/catalogue.json. Its documentation may then name the released
+// files and folders explicitly; production code and scripts still take every data input explicitly.
+let released = null;
+function releasedMembers(root) {
+  const members = new Set(['']);
+  const visit = (dir, prefix) => {
+    for (const entry of fs.readdirSync(dir, {withFileTypes: true})) {
+      const name = prefix + entry.name;
+      members.add(name);
+      if (entry.isDirectory()) visit(path.join(dir, entry.name), name + '/');
+    }
+  };
+  visit(path.join(root, 'data'), '');
+  return members;
+}
+
+function rejectBundle(file, source, documentation = false) {
   for (const match of source.matchAll(bundledPath)) {
     const prefix = source.slice(0, match.index).replace(/\/$/, '');
     const member = match[1]?.replace(/\/$/, '') ?? '';
     // Build output roots are independent of the source tree.
     if (/(?:^|\/)(?:build|\x24\{CMAKE_BINARY_DIR\})$/.test(prefix)) continue;
+    if (documentation && released?.has(member)) continue;
     assert(exception.test(member), `explicit data inputs: ${file}: ${match[0].trim()}`);
   }
 }
@@ -43,28 +60,35 @@ function checkCMake(file, text) {
   }
 }
 
-function checkShell(file, text) {
+function checkShell(file, text, documentation = false) {
   const commands = text.replace(/\\\n/g, ' ').replace(/^\s*#.*$/gm, '');
   assert(!shellInput.test(commands), `explicit data inputs: ${file}: implicit shell input`);
-  for (const match of commands.matchAll(shellSourceData)) rejectBundle(file, match[1]);
+  for (const match of commands.matchAll(shellSourceData)) rejectBundle(file, match[1], documentation);
 }
 
 function checkDocs(file, text) {
   function checkCommands(commands) {
-    checkShell(file, commands);
+    checkShell(file, commands, true);
     checkCMake(file, commands);
-    assert(!/(?:--data-root|\bcd|-DSIC_DATA_ROOT)[=\s]+["']?(?:\.\/)?data(?=["'\s]|$)/m.test(commands),
-      `explicit data inputs: ${file}: implicit source data root`);
+    // A release tree may name its data folder explicitly as a fetch root or working folder;
+    // a relative CMake cache path stays ambiguous and is always rejected.
+    const root = released ? /-DSIC_DATA_ROOT(?::[A-Z]+)?[=\s]+["']?(?:\.\/)?data(?=["'\s]|$)/m
+      : /(?:--data-root|\bcd|-DSIC_DATA_ROOT(?::[A-Z]+)?)[=\s]+["']?(?:\.\/)?data(?=["'\s]|$)/m;
+    assert(!root.test(commands), `explicit data inputs: ${file}: implicit source data root`);
+    assert(!/--catalogue[=\s]+["']?(?:\.\/)?(?:catalogue\.json|stabilizers\.txt)(?=["'\s]|$)/m.test(commands),
+      `explicit data inputs: ${file}: implicit catalogue`);
     for (const token of commands.match(/[^\s"'`=<>;|()]+/g) ?? [])
-      if (token.includes('/')) rejectBundle(file, token);
+      if (token.includes('/')) rejectBundle(file, token, true);
   }
   for (const block of text.matchAll(/^\s*```([^\n]*)\n([\s\S]*?)^\s*```\s*$/gm)) {
-    if (/^(?:text|json|cpp)?$/.test(block[1].trim()) && !/^\s*(?:sic-[\w-]+ |cmake |(?:cd |.*(?:open\(|load\(|read\()).*\bdata\/)/m.test(block[2])) continue;
+    if (/^(?:text|json|cpp)?$/.test(block[1].trim()) &&
+        !/^\s*(?:sic-[\w-]+ |cmake |(?:cat|head|tail|jq|awk|sed|grep|cut|sha256sum|shasum) |(?:cd |.*(?:open\(|load\(|read\()).*\bdata\/)/m.test(block[2])) continue;
     // Token boundaries include quotes and shell assignments. The path suffix is checked
     // before normalizing relative and interpolated prefixes.
     checkCommands(block[2]);
   }
-  for (const indented of text.matchAll(/^ {4}(?:sic-[\w-]+ |cmake |cd ).+$/gm)) checkCommands(indented[0]);
+  for (const indented of text.matchAll(/^ {4}(?:sic-[\w-]+ |cmake |cd |(?:cat|head|tail|jq|awk|sed|grep|cut|sha256sum|shasum) ).+$/gm))
+    checkCommands(indented[0]);
 }
 
 function walk(dir, allowMissing = false) {
@@ -83,6 +107,7 @@ function walk(dir, allowMissing = false) {
 }
 const root = path.resolve(process.argv[2]);
 process.chdir(root);
+const releaseTree = fs.existsSync(path.join(root, 'data', 'catalogue.json'));
 for (const dir of ['cpp/apps', 'cpp/src', 'cpp/include', 'cpp/checkers', 'cpp/cmake/components', 'scripts/data']) {
   for (const file of walk(dir).filter(p => /\.(?:cpp|hpp|h|cc|gp|mjs|cmake|sh)$|\/CMakeLists\.txt$/.test(p))) {
     if (file.endsWith('/json_inputs.mjs')) continue; // Checker-owned synthetic test.
@@ -97,6 +122,7 @@ checkCMake('cpp/CMakeLists.txt', fs.readFileSync('cpp/CMakeLists.txt', 'utf8'));
 const exported = fs.statSync('cpp/SOURCE_COMMIT', {throwIfNoEntry: false})?.isFile();
 for (const file of walk('private/scripts/release', exported).filter(file => file.endsWith('.sh')))
   checkShell(file, fs.readFileSync(file, 'utf8'));
+if (releaseTree) released = releasedMembers(root);
 for (const file of ['README.md', 'CONTRIBUTING.md', ...walk('docs').filter(p => p.endsWith('.md'))])
   checkDocs(file, fs.readFileSync(file, 'utf8'));
 
@@ -116,10 +142,26 @@ for (const [check, file, content] of [
   [checkShell, 'scripts/data/default.sh', '  cat catalogue.json'],
   [checkShell, 'scripts/data/default.sh', 'read -r contents < catalogue.json'],
   [checkShell, 'scripts/data/default.sh', 'table=$(cat "$REPO/data/d8/stabilizers.txt")'],
-  [checkDocs, 'docs/example.md', '```sh\nsic-container fetch d8/m1 --data-root data\n```'],
-  [checkDocs, 'docs/example.md', '```python\nread("./data/d4/m1/c0.csv")\n```'],
-  [checkDocs, 'docs/example.md', '    cmake -S cpp -B build -DSIC_DATA_ROOT=data'],
+  [checkDocs, 'docs/example.md', '```\ncat catalogue.json\n```'],
+  [checkDocs, 'docs/example.md', '    cat catalogue.json'],
+  [checkDocs, 'docs/example.md', '```sh\nsic-identify ray.csv --catalogue catalogue.json\n```'],
+  [checkDocs, 'docs/example.md', '    cmake -S cpp -B build -DSIC_DATA_ROOT:PATH=data'],
+  ...(releaseTree ? [
+    [checkDocs, 'docs/example.md', '```python\nread("./data/d4/m9/c0.csv")\n```'],
+    [checkDocs, 'docs/example.md', '```sh\nsic-container fetch d8/m1 --data-root data/d3\n```'],
+    [checkDocs, 'docs/example.md', '```sh\ncat catalogue.json\n```'],
+    [checkDocs, 'docs/example.md', '```sh\njq . stabilizers.txt\n```'],
+    [checkDocs, 'docs/example.md', '    cmake -S cpp -B build -DSIC_DATA_ROOT=data'],
+  ] : [
+    [checkDocs, 'docs/example.md', '```sh\nsic-container fetch d8/m1 --data-root data\n```'],
+    [checkDocs, 'docs/example.md', '```python\nread("./data/d4/m1/c0.csv")\n```'],
+    [checkDocs, 'docs/example.md', '    cmake -S cpp -B build -DSIC_DATA_ROOT=data'],
+  ]),
 ]) assert.throws(() => check(file, content), /explicit data inputs:/);
+if (releaseTree) {
+  checkDocs('docs/example.md', '```python\nread("./data/d4/m1/c0.csv")\n```');
+  checkDocs('docs/example.md', '```sh\nsic-container fetch d8/m1 --data-root data\n(cd data && sha256sum -c sha256sums.txt)\n```');
+}
 checkSource('cpp/apps/example.cpp', 'read("data/d8/hoggar/exact.json"); read("data/d2/d2.sicrad");');
 checkShell('scripts/data/example.sh', 'jq . "$release/catalogue.json"');
 checkDocs('docs/example.md', '```sh\nsic-identify "$ray" --catalogue "$RELEASE_TREE/catalogue.json"\n```');

@@ -41,6 +41,8 @@ export function recipes(build,work) {
   for(const id of Object.keys(bindings))assert.equal(blocks.filter(b=>b.id===id).length,1,`shell: missing/duplicate binding ${id}`);
   fs.rmSync(work,{recursive:true,force:true});fs.mkdirSync(work,{recursive:true});
   const env={...process.env,PATH:[build,...['verifier','norm','crt','stabilizer'].map(n=>path.join(build,'checkers',n)),process.env.PATH].join(path.delimiter),T:'1',M:'2048',SIC_THREADS:'1',SIC_MEMORY_MB:'2048'};
+  // The recipes document their own defaults; an inherited selector would change what they exercise.
+  delete env.READER_MODE;
   const results=[];
   function execute(block,binding,cwd) {
     let body=block.body;

@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # path|rule|SHA-256 of the complete line (without newline)|reviewed reason
 cpp/checkers/norm/src/certificate/embeddings.hpp|2|0424700bf210e1b9c01a7ef6620d5133a02a24a86d5cbcb75063652815103f2e|Numbered mathematical procedure
-docs/data.md|4|40e2b9e20b5d2ae954029c2c9035c8b871523f9b8a36a8e1028f5cc08c0bec30|Ordering within a mathematical or upload procedure
 docs/sicx.md|2|dc4117ffa7623014cf45ac8e4f7ab40b42389dfff37e8eec5885acfa86625e31|Ordering within a mathematical or upload procedure
 docs/sicx.md|4|237745bb77df636c54ee50aaa0eb8cbf4981e045737d0f9a3361d82c42875bd4|Ordering within a mathematical or upload procedure
 docs/sicx.md|2|73b01b1c6fe1f4fc0067fd281f2fba9f716e8ad4e731b9465941a12ad3dc3928|Ordering within a mathematical or upload procedure
@@ -31,11 +30,9 @@ cpp/include/sic/core/interchange.hpp|7|888963316721aa641c1a0baeb8bf2902638a3e787
 cpp/src/core/io/npz.hpp|7|df94f6d5cdc4912852750edbd66bf28abfb5a9789086728bdac9423d12fb11b0|Normative fixed DOS archive epoch in the NPZ profile.
 cpp/tests/core/interchange.cpp|7|877cc55b67e4220d025ac606305b48465f95dc0b61d5f9c7906631a2d33a416d|Normative fixed DOS archive epoch in the NPZ profile.
 cpp/tests/fixtures/core/d4_sic_from_ghost.txt|7|3fe2fbfa758e1898e9bcb7a6b2281dcb16ac312339d2a5b084d2d1b9f77050d2|Authenticated numerical input provenance; changing the line would alter fixture bytes.
-docs/verification.md|7|1accd949740795d09103f2d1fd7eb49f164701d6007978691e587b90245045f2|Preprint citation date is bibliographic metadata identifying the cited reference.
 LICENSE|7|e40b094e652df9c1b5290c5b491259404d59d0e1c14e34213e75cd0682983754|Frozen AGPL license text and its legal reference dates.
 LICENSE|7|7f163d39823cf5c66447d6a78e08a85fc26696521ea6de1652060e909b32c468|Frozen AGPL license text and its legal reference dates.
 LICENSE|7|af108b15ac7d9e48d947099ba78177f27eb74978c115589ea327d5141861f6cd|Frozen AGPL license text and its legal reference dates.
-scripts/docs/allow_list.txt|7|26d77ae4e1003ffec77417b240739c8ad05d623c312b0e8cd48a73a59ba7ab5e|Exact documentation-lint record mirrors the bibliographic metadata in the preprint citation.
 LICENSE-ODbL|7|1f5e71e94ea8ca7b1264cbdf5e4c2f170bf7fd11bf8813bad1d9b479515094ed|Unmodified ODbL text cites the date of a database directive.
 LICENSE-ODbL|4|cf697d674b3bda1b08047a0115acb49fb78cb077b4886fb2c83dc4195c3f8683|Unmodified ODbL text describes prior license violations.
 LICENSE|8|ed4c96465764887fc773d819f8fe546694d2c4da940f29e927292410d1081933|License text

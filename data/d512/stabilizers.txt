@@ -1,0 +1,102 @@
+# sic-stabilizers/1.0
+# Extended Clifford stabilizers of WH SIC fiducials, D_p = tau^(p1 p2) X^p1 Z^p2, tau = -exp(pi i/d).
+# Element U = D_chi U_F, F = [[a, b], [c, e]] in ESL(2, Z_dbar) (canonical lift, Appleby2005symmetric);
+# det -1: U_F = U_(FJ) K antiunitary. Binary64 computation, see docs/data.md#stab; not an exact proof.
+# catalogue catalogue.json
+ray d512-m1-c0 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.156e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.501e-12 max_element_residual 7.772e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m1-c0 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 7.772e-16
+elem d512-m1-c0 1 det +1 F 511 341 3 0 chi 256 0 order 3 trace 511 zauner z_dev 2.501e-12 residual 5.551e-16
+elem d512-m1-c0 2 det +1 F 0 171 509 511 chi 0 0 order 3 trace 511 zauner z_dev 2.501e-12 residual 5.551e-16
+ray d512-m1-c1 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 8.890e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 1.443e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m1-c1 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 1.443e-15
+elem d512-m1-c1 1 det +1 F 511 127 129 0 chi 256 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 1.221e-15
+elem d512-m1-c1 2 det +1 F 0 385 383 511 chi 0 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 1.332e-15
+ray d512-m1-c2 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 5.204e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.331e-12 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m1-c2 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d512-m1-c2 1 det +1 F 511 253 427 512 chi 0 256 order 3 trace 1023 zauner z_dev 2.331e-12 residual 2.220e-16
+elem d512-m1-c2 2 det +1 F 0 259 597 511 chi 0 256 order 3 trace 511 zauner z_dev 2.331e-12 residual 2.220e-16
+ray d512-m1-c3 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.120e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.046e-12 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m1-c3 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d512-m1-c3 1 det +1 F 511 85 259 512 chi 0 256 order 3 trace 1023 zauner z_dev 2.046e-12 residual 1.110e-16
+elem d512-m1-c3 2 det +1 F 0 427 765 511 chi 0 256 order 3 trace 511 zauner z_dev 2.046e-12 residual 0.000e+00
+ray d512-m1-c4 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.156e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 18 candidate_pairs 6
+elem d512-m1-c4 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d512-m1-c4 1 det +1 F 511 383 385 0 chi 0 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 4.441e-16
+elem d512-m1-c4 2 det +1 F 0 129 127 511 chi 0 256 order 3 trace 511 zauner z_dev 2.274e-12 residual 4.441e-16
+ray d512-m1-c5 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.589e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 8.882e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m1-c5 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 8.882e-16
+elem d512-m1-c5 1 det +1 F 511 509 171 0 chi 0 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 6.661e-16
+elem d512-m1-c5 2 det +1 F 0 3 341 511 chi 0 256 order 3 trace 511 zauner z_dev 2.274e-12 residual 8.882e-16
+ray d512-m2-c0 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.987e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 24 candidate_pairs 6
+elem d512-m2-c0 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d512-m2-c0 1 det +1 F 511 511 1 512 chi 0 256 order 3 trace 1023 zauner z_dev 2.274e-12 residual 1.110e-16
+elem d512-m2-c0 2 det +1 F 0 1 1023 511 chi 0 256 order 3 trace 511 zauner z_dev 2.274e-12 residual 1.110e-16
+ray d512-m2-c1 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.258e-17 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.160e-12 max_element_residual 8.882e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c1 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 6.661e-16
+elem d512-m2-c1 1 det +1 F 511 381 43 0 chi 256 0 order 3 trace 511 zauner z_dev 2.160e-12 residual 6.661e-16
+elem d512-m2-c1 2 det +1 F 0 131 469 511 chi 0 0 order 3 trace 511 zauner z_dev 2.160e-12 residual 8.882e-16
+ray d512-m2-c2 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.770e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c2 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d512-m2-c2 1 det +1 F 511 247 313 512 chi 256 256 order 3 trace 1023 zauner z_dev 2.274e-12 residual 2.220e-16
+elem d512-m2-c2 2 det +1 F 0 265 711 511 chi 0 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 3.331e-16
+ray d512-m2-c3 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 1.258e-17 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c3 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d512-m2-c3 1 det +1 F 511 101 147 512 chi 256 256 order 3 trace 1023 zauner z_dev 2.274e-12 residual 2.220e-16
+elem d512-m2-c3 2 det +1 F 0 411 877 511 chi 0 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 2.220e-16
+ray d512-m2-c4 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.156e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 8.882e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c4 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 8.882e-16
+elem d512-m2-c4 1 det +1 F 511 431 177 512 chi 256 256 order 3 trace 1023 zauner z_dev 2.274e-12 residual 6.661e-16
+elem d512-m2-c4 2 det +1 F 0 81 847 511 chi 0 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 6.661e-16
+ray d512-m2-c5 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.589e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.231e-12 max_element_residual 3.331e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c5 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 3.331e-16
+elem d512-m2-c5 1 det +1 F 511 141 443 0 chi 0 0 order 3 trace 511 zauner z_dev 2.231e-12 residual 1.110e-16
+elem d512-m2-c5 2 det +1 F 0 371 69 511 chi 0 256 order 3 trace 511 zauner z_dev 2.231e-12 residual 3.331e-16
+ray d512-m2-c6 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.589e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c6 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d512-m2-c6 1 det +1 F 511 39 105 0 chi 256 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 4.441e-16
+elem d512-m2-c6 2 det +1 F 0 473 407 511 chi 0 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 4.441e-16
+ray d512-m2-c7 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 9.107e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 1.110e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c7 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 8.882e-16
+elem d512-m2-c7 1 det +1 F 511 501 419 0 chi 256 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 1.110e-15
+elem d512-m2-c7 2 det +1 F 0 11 93 511 chi 0 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 1.110e-15
+ray d512-m2-c8 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.156e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.160e-12 max_element_residual 0.000e+00 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c8 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 0.000e+00
+elem d512-m2-c8 1 det +1 F 511 95 97 0 chi 0 0 order 3 trace 511 zauner z_dev 2.160e-12 residual 0.000e+00
+elem d512-m2-c8 2 det +1 F 0 417 415 511 chi 0 256 order 3 trace 511 zauner z_dev 2.160e-12 residual 0.000e+00
+ray d512-m2-c9 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.337e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 2.220e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c9 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d512-m2-c9 1 det +1 F 511 255 257 0 chi 256 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 1.110e-16
+elem d512-m2-c9 2 det +1 F 0 257 255 511 chi 0 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 1.110e-16
+ray d512-m2-c10 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 5.855e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c10 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 6.661e-16
+elem d512-m2-c10 1 det +1 F 511 125 299 512 chi 256 256 order 3 trace 1023 zauner z_dev 2.274e-12 residual 5.551e-16
+elem d512-m2-c10 2 det +1 F 0 387 725 511 chi 0 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 5.551e-16
+ray d512-m2-c11 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.589e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.160e-12 max_element_residual 4.441e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c11 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 2.220e-16
+elem d512-m2-c11 1 det +1 F 511 503 57 0 chi 256 0 order 3 trace 511 zauner z_dev 2.160e-12 residual 4.441e-16
+elem d512-m2-c11 2 det +1 F 0 9 455 511 chi 0 0 order 3 trace 511 zauner z_dev 2.160e-12 residual 4.441e-16
+ray d512-m2-c12 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 6.939e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c12 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d512-m2-c12 1 det +1 F 511 357 403 512 chi 0 256 order 3 trace 1023 zauner z_dev 2.274e-12 residual 6.661e-16
+elem d512-m2-c12 2 det +1 F 0 155 621 511 chi 0 256 order 3 trace 511 zauner z_dev 2.274e-12 residual 4.441e-16
+ray d512-m2-c13 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 4.770e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.103e-12 max_element_residual 3.331e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c13 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 3.331e-16
+elem d512-m2-c13 1 det +1 F 511 175 433 0 chi 0 0 order 3 trace 511 zauner z_dev 2.103e-12 residual 3.331e-16
+elem d512-m2-c13 2 det +1 F 0 337 79 511 chi 0 256 order 3 trace 511 zauner z_dev 2.103e-12 residual 2.220e-16
+ray d512-m2-c14 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.589e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.188e-12 max_element_residual 8.882e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c14 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d512-m2-c14 1 det +1 F 511 397 187 512 chi 256 256 order 3 trace 1023 zauner z_dev 2.188e-12 residual 6.661e-16
+elem d512-m2-c14 2 det +1 F 0 115 837 511 chi 0 0 order 3 trace 511 zauner z_dev 2.188e-12 residual 8.882e-16
+ray d512-m2-c15 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 5.204e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.217e-12 max_element_residual 5.551e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c15 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d512-m2-c15 1 det +1 F 511 295 361 0 chi 256 0 order 3 trace 511 zauner z_dev 2.217e-12 residual 5.551e-16
+elem d512-m2-c15 2 det +1 F 0 217 151 511 chi 0 0 order 3 trace 511 zauner z_dev 2.217e-12 residual 4.441e-16
+ray d512-m2-c16 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 8.674e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.245e-12 max_element_residual 1.110e-15 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c16 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 8.882e-16
+elem d512-m2-c16 1 det +1 F 511 245 163 0 chi 256 0 order 3 trace 511 zauner z_dev 2.245e-12 residual 1.110e-15
+elem d512-m2-c16 2 det +1 F 0 267 349 511 chi 0 0 order 3 trace 511 zauner z_dev 2.245e-12 residual 1.110e-15
+ray d512-m2-c17 d 512 order unspecified status unspecified group_order 3 unitary_order 3 closed yes exhaustive yes max_overlap_error 7.156e-18 z_tol 1.0e-06 z_error_bound 1.644e-09 max_element_z_deviation 2.274e-12 max_element_residual 6.661e-16 min_rejected_z_deviation 2.000e+00 min_rejected_residual -1.000e+00 level_set_sizes 12 candidate_pairs 6
+elem d512-m2-c17 0 det +1 F 1 0 0 1 chi 0 0 order 1 trace 2 z_dev 0.000e+00 residual 4.441e-16
+elem d512-m2-c17 1 det +1 F 511 351 353 0 chi 0 0 order 3 trace 511 zauner z_dev 2.274e-12 residual 6.661e-16
+elem d512-m2-c17 2 det +1 F 0 161 159 511 chi 0 256 order 3 trace 511 zauner z_dev 2.274e-12 residual 4.441e-16
+end 24

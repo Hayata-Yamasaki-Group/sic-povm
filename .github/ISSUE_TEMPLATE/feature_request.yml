@@ -20,4 +20,4 @@ body:
     id: alternatives
     attributes:
       label: Alternatives and context
-      description: Include workarounds, relevant docs, examples or references. Distinguish research goals from established guarantees.
+      description: Include workarounds, relevant docs, examples or references. Distinguish the requested behavior from the documented guarantees.
