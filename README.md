@@ -2,28 +2,28 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24599009.svg)](https://doi.org/10.5281/zenodo.24599009)
 
-This repository provides software and data for Weyl–Heisenberg covariant symmetric informationally
-complete positive operator-valued measures (SIC-POVMs) in power-of-two dimensions `d = 2^s`.
+This repository provides software implementing a scalable algorithm for symmetric informationally
+complete positive operator-valued measures (SIC-POVMs) in power-of-two dimensions `d = 2^s`, and
+data in these dimensions.
 
-- **Floating-point data.** The 174 Weyl–Heisenberg fiducial vectors in the dimensions
+- **Floating-point data.** The 174 fiducial vectors of Weyl–Heisenberg SIC-POVMs in the dimensions
   `d = 2, 4, 8, …, 2048`, and the Hoggar lines in dimension 8, are in the folder [`data/`](data/)
-  of this repository in every format other than SICX: correctly rounded binary64 and binary32
-  coordinates with certified decimal enclosures as JSON, and the binary64 coordinates as CSV, NumPy
-  (`.npy`, and `.npz` with all fiducial vectors of a dimension), MATLAB (`.mat`) and HDF5 (`.h5`)
-  files. They can be used directly after
-  `git clone https://github.com/Hayata-Yamasaki-Group/sic-povm` by reading these files; the
-  [data guide](docs/data.md#1-the-data-tree-and-cataloguejson) describes the layout.
+  of this repository: correctly rounded binary64 and binary32 coordinates with certified decimal
+  enclosures as JSON, and the binary64 coordinates as CSV, NumPy (`.npy`, and `.npz` with all
+  fiducial vectors of a dimension), MATLAB (`.mat`) and HDF5 (`.h5`) files. They can be used
+  directly after `git clone https://github.com/Hayata-Yamasaki-Group/sic-povm` by reading these
+  files; the [data guide](docs/data.md#1-the-data-tree-and-cataloguejson) describes the layout.
 - **Exact construction.** The producer computes an exact algebraic presentation of a Galois
   multiplet of Weyl–Heisenberg fiducial vectors for each dimension `d = 2^s ≤ 2048` and each real
   quadratic order that it supports; [below](#contents) states the status of the SIC-POVM property in
   each dimension.
-- **Certified evaluation.** The decoder evaluates the exact data to certified complex ball
-  enclosures at a requested accuracy, within its precision and resource limits.
-- **Verification.** Separate checkers verify the integrity of the exact files, certified bounds on
-  the SIC-POVM overlap conditions, the exact SIC-POVM property and the symmetry groups of the
+- **Certified evaluation.** The decoder evaluates the exact data to certified numerical data at a
+  requested accuracy, within its precision and resource limits.
+- **Verification.** Checkers verify the integrity of the exact data, certified bounds on the
+  SIC-POVM overlap conditions, the exact SIC-POVM property and the symmetry groups of the
   fiducial vectors.
-- **Exact data in the SICX format.** The exact data of each multiplet are one file in the
-  standardized SICX 1.0 format, attached as assets to the GitHub Release `v1.0.0`; the
+- **Exact data in the SICX format.** The exact data of each multiplet are one file in the SICX 1.0
+  format ([specification](docs/sicx.md)), attached as assets to the GitHub Release `v1.0.0`; the
   [data guide](docs/data.md#transport-getting-the-exact-data) describes how to obtain and check
   them.
 
@@ -220,6 +220,15 @@ scripts/           documentation and repository policy checks; exact-data downlo
 | [Test fixtures](cpp/tests/fixtures/README.md) | purpose and provenance of the test inputs |
 | [Contributing](CONTRIBUTING.md) | development rules, test selection and documentation checks |
 | [Changelog](CHANGELOG.md) | release notes |
+
+## Citation
+
+If you use this software or its data, please cite it as
+
+> Hayata Yamasaki, *A scalable algorithm for SIC-POVMs*, version 1.0.0 (2026),
+> Zenodo, https://doi.org/10.5281/zenodo.24599010.
+
+GitHub's "Cite this repository" gives the same reference in other formats.
 
 ## Acknowledgements
 
