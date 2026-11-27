@@ -1,5 +1,7 @@
 # A scalable algorithm for SIC-POVMs
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24599009.svg)](https://doi.org/10.5281/zenodo.24599009)
+
 This repository provides software and data for Weyl–Heisenberg covariant symmetric informationally
 complete positive operator-valued measures (SIC-POVMs) in power-of-two dimensions `d = 2^s`.
 
@@ -30,7 +32,10 @@ complete positive operator-valued measures (SIC-POVMs) in power-of-two dimension
 The data of version 1.0.0 are the numerical files in the folder [`data/`](data/) of the tag `v1.0.0`
 and the exact files attached to the
 [GitHub Release `v1.0.0`](https://github.com/Hayata-Yamasaki-Group/sic-povm/releases/tag/v1.0.0).
-Obtain the numerical files with
+The source and the numerical files of version 1.0.0, without the exact files, are archived on
+Zenodo under the DOI [10.5281/zenodo.24599010](https://doi.org/10.5281/zenodo.24599010); the DOI
+[10.5281/zenodo.24599009](https://doi.org/10.5281/zenodo.24599009) refers to all versions and
+resolves to the latest one. Obtain the numerical files with
 `git clone --depth 1 --branch v1.0.0 https://github.com/Hayata-Yamasaki-Group/sic-povm.git` or from
 the source archive of the release; the commands below run in the top folder of that copy.
 

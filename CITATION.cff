@@ -12,6 +12,11 @@ authors:
     given-names: "Hayata"
 version: "1.0.0"
 date-released: "2026-11-28"
+doi: "10.5281/zenodo.24599010"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.24599009"
+    description: "All versions of the software and data on Zenodo (resolves to the latest version)."
 repository-code: "https://github.com/Hayata-Yamasaki-Group/sic-povm"
 license: AGPL-3.0-or-later
 keywords:

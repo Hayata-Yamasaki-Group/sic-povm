@@ -30,6 +30,7 @@ cpp/include/sic/core/interchange.hpp|7|888963316721aa641c1a0baeb8bf2902638a3e787
 cpp/src/core/io/npz.hpp|7|df94f6d5cdc4912852750edbd66bf28abfb5a9789086728bdac9423d12fb11b0|Normative fixed DOS archive epoch in the NPZ profile.
 cpp/tests/core/interchange.cpp|7|877cc55b67e4220d025ac606305b48465f95dc0b61d5f9c7906631a2d33a416d|Normative fixed DOS archive epoch in the NPZ profile.
 cpp/tests/fixtures/core/d4_sic_from_ghost.txt|7|3fe2fbfa758e1898e9bcb7a6b2281dcb16ac312339d2a5b084d2d1b9f77050d2|Authenticated numerical input provenance; changing the line would alter fixture bytes.
+CITATION.cff|7|5723211db5dc0970833c55cbf687c44a732ec406bd45924c3ace647eb16686d2|Release date of the cited version (CFF date-released).
 LICENSE|7|e40b094e652df9c1b5290c5b491259404d59d0e1c14e34213e75cd0682983754|Frozen AGPL license text and its legal reference dates.
 LICENSE|7|7f163d39823cf5c66447d6a78e08a85fc26696521ea6de1652060e909b32c468|Frozen AGPL license text and its legal reference dates.
 LICENSE|7|af108b15ac7d9e48d947099ba78177f27eb74978c115589ea327d5141861f6cd|Frozen AGPL license text and its legal reference dates.
