@@ -11,6 +11,7 @@ authors:
   - family-names: "Yamasaki"
     given-names: "Hayata"
 version: "1.0.0"
+date-released: "2026-11-28"
 repository-code: "https://github.com/Hayata-Yamasaki-Group/sic-povm"
 license: AGPL-3.0-or-later
 keywords:
