@@ -568,11 +568,11 @@ server whose data you are checking:
 
 <!-- shell:template -->
 ```sh
-sic-container fetch d8/m1 --data-root data --out downloaded
-sic-container repair d8/m1 --data-root data --out downloaded
-sic-verify --remote data/d8/m1/multiplet.sicx.parts.json --quick \
-  --expect-exact-root 24a5215393dc338c412c2ce9645e93d3985fea868b624e85e63c1a4db7f9e463 \
-  --expect-root 8b94ce7555bc79d53e1d17a4957e9b93ac2f510372e12155ea50d826ab16157f
+sic-container fetch d256/m1 --data-root data --out downloaded
+sic-container repair d256/m1 --data-root data --out downloaded
+sic-verify --remote data/d256/m1/multiplet.sicx.parts.json --quick \
+  --expect-exact-root bb20c2bcaaffc0818709be72be713c6371be9a3f8f28ecbc61099c9348846bdd \
+  --expect-root ab93b7de43486be2aca90e2b639e8d4f99ddc8a111691f2a752cac2bb7506191
 ```
 
 Fetch and repair verify each complete part and the whole file before atomic publication. The
