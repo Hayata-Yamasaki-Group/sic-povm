@@ -32,12 +32,11 @@ data in these dimensions.
 The data of version 1.0.0 are the numerical files in the folder [`data/`](data/) of the tag `v1.0.0`
 and the exact files attached to the
 [GitHub Release `v1.0.0`](https://github.com/Hayata-Yamasaki-Group/sic-povm/releases/tag/v1.0.0).
-The source and the numerical files of version 1.0.0, without the exact files, are archived on
-Zenodo under the DOI [10.5281/zenodo.24599010](https://doi.org/10.5281/zenodo.24599010); the DOI
-[10.5281/zenodo.24599009](https://doi.org/10.5281/zenodo.24599009) refers to all versions and
-resolves to the latest one. Obtain the numerical files with
-`git clone --depth 1 --branch v1.0.0 https://github.com/Hayata-Yamasaki-Group/sic-povm.git` or from
-the source archive of the release; the commands below run in the top folder of that copy.
+Obtain the numerical files with
+`git clone --depth 1 --branch v1.0.0 https://github.com/Hayata-Yamasaki-Group/sic-povm.git`, from
+the source archive of the release or from its
+[Zenodo archive](https://doi.org/10.5281/zenodo.24599010); the commands below run in the top folder
+of that copy.
 
 ### Contents
 
@@ -228,7 +227,10 @@ If you use this software or its data, please cite it as
 > Hayata Yamasaki, *A scalable algorithm for SIC-POVMs*, version 1.0.0 (2026),
 > Zenodo, https://doi.org/10.5281/zenodo.24599010.
 
-GitHub's "Cite this repository" gives the same reference in other formats.
+The Zenodo record holds the source and the numerical files of version 1.0.0, without the exact
+files; the DOI [10.5281/zenodo.24599009](https://doi.org/10.5281/zenodo.24599009) refers to all
+versions and resolves to the latest one. GitHub's "Cite this repository" gives the same reference
+in other formats.
 
 ## Acknowledgements
 
